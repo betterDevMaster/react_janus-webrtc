@@ -1,9 +1,9 @@
 import React from "react"
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom"
-import demosPage from "./Containers/demosPage"
-import videoRoomPage from "./Containers/videoRoomPage"
-import videoCallPage from "./Containers/videoCallPage"
-import screenSharePage from "./Containers/screenSharePage"
+import demosPage from "./containers/demosPage"
+import videoRoomPage from "./containers/videoRoomPage"
+import videoCallPage from "./containers/videoCallPage"
+import screenSharePage from "./containers/screenSharePage"
 
 function App() {
     return (

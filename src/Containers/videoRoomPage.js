@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react"
 import { useSelector, useDispatch } from "react-redux"
-import Header from "../Widget/header"
-// import Banner from "../Components/Widget/HomeWidget/Banner"
-// import ItemSec from "../Components/Widget/HomeWidget/ItemSec"
-import Footer from "../Widget/footer"
+import Header from "../widget/header"
+// import Banner from "../Components/w/Homew/Banner"
+// import ItemSec from "../Components/w/Homew/ItemSec"
+import Footer from "../widget/footer"
 // import * as ActionTypes from "../Store/Action/ActionTypes"
 
 export default function videoRoomPage(props) {

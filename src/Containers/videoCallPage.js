@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react"
 import { useSelector, useDispatch } from "react-redux"
-import Header from "../Widget/header"
+import Header from "../widget/header"
 // import Banner from "../Components/Widget/HomeWidget/Banner"
 // import ItemSec from "../Components/Widget/HomeWidget/ItemSec"
-import Footer from "../Widget/footer"
-import WebRTC from "../WebRTC"
+import Footer from "../widget/footer"
+import WebRTC from "../webRTC"
 
 export default function VideoCallPage(props) {
     useEffect(() => {

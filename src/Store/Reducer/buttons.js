@@ -1,3 +1,5 @@
+import {CLICK_CAMERA, CLICK_CHAT, CLICK_FULLSCREEN, CLICK_MIC, CLICK_SCREEN_SHARING} from './../constraint/constraint';
+
 const buttons = (
     state = {
         chat: "on",
@@ -9,27 +11,27 @@ const buttons = (
     action
 ) => {
     switch (action.type) {
-        case "click_chat":
+        case CLICK_CHAT:
             return {
                 ...state,
                 chat: action.value,
             }
-        case "click_camera":
+        case CLICK_CAMERA:
             return {
                 ...state,
                 camera: action.value,
             }
-        case "click_fullscreen":
+        case CLICK_FULLSCREEN:
             return {
                 ...state,
                 fullscreen: action.value,
             }
-        case "click_mic":
+        case CLICK_MIC:
             return {
                 ...state,
                 mic: action.value,
             }
-        case "click_screenshare":
+        case CLICK_SCREEN_SHARING:
             return {
                 ...state,
                 screenshare: action.value,
