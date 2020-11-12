@@ -9,7 +9,13 @@ import WebRTC from "../WebRTC"
 export default function VideoCallPage(props) {
     useEffect(() => {
         WebRTC.getInstance().startServer()
+        WebRTC.getInstance().addEventListener("onConnect", onConnect)
     }, [])
+
+    const onConnect = () => {
+        console.log("WebRTC connected.")
+    }
+
     return (
         <div>
             <a href="https://github.com/meetecho/janus-gateway">
@@ -40,6 +46,7 @@ export default function VideoCallPage(props) {
                                     className="btn btn-default"
                                     autoComplete="off"
                                     id="start"
+                                    // onClick={WebRTC.getInstance().videoCall()}
                                 >
                                     Start
                                 </button>

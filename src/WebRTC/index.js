@@ -1,4 +1,5 @@
-import $ from "jquery"
+// import $ from "jquery"
+import * as $ from "jquery"
 
 class WebRTC {
     static _instance = null
@@ -22,6 +23,8 @@ class WebRTC {
     doSimulcast2 = false
     simulcastStarted = false
 
+    eventListners = {}
+
     static getInstance() {
         if (WebRTC._instance === null) {
             WebRTC._instance = new WebRTC()
@@ -33,20 +36,31 @@ class WebRTC {
         console.log("WebRTC class was initialized.")
     }
 
+    addEventListener(name, type, callback) {
+        this.eventListners[name] = { type, callback }
+    }
+    removeEventListener(name) {
+        delete this.eventListners[name]
+    }
+    onConnect() {
+        for (let call in this.eventListners) {
+            if (call.type === "onConnect") {
+                console.log("onConncect callback: --------- ", call)
+                call.callback()
+            }
+        }
+    }
+    onDisconnect() {}
     async startServer() {
-        this.opaqueId = "videocalltest-" + window.Janus.randomString(12)
-        this.doSimulcast =
-            this.getQueryStringValue("simulcast") === "yes" ||
-            this.getQueryStringValue("simulcast") === "true"
-        this.doSimulcast2 =
-            this.getQueryStringValue("simulcast2") === "yes" ||
-            this.getQueryStringValue("simulcast2") === "true"
-        console.log(
-            "opaqueId: ---------- ",
-            this.opaqueId,
-            this.doSimulcast,
-            this.doSimulcast2
-        )
+        WebRTC.getInstance().opaqueId =
+            "videocalltest-" + window.Janus.randomString(12)
+        WebRTC.getInstance().doSimulcast =
+            WebRTC.getInstance().getQueryStringValue("simulcast") === "yes" ||
+            WebRTC.getInstance().getQueryStringValue("simulcast") === "true"
+        WebRTC.getInstance().doSimulcast2 =
+            WebRTC.getInstance().getQueryStringValue("simulcast2") === "yes" ||
+            WebRTC.getInstance().getQueryStringValue("simulcast2") === "true"
+
         window.Janus.init({
             debug: true,
             callback: function () {
@@ -113,11 +127,16 @@ class WebRTC {
                                             (on ? "on" : "off") +
                                             " now"
                                     )
+                                    console.log(
+                                        "consentDialog: ---------- ",
+                                        on
+                                    )
+
                                     if (on) {
                                         // Darken screen and show hint
                                         window.$.blockUI({
                                             message:
-                                                '<div><img src="up_arrow.png"/></div>',
+                                                '<div><img src="img/up_arrow.png"/></div>',
                                             css: {
                                                 border: "none",
                                                 padding: "15px",
@@ -135,11 +154,17 @@ class WebRTC {
                                     }
                                 },
                                 iceState: function (state) {
+                                    console.log("iceState: ---------- ", state)
                                     window.Janus.log(
                                         "ICE state changed to " + state
                                     )
                                 },
                                 mediaState: function (medium, on) {
+                                    console.log(
+                                        "mediaState: ---------- ",
+                                        medium,
+                                        on
+                                    )
                                     window.Janus.log(
                                         "Janus " +
                                             (on ? "started" : "stopped") +
@@ -148,17 +173,24 @@ class WebRTC {
                                     )
                                 },
                                 webrtcState: function (on) {
+                                    console.log("webrtcState: ---------- ", on)
                                     window.Janus.log(
                                         "Janus says our WebRTC PeerConnection is " +
                                             (on ? "up" : "down") +
                                             " now"
                                     )
-                                    $("#videoleft").parent().unblock()
+                                    window.$.unblockUI()
+                                    // $("#videoleft").parent().unblock()
                                 },
                                 onmessage: function (msg, jsep) {
                                     window.Janus.debug(
                                         " ::: Got a message :::",
                                         msg
+                                    )
+                                    console.log(
+                                        "onmessage: ---------- ",
+                                        msg,
+                                        jsep
                                     )
                                     var result = msg["result"]
                                     if (result) {
@@ -576,23 +608,21 @@ class WebRTC {
                                             .webrtcStuff.pc
                                             .iceConnectionState !== "connected"
                                     ) {
-                                        $("#videoleft")
-                                            .parent()
-                                            .block({
-                                                message: "<b>Publishing...</b>",
-                                                css: {
-                                                    border: "none",
-                                                    backgroundColor:
-                                                        "transparent",
-                                                    color: "white",
-                                                },
-                                            })
+                                        window.$.blockUI({
+                                            message: "<b>Publishing...</b>",
+                                            css: {
+                                                border: "none",
+                                                backgroundColor: "transparent",
+                                                color: "white",
+                                            },
+                                        })
                                         // No remote video yet
                                         $("#videoright").append(
                                             '<video class="rounded centered" id="waitingvideo" width="100%" height="100%" />'
                                         )
                                         if (
-                                            WebRTC.getInstance().spinner == null
+                                            WebRTC.getInstance().spinner ===
+                                            null
                                         ) {
                                             var target = document.getElementById(
                                                 "videoright"
@@ -844,6 +874,7 @@ class WebRTC {
                                     }
                                 },
                                 ondataopen: function (data) {
+                                    console.log("ondataopen: ---------- ", data)
                                     window.Janus.log(
                                         "The DataChannel is available!"
                                     )
@@ -851,6 +882,7 @@ class WebRTC {
                                     $("#datasend").removeAttr("disabled")
                                 },
                                 ondata: function (data) {
+                                    console.log("ondata: ---------- ", data)
                                     window.Janus.debug(
                                         "We got data from the DataChannel!",
                                         data
@@ -863,7 +895,8 @@ class WebRTC {
                                     )
                                     $("#myvideo").remove()
                                     $("#remotevideo").remove()
-                                    $("#videoleft").parent().unblock()
+                                    // $("#videoleft").parent().unblock()
+                                    window.$.unblockUI()
                                     $(".no-video-container").remove()
                                     $("#callee").empty().hide()
                                     WebRTC.getInstance().yourusername = null
@@ -918,10 +951,12 @@ class WebRTC {
             : event.which
             ? event.which
             : event.charCode
-        if (theCode == 13) {
-            if (event.target.id == "username") this.registerUsername()
-            else if (event.target.id == "peer") this.doCall()
-            else if (event.target.id == "datasend") this.sendData()
+        if (theCode === 13) {
+            if (event.target.id === "username")
+                WebRTC.getInstance().registerUsername()
+            else if (event.target.id === "peer") WebRTC.getInstance().doCall()
+            else if (event.target.id === "datasend")
+                WebRTC.getInstance().sendData()
             return false
         } else {
             return true
@@ -936,13 +971,17 @@ class WebRTC {
         if (username === "") {
             window.bootbox.alert("Insert a username to register (e.g., pippo)")
             $("#username").removeAttr("disabled")
-            $("#register").removeAttr("disabled").click(this.registerUsername)
+            $("#register")
+                .removeAttr("disabled")
+                .click(WebRTC.getInstance().registerUsername)
             return
         }
         if (/[^a-zA-Z0-9]/.test(username)) {
             window.bootbox.alert("Input is not alphanumeric")
             $("#username").removeAttr("disabled").val("")
-            $("#register").removeAttr("disabled").click(this.registerUsername)
+            $("#register")
+                .removeAttr("disabled")
+                .click(WebRTC.getInstance().registerUsername)
             return
         }
         var register = { request: "register", username: username }
@@ -958,16 +997,21 @@ class WebRTC {
         if (username === "") {
             window.bootbox.alert("Insert a username to call (e.g., pluto)")
             $("#peer").removeAttr("disabled")
-            $("#call").removeAttr("disabled").click(this.doCall)
+            $("#call").removeAttr("disabled").click(WebRTC.getInstance().doCall)
             return
         }
         if (/[^a-zA-Z0-9]/.test(username)) {
             window.bootbox.alert("Input is not alphanumeric")
             $("#peer").removeAttr("disabled").val("")
-            $("#call").removeAttr("disabled").click(this.doCall)
+            $("#call").removeAttr("disabled").click(WebRTC.getInstance().doCall)
             return
         }
         // Call this user
+        console.log(
+            "doCall: ---------- ",
+            WebRTC.getInstance().videocall,
+            WebRTC.getInstance().doSimulcast
+        )
         WebRTC.getInstance().videocall.createOffer({
             // By default, it's sendrecv for audio and video...
             media: { data: true }, // ... let's negotiate data channels as well
@@ -976,6 +1020,7 @@ class WebRTC {
             // the following 'simulcast' property to pass to janus.js to true
             simulcast: WebRTC.getInstance().doSimulcast,
             success: function (jsep) {
+                console.log("doCall: success: ---------- ", jsep)
                 window.Janus.debug("Got SDP!", jsep)
                 var body = { request: "call", username: $("#peer").val() }
                 WebRTC.getInstance().videocall.send({
@@ -984,6 +1029,7 @@ class WebRTC {
                 })
             },
             error: function (error) {
+                console.log("doCall: error: ---------- ", error)
                 window.Janus.error("WebRTC error...", error)
                 window.bootbox.alert("WebRTC error... " + error.message)
             },
@@ -994,9 +1040,9 @@ class WebRTC {
         // Hangup a call
         $("#call").attr("disabled", true).unbind("click")
         var hangup = { request: "hangup" }
-        this.videocall.send({ message: hangup })
-        this.videocall.hangup()
-        this.yourusername = null
+        WebRTC.getInstance().videocall.send({ message: hangup })
+        WebRTC.getInstance().videocall.hangup()
+        WebRTC.getInstance().yourusername = null
     }
 
     sendData() {
@@ -1007,7 +1053,7 @@ class WebRTC {
             )
             return
         }
-        this.videocall.data({
+        WebRTC.getInstance().videocall.data({
             text: data,
             error: function (reason) {
                 window.bootbox.alert(reason)
@@ -1023,6 +1069,7 @@ class WebRTC {
         name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]")
         var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
             results = regex.exec(window.location.search)
+
         return results === null
             ? ""
             : decodeURIComponent(results[1].replace(/\+/g, " "))
@@ -1072,7 +1119,7 @@ class WebRTC {
                 $("#sl-0")
                     .removeClass("btn-primary btn-info btn-success")
                     .addClass("btn-info")
-                this.videocall.send({
+                WebRTC.getInstance().videocall.send({
                     message: { request: "set", substream: 0 },
                 })
             })
