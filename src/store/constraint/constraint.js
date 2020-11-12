@@ -1,0 +1,5 @@
+export const CLICK_CAMERA = "CLICK_CAMERA";
+export const CLICK_CHAT = "CLICK_CHAT";
+export const CLICK_FULLSCREEN = "CLICK_FULLSCREEN";
+export const CLICK_MIC = "CLICK_MIC";
+export const CLICK_SCREEN_SHARING = "CLICK_SCREEN_SHARING";
