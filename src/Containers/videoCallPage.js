@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react"
 import { useSelector, useDispatch } from "react-redux"
-import Header from "../Widget/Header"
+import Header from "../Widget/header"
 // import Banner from "../Components/Widget/HomeWidget/Banner"
 // import ItemSec from "../Components/Widget/HomeWidget/ItemSec"
-import Footer from "../Widget/Footer"
-// import * as ActionTypes from "../Store/Action/ActionTypes"
+import Footer from "../Widget/footer"
+import WebRTC from "../WebRTC"
 
-export default function videoCallPage(props) {
+export default function VideoCallPage(props) {
+    useEffect(() => {
+        WebRTC.getInstance().startServer()
+    }, [])
     return (
         <div>
             <a href="https://github.com/meetecho/janus-gateway">
@@ -131,7 +134,11 @@ export default function videoCallPage(props) {
                                                 placeholder="Choose a username"
                                                 autoComplete="off"
                                                 id="username"
-                                                onKeyPress="return checkEnter(this, event);"
+                                                onKeyPress={(e) =>
+                                                    WebRTC.getInstance().checkEnter(
+                                                        e
+                                                    )
+                                                }
                                             />
                                         </div>
                                         <button
@@ -160,7 +167,11 @@ export default function videoCallPage(props) {
                                                 placeholder="Who should we call?"
                                                 autoComplete="off"
                                                 id="peer"
-                                                onKeyPress="return checkEnter(this, event);"
+                                                onKeyPress={(e) =>
+                                                    WebRTC.getInstance().checkEnter(
+                                                        e
+                                                    )
+                                                }
                                             />
                                         </div>
                                         <button
@@ -291,7 +302,11 @@ export default function videoCallPage(props) {
                                                 placeholder="Write a DataChannel message to your peer"
                                                 autoComplete="off"
                                                 id="datasend"
-                                                onKeyPress="return checkEnter(this, event);"
+                                                onKeyPress={(e) =>
+                                                    WebRTC.getInstance().checkEnter(
+                                                        e
+                                                    )
+                                                }
                                                 disabled
                                             />
                                         </div>

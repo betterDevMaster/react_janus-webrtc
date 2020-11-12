@@ -1,6 +1,7 @@
 import React from "react"
+import { Link } from "react-router-dom"
 
-export default function Header(props) {
+export default function header(props) {
     return (
         <div className="container">
             <div className="navbar-header">
@@ -31,6 +32,9 @@ export default function Header(props) {
                         >
                             Demos <b className="caret"></b>
                         </a>
+                        {/* <Link to="/" className="dropdown-toggle">
+                            Demos <b className="caret"></b>
+                        </Link> */}
                         <ul className="dropdown-menu">
                             <li>
                                 <a href="demos.html">Index</a>
@@ -43,13 +47,15 @@ export default function Header(props) {
                                 <a href="streamingtest.html">Streaming</a>
                             </li>
                             <li>
-                                <a href="videocalltest.html">Video Call</a>
+                                <Link to="/videoCall">Video Call</Link>
+                                {/* <a href="videocalltest.html">Video Call</a> */}
                             </li>
                             <li>
                                 <a href="siptest.html">SIP Gateway</a>
                             </li>
                             <li>
-                                <a href="videoroomtest.html">Video Room</a>
+                                <Link to="/videoRoom">Video Room</Link>
+                                {/* <a href="videoroomtest.html">Video Room</a> */}
                             </li>
                             <li>
                                 <a href="audiobridgetest.html">Audio Bridge</a>
@@ -67,9 +73,10 @@ export default function Header(props) {
                             </li>
                             <li className="divider"></li>
                             <li>
-                                <a href="screensharingtest.html">
+                                <Link to="/screenShare">Screen Sharing</Link>
+                                {/* <a href="screensharingtest.html">
                                     Screen Sharing
-                                </a>
+                                </a> */}
                             </li>
                             <li>
                                 <a href="nosiptest.html">NoSIP (SDP/RTP)</a>
