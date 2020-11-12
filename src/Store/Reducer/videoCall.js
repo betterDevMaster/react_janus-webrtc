@@ -1,6 +1,12 @@
-import {CLICK_CAMERA, CLICK_CHAT, CLICK_FULLSCREEN, CLICK_MIC, CLICK_SCREEN_SHARING} from './../constraint/constraint';
+import {
+    CLICK_CAMERA,
+    CLICK_CHAT,
+    CLICK_FULLSCREEN,
+    CLICK_MIC,
+    CLICK_SCREEN_SHARING,
+} from "../constraint"
 
-const buttons = (
+const videoCall = (
     state = {
         chat: "on",
         camera: "on",
@@ -41,4 +47,4 @@ const buttons = (
     }
 }
 
-export default buttons
+export default videoCall

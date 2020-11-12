@@ -1,13 +1,13 @@
 import { combineReducers } from "redux"
-import buttons from "./buttons"
-// import users from './users'
+import common from "./common"
+import videoCall from "./videoCall"
 // import chats from './chats'
 // import screens from './screen'
 // import mediadevices from './medias'
 
 const rootReducer = combineReducers({
-    buttons,
-    // users,
+    common,
+    videoCall,
     // chats,
     // screens
 })

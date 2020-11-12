@@ -1,19 +1,132 @@
-import React, { useState, useEffect } from "react"
+import React, { useRef, useState, useEffect } from "react"
 import { useSelector, useDispatch } from "react-redux"
 import Header from "../widget/header"
-// import Banner from "../Components/Widget/HomeWidget/Banner"
-// import ItemSec from "../Components/Widget/HomeWidget/ItemSec"
 import Footer from "../widget/footer"
 import WebRTC from "../webRTC"
+import * as Constraint from "../store/constraint"
 
 export default function VideoCallPage(props) {
+    const common = useSelector((state) => state.common)
+    const [attachData, setAttachData] = useState({
+        details: true,
+        videocall: false,
+        login: false,
+        register: false,
+        call: false,
+    })
+    const dispatch = useDispatch()
+    const username = useRef(null)
+    const peer = useRef(null)
+    const datasend = useRef(null)
+    const type = Constraint.VIDEO_CALL
+
     useEffect(() => {
-        WebRTC.getInstance().startServer()
-        WebRTC.getInstance().addEventListener("onConnect", onConnect)
+        WebRTC.getInstance().initJanus(type)
     }, [])
 
-    const onConnect = () => {
-        console.log("WebRTC connected.")
+    useEffect(() => {
+        if (common.attach) {
+            setAttachData({
+                details: false,
+                videocall: true,
+                login: true,
+            })
+            username.current.focus()
+        }
+    }, [common])
+
+    const handleCheckEnter = (event) => {
+        var theCode = event.keyCode
+            ? event.keyCode
+            : event.which
+            ? event.which
+            : event.charCode
+        if (theCode === 13) {
+            if (event.target.id === "username") handleRegister()
+            else if (event.target.id === "peer") handleCall()
+            else if (event.target.id === "datasend") handleSendData()
+            return false
+        } else {
+            return true
+        }
+    }
+
+    const handleRegister = () => {
+        setAttachData({ ...attachData, register: true })
+        const uName = username.current.value
+
+        if (uName === "") {
+            window.bootbox.alert("Insert a username to register (e.g., pippo)")
+            setAttachData({ ...attachData, register: false })
+            return
+        }
+        if (/[^a-zA-Z0-9]/.test(uName)) {
+            window.bootbox.alert("Input is not alphanumeric")
+            setAttachData({ ...attachData, register: false })
+            username.current.value = ""
+            return
+        }
+        console.log("handleRegister: uName: ----------- ", uName)
+        WebRTC.getInstance().registerUsername(uName)
+    }
+
+    const handleCall = () => {
+        setAttachData({ ...attachData, call: true })
+        const uName = peer.current.value
+        if (uName === "") {
+            window.bootbox.alert("Insert a username to call (e.g., pluto)")
+            setAttachData({ ...attachData, call: false })
+            return
+        }
+        if (/[^a-zA-Z0-9]/.test(uName)) {
+            window.bootbox.alert("Input is not alphanumeric")
+            setAttachData({ ...attachData, call: false })
+            peer.current.value = ""
+            return
+        }
+        console.log("handleCall : ------------ ", uName)
+        // WebRTC.getInstance().doCall(uName)
+
+        WebRTC.getInstance().videocall.createOffer({
+            // By default, it's sendrecv for audio and video...
+            media: { data: true }, // ... let's negotiate data channels as well
+            // If you want to test simulcasting (Chrome and Firefox only), then
+            // pass a ?simulcast=true when opening this demo page: it will turn
+            // the following 'simulcast' property to pass to janus.js to true
+            simulcast: WebRTC.getInstance().doSimulcast,
+            success: function (jsep) {
+                window.Janus.debug("Got SDP!", jsep)
+                var body = { request: "call", username: uName }
+                console.log("doCall: ---------- ", body)
+                WebRTC.getInstance().videocall.send({
+                    message: body,
+                    jsep: jsep,
+                })
+            },
+            error: function (error) {
+                window.Janus.error("WebRTC error...", error)
+                window.bootbox.alert("WebRTC error... " + error.message)
+            },
+        })
+    }
+
+    const handleSendData = () => {
+        const data = datasend.current.value
+        if (data === "") {
+            window.bootbox.alert(
+                "Insert a message to send on the DataChannel to your peer"
+            )
+            return
+        }
+        WebRTC.getInstance().videocall.data({
+            text: data,
+            error: function (reason) {
+                window.bootbox.alert(reason)
+            },
+            success: function () {
+                datasend.current.value = ""
+            },
+        })
     }
 
     return (
@@ -46,13 +159,25 @@ export default function VideoCallPage(props) {
                                     className="btn btn-default"
                                     autoComplete="off"
                                     id="start"
-                                    // onClick={WebRTC.getInstance().videoCall()}
+                                    disabled={common.attach}
+                                    onClick={() =>
+                                        WebRTC.getInstance().startJanus(
+                                            dispatch,
+                                            type
+                                        )
+                                    }
                                 >
                                     Start
                                 </button>
                             </h1>
                         </div>
-                        <div className="container" id="details">
+                        <div
+                            className="container"
+                            id="details"
+                            style={{
+                                display: attachData.details ? "block" : "none",
+                            }}
+                        >
                             <div className="row">
                                 <div className="col-md-12">
                                     <h3>Demo details</h3>
@@ -124,12 +249,33 @@ export default function VideoCallPage(props) {
                                 </div>
                             </div>
                         </div>
-                        <div className="container hide" id="videocall">
+                        <div
+                            className={
+                                attachData.videocall
+                                    ? "container"
+                                    : "container hide"
+                            }
+                            id="videocall"
+                            style={{
+                                display: attachData.videocall
+                                    ? "block"
+                                    : "none",
+                            }}
+                        >
                             <div className="row">
                                 <div className="col-md-12">
                                     <div
-                                        className="col-md-6 container hide"
+                                        className={
+                                            attachData.login
+                                                ? "col-md-6 container"
+                                                : "col-md-6 container hide"
+                                        }
                                         id="login"
+                                        style={{
+                                            display: attachData.login
+                                                ? "block"
+                                                : "none",
+                                        }}
                                     >
                                         <div className="input-group margin-bottom-sm">
                                             <span className="input-group-addon">
@@ -141,10 +287,10 @@ export default function VideoCallPage(props) {
                                                 placeholder="Choose a username"
                                                 autoComplete="off"
                                                 id="username"
+                                                ref={username}
+                                                disabled={attachData.register}
                                                 onKeyPress={(e) =>
-                                                    WebRTC.getInstance().checkEnter(
-                                                        e
-                                                    )
+                                                    handleCheckEnter(e)
                                                 }
                                             />
                                         </div>
@@ -152,9 +298,11 @@ export default function VideoCallPage(props) {
                                             className="btn btn-success margin-bottom-sm"
                                             autoComplete="off"
                                             id="register"
+                                            disabled={attachData.register}
+                                            onClick={() => handleRegister()}
                                         >
                                             Register
-                                        </button>{" "}
+                                        </button>
                                         <span
                                             className="hide label label-info"
                                             id="youok"
@@ -174,10 +322,10 @@ export default function VideoCallPage(props) {
                                                 placeholder="Who should we call?"
                                                 autoComplete="off"
                                                 id="peer"
+                                                ref={peer}
+                                                disabled={attachData.call}
                                                 onKeyPress={(e) =>
-                                                    WebRTC.getInstance().checkEnter(
-                                                        e
-                                                    )
+                                                    handleCheckEnter(e)
                                                 }
                                             />
                                         </div>
@@ -185,6 +333,8 @@ export default function VideoCallPage(props) {
                                             className="btn btn-success margin-bottom-sm"
                                             autoComplete="off"
                                             id="call"
+                                            disabled={attachData.call}
+                                            onClick={() => handleCall()}
                                         >
                                             Call
                                         </button>
@@ -309,10 +459,9 @@ export default function VideoCallPage(props) {
                                                 placeholder="Write a DataChannel message to your peer"
                                                 autoComplete="off"
                                                 id="datasend"
+                                                ref={datasend}
                                                 onKeyPress={(e) =>
-                                                    WebRTC.getInstance().checkEnter(
-                                                        e
-                                                    )
+                                                    handleCheckEnter(e)
                                                 }
                                                 disabled
                                             />
