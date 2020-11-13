@@ -7,6 +7,36 @@ const videoCall = (state = {}, action) => {
                 ...state,
                 ...action.value,
             }
+        case Constraint.EVENT_CALLING:
+            return {
+                ...state,
+                ...action.value,
+            }
+        case Constraint.EVENT_INCOMINGCALL:
+            return {
+                ...state,
+                ...action.value,
+            }
+        case Constraint.EVENT_ACCEPTED:
+            return {
+                ...state,
+                ...action.value,
+            }
+        case Constraint.EVENT_UPDATE:
+            return {
+                ...state,
+                ...action.value,
+            }
+        case Constraint.EVENT_HANGUP:
+            return {
+                ...state,
+                ...action.value,
+            }
+        case Constraint.EVENT_SIMULCAST:
+            return {
+                ...state,
+                ...action.value,
+            }
         default:
             return state
     }
