@@ -1,4 +1,4 @@
-export default janus = (
+const janus = (
     state = {
         message: {},
         status: "UNINITIALIZED",
@@ -39,3 +39,5 @@ export default janus = (
             return state
     }
 }
+
+export default janus
