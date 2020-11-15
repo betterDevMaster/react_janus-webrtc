@@ -4,12 +4,27 @@ import Header from "../widget/header"
 // import Banner from "../Components/w/Homew/Banner"
 // import ItemSec from "../Components/w/Homew/ItemSec"
 import Footer from "../widget/footer"
+import JanusHelperVideoRoom from "../janus/janusHelperVideoRoom"
 // import * as ActionTypes from "../Store/Action/ActionTypes"
 
-export default function videoRoomPage(props) {
+export default function VideoRoom(props) {
+    const dispatch = useDispatch()
+    useEffect(() => {
+        JanusHelperVideoRoom.getInstance().init(dispatch, "janus.plugin.videoroom")
+    }, [])
+    const janusState = useSelector((state) => state.janusReducer)
+    console.log(janusState)
+
     return (
         <div>
-            <a href="https://github.com/meetecho/janus-gateway">
+            <button onClick={() => JanusHelperVideoRoom.getInstance().start("testRoom")} disabled={janusState.status === "CONNECTED"}>
+                Start
+            </button>
+            <button onClick={() => JanusHelperVideoRoom.getInstance().connect()} disabled={janusState.status !== "CONNECTED"}>
+                Connect
+            </button>
+
+            {/* <a href="https://github.com/meetecho/janus-gateway">
                 <img
                     style={{
                         position: "absolute",
@@ -223,6 +238,7 @@ export default function videoRoomPage(props) {
                 <hr />
                 <Footer />
             </div>
+         */}
         </div>
     )
 }

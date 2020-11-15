@@ -9,6 +9,7 @@
 
 export default class JanusHelper {
     static baseUrl = "https://janusserver.simportal.net:8089/janus"
+
     init(dispatch, pluginName) {
         this.dispatch = dispatch
         this.pluginName = pluginName
@@ -22,7 +23,7 @@ export default class JanusHelper {
 
     start() {
         if (!window.Janus.isWebrtcSupported()) {
-            bootbox.alert("No WebRTC support... ")
+            window.bootbox.alert("No WebRTC support... ")
             return
         }
         this.createSession()
@@ -42,11 +43,12 @@ export default class JanusHelper {
     }
 
     createSession() {
+        console.log("Will create session with " + this.myroom)
         this.session = new window.Janus({
             server: JanusHelper.baseUrl,
             success: () => {
                 // Attach to VideoRoom plugin
-                janus.attach({
+                this.session.attach({
                     plugin: this.pluginName, // "janus.plugin.videoroom",
                     opaqueId: this.generateRandomId(),
                     success: this.onAttach,
@@ -71,14 +73,15 @@ export default class JanusHelper {
     }
 
     onAttach(pluginHandle) {
+        console.log("onAttach", pluginHandle)
         this.sfutest = pluginHandle
     }
 
     onWaitDialog(on) {
-        windowJanus.debug("Consent dialog should be " + (on ? "on" : "off") + " now")
+        window.Janus.debug("Consent dialog should be " + (on ? "on" : "off") + " now")
         if (on) {
             // Darken screen and show hint
-            $.blockUI({
+            window.$.blockUI({
                 message: '<div><img src="up_arrow.png"/></div>',
                 css: {
                     border: "none",
@@ -91,7 +94,7 @@ export default class JanusHelper {
             })
         } else {
             // Restore screen
-            $.unblockUI()
+            window.$.unblockUI()
         }
     }
     closeWaitDialog() {
@@ -105,8 +108,8 @@ export default class JanusHelper {
     onMessage(msg, jsep) {
         window.Janus.debug(" ::: Got a message (publisher) :::", msg)
         var event = msg["videoroom"]
-        Janus.debug("Event: " + event)
-        this.dispatch({ type: "JANUS_MESSAGE", value: event })
+        window.Janus.debug("Event: " + event)
+        this.dispatch({ type: "JANUS_MESSAGE", value: msg })
 
         if (jsep) {
             window.Janus.debug("Handling SDP as well...", jsep)
@@ -128,11 +131,11 @@ export default class JanusHelper {
         }
     }
     onLocalStream(stream) {
-        window.Janus.debug(" ::: Got a local stream :::", stream)
+        console.log(" ::: Got a local stream :::", stream)
         this.mystream = stream
         this.dispatch({ type: "JANUS_LOCALSTREAM", value: stream })
         if (
-            thi.sfutest.webrtcStuff.pc.iceConnectionState !== "completed" &&
+            this.sfutest.webrtcStuff.pc.iceConnectionState !== "completed" &&
             this.sfutest.webrtcStuff.pc.iceConnectionState !== "connected"
         ) {
             window.$.blockUI({
@@ -160,8 +163,8 @@ export default class JanusHelper {
         // window.location.reload()
     }
     onError(title, detail) {
-        window.Janus.error(title, error)
-        window.bootbox.alert(title + error, () => {
+        window.Janus.error(title, detail)
+        window.bootbox.alert(title + detail, () => {
             this.dispatch({ type: "JANUS_STATE", value: "DESTROYED" })
             console.log("window.location.reload() required.")
             // window.location.reload()

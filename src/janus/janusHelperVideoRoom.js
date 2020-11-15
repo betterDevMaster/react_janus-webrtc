@@ -5,23 +5,24 @@ export default class JanusHelperVideoRoom extends JanusHelper {
         if (!JanusHelperVideoRoom._inst) {
             JanusHelperVideoRoom._inst = new JanusHelperVideoRoom()
         }
-        return JanusHelperVideoRoom
+        return JanusHelperVideoRoom._inst
     }
     init(dispatch) {
-        super(dispatch, "janus.plugin.videoroom")
+        super.init(dispatch, "janus.plugin.videoroom")
     }
-    start(roomName, userName) {
+    start(roomName) {
         this.myroom = roomName // Demo room
-        super()
+        super.start()
         // if (getQueryStringValue("room") !== "") myroom = parseInt(getQueryStringValue("room"))
         this.myusername = null
-        var myid = null
-        var mystream = null
+        this.opaqueId = null
+        this.myid = null
+        this.mystream = null
         // We use this other ID just to map our subscriptions to us
-        var mypvtid = null
+        this.mypvtid = null
 
-        var feeds = []
-        var bitrateTimer = []
+        this.feeds = []
+        this.bitrateTimer = []
     }
 
     registerUsername(username) {
@@ -40,7 +41,7 @@ export default class JanusHelperVideoRoom extends JanusHelper {
             ptype: "publisher",
             display: this.myusername,
         }
-        myusername = username
+        this.myusername = username
         this.sfutest.send({ message: register })
     }
 
@@ -95,5 +96,9 @@ export default class JanusHelperVideoRoom extends JanusHelper {
         // Unpublish our stream
         var unpublish = { request: "unpublish" }
         this.sfutest.send({ message: unpublish })
+    }
+    newRemoteFeed(id, display, audio, video) {
+        // A new feed has been published, create a new plugin handle and attach to it as a subscriber
+        var remoteFeed = null
     }
 }
