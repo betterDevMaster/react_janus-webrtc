@@ -24,7 +24,9 @@ export default class JanusHelperVideoRoom extends JanusHelper {
         this.feeds = []
         this.bitrateTimer = []
     }
-
+    stop() {
+        if (this.session) this.session.destroy()
+    }
     registerUsername(username) {
         if (username === "") {
             console.error("Insert your display name (e.g., pippo)")

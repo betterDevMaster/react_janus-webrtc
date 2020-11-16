@@ -73,8 +73,10 @@ export default class JanusHelper {
     }
 
     onAttach(pluginHandle) {
-        console.log("onAttach", pluginHandle)
+        this.dispatch({ type: "JANUS_STATE", value: "ATTACHED" })
         this.sfutest = pluginHandle
+        window.Janus.log("Plugin attached! (" + this.sfutest.getPlugin() + ", id=" + this.sfutest.getId() + ")")
+        window.Janus.log("  -- This is a publisher/manager")
     }
 
     onWaitDialog(on) {

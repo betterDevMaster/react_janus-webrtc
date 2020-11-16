@@ -1,5 +1,5 @@
 import { combineReducers } from "redux"
-// import janusReducer from "./janusReducer"
+import janusReducer from "./janusReducer"
 import janus from "./janus"
 // import videoCall from "./videoCall"
 // import chats from './chats'
@@ -8,6 +8,7 @@ import janus from "./janus"
 
 const rootReducer = combineReducers({
     janus,
+    janusReducer,
     // janusState: janus,
     // videoCall,
     // chats,

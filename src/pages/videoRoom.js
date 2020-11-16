@@ -12,13 +12,16 @@ export default function VideoRoom(props) {
     useEffect(() => {
         JanusHelperVideoRoom.getInstance().init(dispatch, "janus.plugin.videoroom")
     }, [])
-    const janusState = useSelector((state) => state.janusReducer)
-    console.log(janusState)
+    const janusState = useSelector((state) => state.janus)
+    console.log("janusState : ------- ", janusState)
 
     return (
         <div>
             <button onClick={() => JanusHelperVideoRoom.getInstance().start("testRoom")} disabled={janusState.status === "CONNECTED"}>
                 Start
+            </button>
+            <button onClick={() => JanusHelperVideoRoom.getInstance().stop()} disabled={janusState.status !== "CONNECTED"}>
+                Stop
             </button>
             <button onClick={() => JanusHelperVideoRoom.getInstance().connect()} disabled={janusState.status !== "CONNECTED"}>
                 Connect
