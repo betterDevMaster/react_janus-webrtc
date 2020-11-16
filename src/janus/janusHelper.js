@@ -13,12 +13,12 @@ export default class JanusHelper {
     init(dispatch, pluginName) {
         this.dispatch = dispatch
         this.pluginName = pluginName
+        this.opaqueId = "videoroom-" + window.Janus.randomString(12)
         this.session = null
         this.mystream = null
         this.initJanus()
-    }
-    generateRandomId() {
-        this.opaqueId = this.pluginName + "-" + window.Janus.randomString(12)
+
+        console.log("Janus is initialized with dspatch: ", dispatch, this.opaqueId)
     }
 
     start() {
@@ -43,35 +43,34 @@ export default class JanusHelper {
     }
 
     createSession() {
-        console.log("Will create session with " + this.myroom)
         this.session = new window.Janus({
             server: JanusHelper.baseUrl,
-            success: () => {
-                // Attach to VideoRoom plugin
-                this.session.attach({
-                    plugin: this.pluginName, // "janus.plugin.videoroom",
-                    opaqueId: this.generateRandomId(),
-                    success: this.onAttach,
-                    error: (error) => this.onError("Error attaching plugin... ", error),
-                    consentDialog: this.onWaitDialog,
-                    iceState: (state) => {
-                        window.Janus.log("ICE state changed to " + state)
-                    },
-                    mediaState: (medium, on) => {
-                        window.Janus.log("Janus " + (on ? "started" : "stopped") + " receiving our " + medium)
-                    },
-                    webrtcState: this.onWebrtcStateChange,
-                    onmessage: this.onMessage,
-                    onlocalstream: this.onLocalStream,
-                    onremotestream: this.onRemoteStream,
-                    oncleanup: this.onCleanUp,
-                })
-            },
+            success: () => this.onInit(),
             error: (error) => this.onError("Critical Error --", error),
-            destroyed: this.onDestroyed,
+            destroyed: () => this.onDestroyed(),
         })
     }
-
+    onInit() {
+        // Attach to VideoRoom plugin
+        this.session.attach({
+            plugin: this.pluginName, // "janus.plugin.videoroom",
+            opaqueId: this.opaqueId,
+            success: (pluginHandle) => this.onAttach(pluginHandle),
+            error: (error) => this.onError("Error attaching plugin... ", error),
+            consentDialog: (on) => this.onWaitDialog(on),
+            iceState: (state) => {
+                window.Janus.log("ICE state changed to " + state)
+            },
+            mediaState: (medium, on) => {
+                window.Janus.log("Janus " + (on ? "started" : "stopped") + " receiving our " + medium)
+            },
+            webrtcState: (on) => this.onWebrtcStateChange(on),
+            onmessage: (msg, jsep) => this.onMessage(msg, jsep),
+            onlocalstream: (stream) => this.onLocalStream(stream),
+            onremotestream: (remoteStream) => this.onRemoteStream(remoteStream),
+            oncleanup: () => this.onCleanUp(),
+        })
+    }
     onAttach(pluginHandle) {
         this.dispatch({ type: "JANUS_STATE", value: "ATTACHED" })
         this.sfutest = pluginHandle
@@ -112,6 +111,7 @@ export default class JanusHelper {
         var event = msg["videoroom"]
         window.Janus.debug("Event: " + event)
         this.dispatch({ type: "JANUS_MESSAGE", value: msg })
+        console.log("onMessage: ---------- ", msg, jsep)
 
         if (jsep) {
             window.Janus.debug("Handling SDP as well...", jsep)
@@ -162,6 +162,7 @@ export default class JanusHelper {
     onDestroyed() {
         this.dispatch({ type: "JANUS_STATE", value: "DESTROYED" })
         console.log("window.location.reload() required.")
+        this.sfutest = null
         // window.location.reload()
     }
     onError(title, detail) {

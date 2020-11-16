@@ -13,21 +13,39 @@ export default function VideoRoom(props) {
         JanusHelperVideoRoom.getInstance().init(dispatch, "janus.plugin.videoroom")
     }, [])
     const janusState = useSelector((state) => state.janus)
-    console.log("janusState : ------- ", janusState)
+    const [userName, setUserName] = useState("")
+    console.log("janusstate: --------------- ", janusState)
 
+    useEffect(() => {
+        if (janusState.message.publishers) handleNewRemoteFeed(janusState.message)
+    }, [janusState])
+    const handleCheckEnter = (event) => {
+        var theCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode
+        if (theCode === 13) {
+            if (event.target.id === "username") JanusHelperVideoRoom.getInstance().registerUsername(event.target.value)
+            return false
+        } else {
+            return true
+        }
+    }
+    const handleRegisterName = () => {
+        JanusHelperVideoRoom.getInstance().registerUsername(userName)
+    }
+    const handleNewRemoteFeed = (msg) => {
+        var list = msg["publishers"]
+        window.Janus.debug("Got a list of available publishers/feeds:", list)
+        for (var f in list) {
+            var id = list[f]["id"]
+            var display = list[f]["display"]
+            var audio = list[f]["audio_codec"]
+            var video = list[f]["video_codec"]
+            window.Janus.debug("  >> [" + id + "] " + display + " (audio: " + audio + ", video: " + video + ")")
+            JanusHelperVideoRoom.getInstance().newRemoteFeed(id, display, audio, video)
+        }
+    }
     return (
         <div>
-            <button onClick={() => JanusHelperVideoRoom.getInstance().start("testRoom")} disabled={janusState.status === "CONNECTED"}>
-                Start
-            </button>
-            <button onClick={() => JanusHelperVideoRoom.getInstance().stop()} disabled={janusState.status !== "CONNECTED"}>
-                Stop
-            </button>
-            <button onClick={() => JanusHelperVideoRoom.getInstance().connect()} disabled={janusState.status !== "CONNECTED"}>
-                Connect
-            </button>
-
-            {/* <a href="https://github.com/meetecho/janus-gateway">
+            <a href="https://github.com/meetecho/janus-gateway">
                 <img
                     style={{
                         position: "absolute",
@@ -51,68 +69,87 @@ export default function VideoRoom(props) {
                         <div className="page-header">
                             <h1>
                                 Plugin Demo: Video Room
-                                <button className="btn btn-default" autoComplete="off" id="start">
-                                    Start
+                                <button
+                                    className="btn btn-default"
+                                    autoComplete="off"
+                                    id="start"
+                                    onClick={() => JanusHelperVideoRoom.getInstance().start(1234)}
+                                    disabled={janusState.status === "joined"}
+                                >
+                                    {janusState.status === "INITIALIZED" || janusState.status === "ATTACHED" ? "Start" : "Stop"}
                                 </button>
                             </h1>
                         </div>
-                        <div className="container" id="details">
-                            <div className="row">
-                                <div className="col-md-12">
-                                    <h3>Demo details</h3>
-                                    <p>
-                                        This demo is an example of how you can use the Video Room plugin to implement a simple
-                                        videoconferencing application. In particular, this demo page allows you to have up to 6 active
-                                        participants at the same time: more participants joining the room will be instead just passive
-                                        users. No mixing is involved: all media are just relayed in a publisher/subscriber approach. This
-                                        means that the plugin acts as a SFU (Selective Forwarding Unit) rather than an MCU (Multipoint
-                                        Control Unit).
-                                    </p>
-                                    <p>
-                                        If you're interested in testing how simulcasting can be used within the context of a
-                                        videoconferencing application, just pass the <code>?simulcast=true</code> query string to the url of
-                                        this page and reload it. If you're using a browser that does support simulcasting (Chrome or
-                                        Firefox) and the room is configured to use VP8, you'll send multiple qualities of the video you're
-                                        capturing. Notice that simulcasting will only occur if the browser thinks there is enough bandwidth,
-                                        so you'll have to play with the Bandwidth selector to increase it. New buttons to play with the
-                                        feature will automatically appear for viewers when receiving any simulcasted stream. Notice that no
-                                        simulcast support is needed for watching, only for publishing.
-                                    </p>
-                                    <p>
-                                        To use the demo, just insert a username to join the default room that is configured. This will add
-                                        you to the list of participants, and allow you to automatically send your audio/video frames and
-                                        receive the other participants' feeds. The other participants will appear in separate panels, whose
-                                        title will be the names they chose when registering at the demo.
-                                    </p>
-                                    <p>
-                                        Press the <code>Start</code> button above to launch the demo.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="container hide" id="videojoin">
-                            <div className="row">
-                                <span className="label label-info" id="you"></span>
-                                <div className="col-md-12" id="controls">
-                                    <div className="input-group margin-bottom-md hide" id="registernow">
-                                        <span className="input-group-addon">@</span>
-                                        <input
-                                            autoComplete="off"
-                                            className="form-control"
-                                            type="text"
-                                            placefolder="Choose a display name"
-                                            id="username"
-                                            // onKeyPress={return checkEnter(this, event)}
-                                        />
-                                        <span className="input-group-btn">
-                                            <button className="btn btn-success" autoComplete="off" id="register">
-                                                Join the room
-                                            </button>
-                                        </span>
+                        {janusState.status === "INITIALIZED" && (
+                            <div className="container" id="details">
+                                <div className="row">
+                                    <div className="col-md-12">
+                                        <h3>Demo details</h3>
+                                        <p>
+                                            This demo is an example of how you can use the Video Room plugin to implement a simple
+                                            videoconferencing application. In particular, this demo page allows you to have up to 6 active
+                                            participants at the same time: more participants joining the room will be instead just passive
+                                            users. No mixing is involved: all media are just relayed in a publisher/subscriber approach.
+                                            This means that the plugin acts as a SFU (Selective Forwarding Unit) rather than an MCU
+                                            (Multipoint Control Unit).
+                                        </p>
+                                        <p>
+                                            If you're interested in testing how simulcasting can be used within the context of a
+                                            videoconferencing application, just pass the <code>?simulcast=true</code> query string to the
+                                            url of this page and reload it. If you're using a browser that does support simulcasting (Chrome
+                                            or Firefox) and the room is configured to use VP8, you'll send multiple qualities of the video
+                                            you're capturing. Notice that simulcasting will only occur if the browser thinks there is enough
+                                            bandwidth, so you'll have to play with the Bandwidth selector to increase it. New buttons to
+                                            play with the feature will automatically appear for viewers when receiving any simulcasted
+                                            stream. Notice that no simulcast support is needed for watching, only for publishing.
+                                        </p>
+                                        <p>
+                                            To use the demo, just insert a username to join the default room that is configured. This will
+                                            add you to the list of participants, and allow you to automatically send your audio/video frames
+                                            and receive the other participants' feeds. The other participants will appear in separate
+                                            panels, whose title will be the names they chose when registering at the demo.
+                                        </p>
+                                        <p>
+                                            Press the <code>Start</code> button above to launch the demo.
+                                        </p>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        )}
+                        {janusState.status === "ATTACHED" && (
+                            <div className="container" id="videojoin">
+                                <div className="row">
+                                    <span className="label label-info" id="you"></span>
+                                    <div className="col-md-12" id="controls">
+                                        <div className="input-group margin-bottom-md" id="registernow">
+                                            <span className="input-group-addon">@</span>
+                                            <input
+                                                autoComplete="off"
+                                                className="form-control"
+                                                type="text"
+                                                placefolder="Choose a display name"
+                                                id="username"
+                                                value={userName}
+                                                onChange={(e) => {
+                                                    setUserName(e.target.value)
+                                                }}
+                                                onKeyPress={(e) => handleCheckEnter(e)}
+                                            />
+                                            <span className="input-group-btn">
+                                                <button
+                                                    className="btn btn-success"
+                                                    autoComplete="off"
+                                                    id="register"
+                                                    onClick={handleRegisterName}
+                                                >
+                                                    Join the room
+                                                </button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                         <div className="container hide" id="videos">
                             <div className="row">
                                 <div className="col-md-4">
@@ -241,7 +278,6 @@ export default function VideoRoom(props) {
                 <hr />
                 <Footer />
             </div>
-         */}
         </div>
     )
 }

@@ -12,15 +12,9 @@ export default class JanusHelperVideoRoom extends JanusHelper {
     }
     start(roomName) {
         this.myroom = roomName // Demo room
+        console.log("start: ------------- ", this.myroom)
         super.start()
         // if (getQueryStringValue("room") !== "") myroom = parseInt(getQueryStringValue("room"))
-        this.myusername = null
-        this.opaqueId = null
-        this.myid = null
-        this.mystream = null
-        // We use this other ID just to map our subscriptions to us
-        this.mypvtid = null
-
         this.feeds = []
         this.bitrateTimer = []
     }
@@ -43,7 +37,7 @@ export default class JanusHelperVideoRoom extends JanusHelper {
             ptype: "publisher",
             display: this.myusername,
         }
-        this.myusername = username
+        console.log(register)
         this.sfutest.send({ message: register })
     }
 
@@ -62,7 +56,7 @@ export default class JanusHelperVideoRoom extends JanusHelper {
             // the following 'simulcast' property to pass to janus.js to true
             simulcast: false, //doSimulcast,
             simulcast2: false, //doSimulcast2,
-            success: function (jsep) {
+            success: (jsep) => {
                 window.Janus.debug("Got publisher SDP!", jsep)
                 var publish = { request: "configure", audio: useAudio, video: true }
                 // You can force a specific codec to use when publishing by using the
