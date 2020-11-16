@@ -16,9 +16,9 @@ export default class JanusHelper {
         this.opaqueId = "videoroom-" + window.Janus.randomString(12)
         this.session = null
         this.mystream = null
+        this.myid = ""
+        this.mypvtid = ""
         this.initJanus()
-
-        console.log("Janus is initialized with dspatch: ", dispatch, this.opaqueId)
     }
 
     start() {
@@ -74,16 +74,16 @@ export default class JanusHelper {
     onAttach(pluginHandle) {
         this.dispatch({ type: "JANUS_STATE", value: "ATTACHED" })
         this.sfutest = pluginHandle
-        window.Janus.log("Plugin attached! (" + this.sfutest.getPlugin() + ", id=" + this.sfutest.getId() + ")")
-        window.Janus.log("  -- This is a publisher/manager")
+        // window.Janus.log("Plugin attached! (" + this.sfutest.getPlugin() + ", id=" + this.sfutest.getId() + ")")
+        // window.Janus.log("  -- This is a publisher/manager")
     }
 
     onWaitDialog(on) {
-        window.Janus.debug("Consent dialog should be " + (on ? "on" : "off") + " now")
+        // window.Janus.debug("Consent dialog should be " + (on ? "on" : "off") + " now")
         if (on) {
             // Darken screen and show hint
             window.$.blockUI({
-                message: '<div><img src="up_arrow.png"/></div>',
+                message: '<div><img src="./img/up_arrow.png"/></div>',
                 css: {
                     border: "none",
                     padding: "15px",
@@ -102,19 +102,21 @@ export default class JanusHelper {
         window.$.unblockUI()
     }
     onWebrtcStateChange(on) {
-        window.Janus.log("Janus says our WebRTC PeerConnection is " + (on ? "up" : "down") + " now")
+        console.log("Janus says our WebRTC PeerConnection is ------------------- " + (on ? "up" : "down") + " now")
         this.closeWaitDialog()
         this.dispatch({ type: "JANUS_STATE", value: on ? "CONNECTED" : "DISCONNECTED" })
     }
     onMessage(msg, jsep) {
-        window.Janus.debug(" ::: Got a message (publisher) :::", msg)
+        // window.Janus.debug(" ::: Got a message (publisher) :::", msg)
         var event = msg["videoroom"]
-        window.Janus.debug("Event: " + event)
+        // window.Janus.debug("Event: " + event)
+        if (msg.hasOwnProperty("id")) this.myid = msg["id"]
+        if (msg.hasOwnProperty("private_id")) this.mypvtid = msg["private_id"]
+        console.log("onMessage: ---------- ", event, msg, jsep, this.mypvtid)
         this.dispatch({ type: "JANUS_MESSAGE", value: msg })
-        console.log("onMessage: ---------- ", msg, jsep)
 
         if (jsep) {
-            window.Janus.debug("Handling SDP as well...", jsep)
+            // window.Janus.debug("Handling SDP as well...", jsep)
             this.sfutest.handleRemoteJsep({ jsep: jsep })
             // Check if any of the media we wanted to publish has
             // been rejected (e.g., wrong or unsupported codec)
@@ -133,12 +135,11 @@ export default class JanusHelper {
         }
     }
     onLocalStream(stream) {
-        console.log(" ::: Got a local stream :::", stream)
         this.mystream = stream
         this.dispatch({ type: "JANUS_LOCALSTREAM", value: stream })
         if (
             this.sfutest.webrtcStuff.pc.iceConnectionState !== "completed" &&
-            this.sfutest.webrtcStuff.pc.iceConnectionState !== "connected"
+            this.sfutest.webrtcStuff.pc.iceConnectionState !== "CONNECTED"
         ) {
             window.$.blockUI({
                 message: "<b>Publishing...</b>",
@@ -154,22 +155,23 @@ export default class JanusHelper {
         this.dispatch({ type: "JANUS_ADDREMOTESTREAM", value: remoteStream })
     }
     onCleanUp() {
-        window.Janus.log(" ::: Got a cleanup notification: we are unpublished now :::")
+        console.log(" ::: Got a cleanup notification: we are unpublished now :::")
         this.mystream = null
-        this.dispatch({ type: "JANUS_STATE", value: "INITIALIZED" })
+        // this.dispatch({ type: "JANUS_STATE", value: "INITIALIZED" })
+        this.dispatch({ type: "JANUS_STATE", value: "CONNECTED" })
         this.closeWaitDialog()
     }
     onDestroyed() {
         this.dispatch({ type: "JANUS_STATE", value: "DESTROYED" })
-        console.log("window.location.reload() required.")
+        console.log("window.location.reload() required. ---------------")
         this.sfutest = null
         // window.location.reload()
     }
     onError(title, detail) {
         window.Janus.error(title, detail)
         window.bootbox.alert(title + detail, () => {
+            console.log("window.location.reload() required. --------------")
             this.dispatch({ type: "JANUS_STATE", value: "DESTROYED" })
-            console.log("window.location.reload() required.")
             // window.location.reload()
         })
     }

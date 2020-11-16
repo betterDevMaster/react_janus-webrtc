@@ -143,6 +143,8 @@ $(document).ready(function () {
                             webrtcState: function (on) {
                                 Janus.log("Janus says our WebRTC PeerConnection is " + (on ? "up" : "down") + " now")
                                 $("#videolocal").parent().parent().unblock()
+                                console.log("Janus says our WebRTC PeerConnection is ------------------- " + (on ? "up" : "down") + " now")
+
                                 if (!on) return
                                 $("#publish").remove()
                                 // This controls allows us to override the global room bitrate cap
@@ -326,6 +328,7 @@ $(document).ready(function () {
                             onlocalstream: function (stream) {
                                 Janus.debug(" ::: Got a local stream :::", stream)
                                 mystream = stream
+                                console.log("onLocalStream: ----------------- ", mystream)
                                 $("#videojoin").hide()
                                 $("#videos").removeClass("hide").show()
                                 if ($("#myvideo").length === 0) {
@@ -344,6 +347,7 @@ $(document).ready(function () {
                                     $("#unpublish").click(unpublishOwnFeed)
                                 }
                                 $("#publisher").removeClass("hide").html(myusername).show()
+                                console.log('$("#myvideo") :- ---------------', $("#myvideo"))
                                 Janus.attachMediaStream($("#myvideo").get(0), stream)
                                 $("#myvideo").get(0).muted = "muted"
                                 if (
@@ -457,6 +461,7 @@ function registerUsername() {
 function publishOwnFeed(useAudio) {
     // Publish our stream
     $("#publish").attr("disabled", true).unbind("click")
+    console.log("publichOwnFeed: -------------------- ", useAudio)
     sfutest.createOffer({
         // Add data:true here if you want to publish datachannels as well
         media: {
@@ -471,7 +476,7 @@ function publishOwnFeed(useAudio) {
         simulcast: doSimulcast,
         simulcast2: doSimulcast2,
         success: function (jsep) {
-            Janus.debug("Got publisher SDP!", jsep)
+            //Janus.debug("Got publisher SDP!", jsep)
             var publish = { request: "configure", audio: useAudio, video: true }
             // You can force a specific codec to use when publishing by using the
             // audiocodec and videocodec properties, for instance:
@@ -486,7 +491,7 @@ function publishOwnFeed(useAudio) {
             sfutest.send({ message: publish, jsep: jsep })
         },
         error: function (error) {
-            Janus.error("WebRTC error:", error)
+            //Janus.error("WebRTC error:", error)
             if (useAudio) {
                 publishOwnFeed(false)
             } else {
@@ -503,7 +508,8 @@ function publishOwnFeed(useAudio) {
 
 function toggleMute() {
     var muted = sfutest.isAudioMuted()
-    Janus.log((muted ? "Unmuting" : "Muting") + " local stream...")
+    console.log("toggleMute: ------------ ", muted)
+    //Janus.log((muted ? "Unmuting" : "Muting") + " local stream...")
     if (muted) sfutest.unmuteAudio()
     else sfutest.muteAudio()
     muted = sfutest.isAudioMuted()
@@ -527,8 +533,8 @@ function newRemoteFeed(id, display, audio, video) {
         success: function (pluginHandle) {
             remoteFeed = pluginHandle
             remoteFeed.simulcastStarted = false
-            Janus.log("Plugin attached! (" + remoteFeed.getPlugin() + ", id=" + remoteFeed.getId() + ")")
-            Janus.log("  -- This is a subscriber")
+            //Janus.log("Plugin attached! (" + remoteFeed.getPlugin() + ", id=" + remoteFeed.getId() + ")")
+            //Janus.log("  -- This is a subscriber")
             // We wait for the plugin to send us an offer
             var subscribe = {
                 request: "join",
@@ -555,9 +561,9 @@ function newRemoteFeed(id, display, audio, video) {
             bootbox.alert("Error attaching plugin... " + error)
         },
         onmessage: function (msg, jsep) {
-            Janus.debug(" ::: Got a message (subscriber) :::", msg)
+            //Janus.debug(" ::: Got a message (subscriber) :::", msg)
             var event = msg["videoroom"]
-            Janus.debug("Event: " + event)
+            //Janus.debug("Event: " + event)
             if (msg["error"]) {
                 bootbox.alert(msg["error"])
             } else if (event) {

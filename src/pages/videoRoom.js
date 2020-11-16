@@ -14,10 +14,14 @@ export default function VideoRoom(props) {
     }, [])
     const janusState = useSelector((state) => state.janus)
     const [userName, setUserName] = useState("")
-    console.log("janusstate: --------------- ", janusState)
+    const [toggleMute, setToggleMute] = useState(false)
+    const [publish, setPublish] = useState(true)
+    console.log("janusstate: --------------- ", janusState, publish)
 
     useEffect(() => {
         if (janusState.message.publishers) handleNewRemoteFeed(janusState.message)
+        if (janusState.status === "CONNECTED" && janusState.stream.local && publish) handleLocalStream(janusState.stream.local)
+        // if (janusState.status === "CLEANUP") setPublish(!publish)
     }, [janusState])
     const handleCheckEnter = (event) => {
         var theCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode
@@ -32,6 +36,8 @@ export default function VideoRoom(props) {
         JanusHelperVideoRoom.getInstance().registerUsername(userName)
     }
     const handleNewRemoteFeed = (msg) => {
+        console.log("handleNewRemoteFeed: ---------- ", msg)
+
         var list = msg["publishers"]
         window.Janus.debug("Got a list of available publishers/feeds:", list)
         for (var f in list) {
@@ -42,6 +48,33 @@ export default function VideoRoom(props) {
             window.Janus.debug("  >> [" + id + "] " + display + " (audio: " + audio + ", video: " + video + ")")
             JanusHelperVideoRoom.getInstance().newRemoteFeed(id, display, audio, video)
         }
+    }
+    const handleLocalStream = (stream) => {
+        window.Janus.attachMediaStream(document.getElementById("myvideo"), stream)
+    }
+    const handleToggleMute = () => {
+        setToggleMute(!toggleMute)
+        JanusHelperVideoRoom.getInstance().toggleMute()
+    }
+    const handleBitrate = (bitrate) => {
+        var bitrate = bitrate * 1000
+        if (bitrate === 0) {
+            window.Janus.log("Not limiting bandwidth via REMB")
+        } else {
+            window.Janus.log("Capping bandwidth to " + bitrate + " via REMB")
+        }
+
+        JanusHelperVideoRoom.getInstance().sfutest.send({
+            message: { request: "configure", bitrate: bitrate },
+        })
+    }
+    const handleUnpublish = () => {
+        JanusHelperVideoRoom.getInstance().unpublishOwnFeed()
+        setPublish(!publish)
+    }
+    const handlePublish = () => {
+        JanusHelperVideoRoom.getInstance().publishOwnFeed(true)
+        setPublish(!publish)
     }
     return (
         <div>
@@ -150,128 +183,164 @@ export default function VideoRoom(props) {
                                 </div>
                             </div>
                         )}
-                        <div className="container hide" id="videos">
-                            <div className="row">
-                                <div className="col-md-4">
-                                    <div className="panel panel-default">
-                                        <div className="panel-heading">
-                                            <h3 className="panel-title">
-                                                Local Video
-                                                <span className="label label-primary hide" id="publisher"></span>
-                                                <div className="btn-group btn-group-xs pull-right hide">
-                                                    <div className="btn-group btn-group-xs">
-                                                        <button
-                                                            id="bitrateset"
-                                                            autoComplete="off"
-                                                            className="btn btn-primary dropdown-toggle"
-                                                            data-toggle="dropdown"
-                                                        >
-                                                            Bandwidth
-                                                            <span className="caret"></span>
-                                                        </button>
-                                                        <ul id="bitrate" className="dropdown-menu" role="menu">
-                                                            <li>
-                                                                <a href="#" id="0">
-                                                                    No limit
-                                                                </a>
-                                                            </li>
-                                                            <li>
-                                                                <a href="#" id="128">
-                                                                    Cap to 128kbit
-                                                                </a>
-                                                            </li>
-                                                            <li>
-                                                                <a href="#" id="256">
-                                                                    Cap to 256kbit
-                                                                </a>
-                                                            </li>
-                                                            <li>
-                                                                <a href="#" id="512">
-                                                                    Cap to 512kbit
-                                                                </a>
-                                                            </li>
-                                                            <li>
-                                                                <a href="#" id="1024">
-                                                                    Cap to 1mbit
-                                                                </a>
-                                                            </li>
-                                                            <li>
-                                                                <a href="#" id="1500">
-                                                                    Cap to 1.5mbit
-                                                                </a>
-                                                            </li>
-                                                            <li>
-                                                                <a href="#" id="2000">
-                                                                    Cap to 2mbit
-                                                                </a>
-                                                            </li>
-                                                        </ul>
+                        {janusState.status === "CONNECTED" && (
+                            <div className="container" id="videos">
+                                <div className="row">
+                                    <div className="col-md-4">
+                                        <div className="panel panel-default">
+                                            <div className="panel-heading">
+                                                <h3 className="panel-title">
+                                                    Local Video
+                                                    <span className="label label-primary" id="publisher"></span>
+                                                    <div className="btn-group btn-group-xs pull-right">
+                                                        <div className="btn-group btn-group-xs">
+                                                            <button
+                                                                id="bitrateset"
+                                                                autoComplete="off"
+                                                                className="btn btn-primary dropdown-toggle"
+                                                                data-toggle="dropdown"
+                                                            >
+                                                                Bandwidth
+                                                                <span className="caret"></span>
+                                                            </button>
+                                                            <ul id="bitrate" className="dropdown-menu" role="menu">
+                                                                <li>
+                                                                    <a href="#" id="0" onClick={() => handleBitrate(0)}>
+                                                                        No limit
+                                                                    </a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#" id="128" onClick={() => handleBitrate(128)}>
+                                                                        Cap to 128kbit
+                                                                    </a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#" id="256" onClick={() => handleBitrate(256)}>
+                                                                        Cap to 256kbit
+                                                                    </a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#" id="512" onClick={() => handleBitrate(512)}>
+                                                                        Cap to 512kbit
+                                                                    </a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#" id="1024" onClick={() => handleBitrate(1024)}>
+                                                                        Cap to 1mbit
+                                                                    </a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#" id="1500" onClick={() => handleBitrate(1500)}>
+                                                                        Cap to 1.5mbit
+                                                                    </a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#" id="2000" onClick={() => handleBitrate(2000)}>
+                                                                        Cap to 2mbit
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </h3>
+                                                </h3>
+                                            </div>
+                                            <div className="panel-body" id="videolocal">
+                                                {!publish ? (
+                                                    <button id="publish" className="btn btn-primary" onClick={handlePublish}>
+                                                        Publish
+                                                    </button>
+                                                ) : (
+                                                    <>
+                                                        <video
+                                                            className="rounded centered"
+                                                            id="myvideo"
+                                                            width="100%"
+                                                            height="100%"
+                                                            autoPlay
+                                                            playsInline
+                                                            muted="muted"
+                                                        />
+                                                        <button
+                                                            className="btn btn-warning btn-xs"
+                                                            id="mute"
+                                                            onClick={handleToggleMute}
+                                                            style={{ position: "absolute", bottom: "0px", left: "0px", margin: "15px" }}
+                                                        >
+                                                            {!toggleMute ? "Mute" : "Unmute"}
+                                                        </button>
+                                                        <button
+                                                            className="btn btn-warning btn-xs"
+                                                            id="unpublish"
+                                                            onClick={handleUnpublish}
+                                                            style={{ position: "absolute", bottom: "0px", right: "0px", margin: "15px" }}
+                                                        >
+                                                            Unpublish
+                                                        </button>
+                                                    </>
+                                                )}
+                                            </div>
                                         </div>
-                                        <div className="panel-body" id="videolocal"></div>
+                                    </div>
+                                    <div className="col-md-4">
+                                        <div className="panel panel-default">
+                                            <div className="panel-heading">
+                                                <h3 className="panel-title">
+                                                    Remote Video #1
+                                                    <span className="label label-info" id="remote1"></span>
+                                                </h3>
+                                            </div>
+                                            <div className="panel-body relative" id="videoremote1"></div>
+                                        </div>
+                                    </div>
+                                    <div className="col-md-4">
+                                        <div className="panel panel-default">
+                                            <div className="panel-heading">
+                                                <h3 className="panel-title">
+                                                    Remote Video #2
+                                                    <span className="label label-info" id="remote2"></span>
+                                                </h3>
+                                            </div>
+                                            <div className="panel-body relative" id="videoremote2"></div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="col-md-4">
-                                    <div className="panel panel-default">
-                                        <div className="panel-heading">
-                                            <h3 className="panel-title">
-                                                Remote Video #1
-                                                <span className="label label-info hide" id="remote1"></span>
-                                            </h3>
+                                <div className="row">
+                                    <div className="col-md-4">
+                                        <div className="panel panel-default">
+                                            <div className="panel-heading">
+                                                <h3 className="panel-title">
+                                                    Remote Video #3
+                                                    <span className="label label-info" id="remote3"></span>
+                                                </h3>
+                                            </div>
+                                            <div className="panel-body relative" id="videoremote3"></div>
                                         </div>
-                                        <div className="panel-body relative" id="videoremote1"></div>
                                     </div>
-                                </div>
-                                <div className="col-md-4">
-                                    <div className="panel panel-default">
-                                        <div className="panel-heading">
-                                            <h3 className="panel-title">
-                                                Remote Video #2
-                                                <span className="label label-info hide" id="remote2"></span>
-                                            </h3>
+                                    <div className="col-md-4">
+                                        <div className="panel panel-default">
+                                            <div className="panel-heading">
+                                                <h3 className="panel-title">
+                                                    Remote Video #4
+                                                    <span className="label label-info" id="remote4"></span>
+                                                </h3>
+                                            </div>
+                                            <div className="panel-body relative" id="videoremote4"></div>
                                         </div>
-                                        <div className="panel-body relative" id="videoremote2"></div>
+                                    </div>
+                                    <div className="col-md-4">
+                                        <div className="panel panel-default">
+                                            <div className="panel-heading">
+                                                <h3 className="panel-title">
+                                                    Remote Video #5
+                                                    <span className="label label-info" id="remote5"></span>
+                                                </h3>
+                                            </div>
+                                            <div className="panel-body relative" id="videoremote5"></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div className="row">
-                                <div className="col-md-4">
-                                    <div className="panel panel-default">
-                                        <div className="panel-heading">
-                                            <h3 className="panel-title">
-                                                Remote Video #3
-                                                <span className="label label-info hide" id="remote3"></span>
-                                            </h3>
-                                        </div>
-                                        <div className="panel-body relative" id="videoremote3"></div>
-                                    </div>
-                                </div>
-                                <div className="col-md-4">
-                                    <div className="panel panel-default">
-                                        <div className="panel-heading">
-                                            <h3 className="panel-title">
-                                                Remote Video #4
-                                                <span className="label label-info hide" id="remote4"></span>
-                                            </h3>
-                                        </div>
-                                        <div className="panel-body relative" id="videoremote4"></div>
-                                    </div>
-                                </div>
-                                <div className="col-md-4">
-                                    <div className="panel panel-default">
-                                        <div className="panel-heading">
-                                            <h3 className="panel-title">
-                                                Remote Video #5
-                                                <span className="label label-info hide" id="remote5"></span>
-                                            </h3>
-                                        </div>
-                                        <div className="panel-body relative" id="videoremote5"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        )}
                     </div>
                 </div>
 
