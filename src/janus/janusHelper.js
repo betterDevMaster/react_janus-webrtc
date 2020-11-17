@@ -122,8 +122,8 @@ export default class JanusHelper {
         if (event) {
             switch (event) {
                 case "joined":
-                    // this.myid = msg["id"]
-                    // this.mypvtid = msg["private_id"]
+                    this.myid = msg["id"]
+                    this.mypvtid = msg["private_id"]
                     // set local stream
                     this.publishOwnFeed(true)
                     // add remote stream which are already in room
