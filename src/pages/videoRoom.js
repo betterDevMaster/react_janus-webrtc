@@ -15,14 +15,21 @@ export default function VideoRoom(props) {
     const janusState = useSelector((state) => state.janus)
     const [userName, setUserName] = useState("")
     const [toggleMute, setToggleMute] = useState(false)
+    const [statusChange, setStatusChange] = useState(false)
     const [publish, setPublish] = useState(true)
     console.log("janusstate: --------------- ", janusState, publish)
 
     useEffect(() => {
+        setStatusChange(!statusChange)
         if (janusState.message.publishers) handleNewRemoteFeed(janusState.message)
         if (janusState.status === "CONNECTED" && janusState.stream.local && publish) handleLocalStream(janusState.stream.local)
         // if (janusState.status === "CLEANUP") setPublish(!publish)
     }, [janusState])
+
+    const handleStart = () => {
+        setStatusChange(!statusChange)
+        JanusHelperVideoRoom.getInstance().start(1234)
+    }
     const handleCheckEnter = (event) => {
         var theCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode
         if (theCode === 13) {
@@ -64,7 +71,7 @@ export default function VideoRoom(props) {
             window.Janus.log("Capping bandwidth to " + bitrate + " via REMB")
         }
 
-        JanusHelperVideoRoom.getInstance().sfutest.send({
+        JanusHelperVideoRoom.getInstance().janusPlugin.send({
             message: { request: "configure", bitrate: bitrate },
         })
     }
@@ -106,10 +113,15 @@ export default function VideoRoom(props) {
                                     className="btn btn-default"
                                     autoComplete="off"
                                     id="start"
-                                    onClick={() => JanusHelperVideoRoom.getInstance().start(1234)}
-                                    disabled={janusState.status === "joined"}
+                                    disabled={statusChange}
+                                    onClick={() =>
+                                        janusState.status === "INITIALIZED" || janusState.status === "ATACHED"
+                                            ? handleStart()
+                                            : window.location.reload()
+                                    }
+                                    // disabled={janusState.status === "joined"}
                                 >
-                                    {janusState.status === "INITIALIZED" || janusState.status === "ATTACHED" ? "Start" : "Stop"}
+                                    {janusState.status === "INITIALIZED" ? "Start" : "Stop"}
                                 </button>
                             </h1>
                         </div>

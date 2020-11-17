@@ -9,7 +9,7 @@ const janus = (
     },
     action
 ) => {
-    console.log(action)
+    console.log("janus reducer: -------------- ", action)
     switch (action.type) {
         // case actionTypes.ATTACH_CLEAR_ALL:
         //     return clearAll(state, action)
