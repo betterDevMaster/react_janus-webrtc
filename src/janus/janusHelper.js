@@ -89,7 +89,7 @@ export default class JanusHelper {
     }
 
     onWaitDialog(on) {
-        // window.Janus.debug("Consent dialog should be " + (on ? "on" : "off") + " now")
+        window.Janus.debug("Consent dialog should be " + (on ? "on" : "off") + " now")
         if (on) {
             // Darken screen and show hint
             window.$.blockUI({
@@ -110,7 +110,7 @@ export default class JanusHelper {
     }
 
     onWebrtcStateChange(on) {
-        // window.Janus.log("Janus says our WebRTC PeerConnection is ------------------- " + (on ? "up" : "down") + " now")
+        window.Janus.log("Janus says our WebRTC PeerConnection is ------------------- " + (on ? "up" : "down") + " now")
         this.closeWaitDialog()
         this.dispatch({ type: "JANUS_STATE", value: on ? "CONNECTED" : "DISCONNECTED" })
     }
@@ -122,8 +122,8 @@ export default class JanusHelper {
         if (event) {
             switch (event) {
                 case "joined":
-                    this.myid = msg["id"]
-                    this.mypvtid = msg["private_id"]
+                    // this.myid = msg["id"]
+                    // this.mypvtid = msg["private_id"]
                     // set local stream
                     this.publishOwnFeed(true)
                     // add remote stream which are already in room
@@ -138,7 +138,8 @@ export default class JanusHelper {
                         // add new remote
                         this.addRemoteStreams(msg["publishers"])
                     } else if (msg["leaving"]) {
-                        this.removeRemoteStreamById(msg["leaving"])
+                        // this.removeRemoteStreamById(msg["leaving"])
+                        this.removeRemoteStream(msg["leaving"])
                     } else if (msg["unpublished"]) {
                         const id = msg["unpublished"]
                         if (id === "ok") {
@@ -301,6 +302,7 @@ export default class JanusHelper {
 
     removeRemoteStream(remoteId) {
         var remoteFeed = this.getRemoteFeedById(remoteId)
+        console.log("removeRemoteStream: ----------- ", remoteFeed, this.feeds)
         if (remoteFeed != null) {
             this.feeds[remoteFeed.rfindex] = null
             remoteFeed.detach()
@@ -312,7 +314,7 @@ export default class JanusHelper {
         // A new feed has been published, create a new plugin handle and attach to it as a subscriber
         var remoteFeed = null
         this.session.attach({
-            plugin: "janus.plugin.videoroom",
+            plugin: this.pluginName,
             opaqueId: this.opaqueId,
             success: (pluginHandle) => {
                 remoteFeed = pluginHandle
@@ -357,19 +359,19 @@ export default class JanusHelper {
                                     break
                                 }
                             }
-                            console.log("feeds: -------------- ", this.feeds)
+                            // console.log("feeds: -------------- ", this.feeds)
 
                             remoteFeed.rfid = msg["id"]
                             remoteFeed.rfdisplay = msg["display"]
                             this.dispatch({ type: "JANUS_REMOTESTREAM", value: this.feeds })
-                            console.log(
-                                "Successfully attached to feed " +
-                                    remoteFeed.rfid +
-                                    " (" +
-                                    remoteFeed.rfdisplay +
-                                    ") in room " +
-                                    msg["room"]
-                            )
+                            // console.log(
+                            //     "Successfully attached to feed " +
+                            //         remoteFeed.rfid +
+                            //         " (" +
+                            //         remoteFeed.rfdisplay +
+                            //         ") in room " +
+                            //         msg["room"]
+                            // )
                             break
                         case "event":
                             var substream = msg["substream"]
@@ -385,7 +387,7 @@ export default class JanusHelper {
                             }
                             break
                         default:
-                            console.log("What has just happened?", msg)
+                        // console.log("What has just happened?", msg)
                         // What has just happened?
                     }
                 }
@@ -421,9 +423,10 @@ export default class JanusHelper {
                 // The subscriber stream is recvonly, we don't expect anything here
             },
             onremotestream: (stream) => {
-                window.Janus.debug("Remote feed #" + remoteFeed.rfindex + ", stream:", stream)
+                // window.Janus.debug("Remote feed #" + remoteFeed.rfindex + ", stream:", stream)
+                // console.log("newRemoteStream: ------------- ", stream)
                 remoteFeed["stream"] = stream
-                this.dispatch({ type: "JANUS_REMOTESTREAM", value: this.feeds })
+                // this.dispatch({ type: "JANUS_REMOTESTREAM", value: this.feeds })
             },
             oncleanup: () => {
                 this.removeRemoteStream(remoteFeed.rfindex)

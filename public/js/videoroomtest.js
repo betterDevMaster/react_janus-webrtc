@@ -49,7 +49,7 @@ else server = "https://" + window.location.hostname + ":8089/janus"
 // server = "wss://janus.conf.meetecho.com/ws";
 server = "https://janusserver.simportal.net:8089/janus"
 
-console.log("videoroomtest: ----------- ", server)
+// console.log("videoroomtest: ----------- ", server)
 var janus = null
 var sfutest = null
 var opaqueId = "videoroomtest-" + Janus.randomString(12)
@@ -72,11 +72,11 @@ var subscriber_mode = getQueryStringValue("subscriber-mode") === "yes" || getQue
 $(document).ready(function () {
     // Initialize the library (all console debuggers enabled)
     Janus.init({
-        debug: "all",
+        // debug: "all",
         callback: function () {
             // Use a button to start the demo
             $("#start").one("click", function () {
-                console.log("start clicked: ---------- ")
+                // console.log("start clicked: ---------- ")
                 $(this).attr("disabled", true).unbind("click")
                 // Make sure the browser supports WebRTC
                 if (!Janus.isWebrtcSupported()) {
@@ -88,7 +88,7 @@ $(document).ready(function () {
                     server: server,
                     success: function () {
                         // Attach to VideoRoom plugin
-                        console.log("opaqueId", opaqueId)
+                        // console.log("opaqueId", opaqueId)
                         janus.attach({
                             plugin: "janus.plugin.videoroom",
                             opaqueId: opaqueId,
@@ -143,7 +143,7 @@ $(document).ready(function () {
                             webrtcState: function (on) {
                                 Janus.log("Janus says our WebRTC PeerConnection is " + (on ? "up" : "down") + " now")
                                 $("#videolocal").parent().parent().unblock()
-                                console.log("Janus says our WebRTC PeerConnection is ------------------- " + (on ? "up" : "down") + " now")
+                                // console.log("Janus says our WebRTC PeerConnection is ------------------- " + (on ? "up" : "down") + " now")
 
                                 if (!on) return
                                 $("#publish").remove()
@@ -171,7 +171,7 @@ $(document).ready(function () {
                                 Janus.debug(" ::: Got a message (publisher) :::", msg)
                                 var event = msg["videoroom"]
                                 Janus.debug("Event: " + event)
-                                console.log("onMessage: ---------- ", msg, jsep, subscriber_mode)
+                                console.log("localFeed: onMessage: ----------------- ", event, msg, jsep)
 
                                 if (event) {
                                     if (event === "joined") {
@@ -188,7 +188,7 @@ $(document).ready(function () {
                                         // Any new feed to attach to?
                                         if (msg["publishers"]) {
                                             var list = msg["publishers"]
-                                            console.log("joined: publishers: -------------- ", list)
+                                            console.log("localFeed: joined: publishers: -------------- ", list)
                                             Janus.debug("Got a list of available publishers/feeds:", list)
                                             for (var f in list) {
                                                 var id = list[f]["id"]
@@ -212,7 +212,7 @@ $(document).ready(function () {
                                         if (msg["publishers"]) {
                                             var list = msg["publishers"]
                                             Janus.debug("Got a list of available publishers/feeds:", list)
-                                            console.log("event: publishers: -------------- ", list)
+                                            console.log("localFeed: event: publishers: -------------- ", list)
 
                                             for (var f in list) {
                                                 var id = list[f]["id"]
@@ -235,6 +235,8 @@ $(document).ready(function () {
                                                     break
                                                 }
                                             }
+                                            console.log("localFeed: event: leaving: -------------- ", msg, feeds)
+
                                             if (remoteFeed != null) {
                                                 Janus.debug(
                                                     "Feed " +
@@ -328,7 +330,7 @@ $(document).ready(function () {
                             onlocalstream: function (stream) {
                                 Janus.debug(" ::: Got a local stream :::", stream)
                                 mystream = stream
-                                console.log("onLocalStream: ----------------- ", mystream)
+                                // console.log("onLocalStream: ----------------- ", mystream)
                                 $("#videojoin").hide()
                                 $("#videos").removeClass("hide").show()
                                 if ($("#myvideo").length === 0) {
@@ -347,7 +349,7 @@ $(document).ready(function () {
                                     $("#unpublish").click(unpublishOwnFeed)
                                 }
                                 $("#publisher").removeClass("hide").html(myusername).show()
-                                console.log('$("#myvideo") :- ---------------', $("#myvideo"))
+                                // console.log('$("#myvideo") :- ---------------', $("#myvideo"))
                                 Janus.attachMediaStream($("#myvideo").get(0), stream)
                                 $("#myvideo").get(0).muted = "muted"
                                 if (
@@ -453,7 +455,7 @@ function registerUsername() {
             display: username,
         }
         myusername = username
-        console.log("REGISTER", register)
+        // console.log("REGISTER", register)
         sfutest.send({ message: register })
     }
 }
@@ -461,7 +463,7 @@ function registerUsername() {
 function publishOwnFeed(useAudio) {
     // Publish our stream
     $("#publish").attr("disabled", true).unbind("click")
-    console.log("publichOwnFeed: -------------------- ", useAudio)
+    // console.log("publichOwnFeed: -------------------- ", useAudio)
     sfutest.createOffer({
         // Add data:true here if you want to publish datachannels as well
         media: {
@@ -524,7 +526,7 @@ function unpublishOwnFeed() {
 }
 
 function newRemoteFeed(id, display, audio, video) {
-    console.log("newRemoteFeed: ------------- ", id, display, audio, video)
+    // console.log("newRemoteFeed: ------------- ", id, display, audio, video)
     // A new feed has been published, create a new plugin handle and attach to it as a subscriber
     var remoteFeed = null
     janus.attach({
@@ -564,6 +566,8 @@ function newRemoteFeed(id, display, audio, video) {
             //Janus.debug(" ::: Got a message (subscriber) :::", msg)
             var event = msg["videoroom"]
             //Janus.debug("Event: " + event)
+            console.log("newRemoteFeed: onmessage: ----------------- ", event, msg, jsep)
+
             if (msg["error"]) {
                 bootbox.alert(msg["error"])
             } else if (event) {
@@ -576,6 +580,8 @@ function newRemoteFeed(id, display, audio, video) {
                             break
                         }
                     }
+                    console.log("remoteFeed: attached: feeds: -------------- ", feeds)
+
                     remoteFeed.rfid = msg["id"]
                     remoteFeed.rfdisplay = msg["display"]
                     if (!remoteFeed.spinner) {
@@ -597,10 +603,10 @@ function newRemoteFeed(id, display, audio, video) {
                         if (!remoteFeed.simulcastStarted) {
                             remoteFeed.simulcastStarted = true
                             // Add some new buttons
-                            addSimulcastButtons(remoteFeed.rfindex, remoteFeed.videoCodec === "vp8" || remoteFeed.videoCodec === "h264")
+                            // addSimulcastButtons(remoteFeed.rfindex, remoteFeed.videoCodec === "vp8" || remoteFeed.videoCodec === "h264")
                         }
                         // We just received notice that there's been a switch, update the buttons
-                        updateSimulcastButtons(remoteFeed.rfindex, substream, temporal)
+                        // updateSimulcastButtons(remoteFeed.rfindex, substream, temporal)
                     }
                 } else {
                     // What has just happened?

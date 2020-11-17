@@ -26,12 +26,13 @@ const janus = (
                 },
             }
         case "JANUS_REMOTESTREAM":
-            console.log("janus reducer: JANUS_REMOTESTREAM: -------------- ", state, action)
+            // console.log("janus reducer: JANUS_REMOTESTREAM: -------------- ", state, action, state.stream.remote.concat(action.value))
             return {
                 ...state,
                 stream: {
                     local: state.stream.local,
-                    remote: [...state.stream.remote, action.value],
+                    // remote: [...state.stream.remote, ...action.value],
+                    remote: action.value,
                 },
             }
         // case "JANUS_REMOVEREMOTESTREAM":

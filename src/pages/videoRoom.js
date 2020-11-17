@@ -16,25 +16,25 @@ export default function VideoRoom(props) {
     const janusState = useSelector((state) => state.janus)
     const [userName, setUserName] = useState("")
     const [toggleMute, setToggleMute] = useState(false)
-    // const [statusChange, setStatusChange] = useState(true)
+    const [statusChange, setStatusChange] = useState(false)
     const [publish, setPublish] = useState(true)
-    const [remoteStream, setRemoteStream] = useState([])
 
     useEffect(() => {
         console.log("janusstate: --------------- ", janusState, publish)
 
-        // setStatusChange(!statusChange)
-        // if (janusState.message.publishers) handleNewRemoteFeed(janusState.message)
+        setStatusChange(!statusChange)
         if (janusState.status === "RUNNING") handlePublishing()
-        // if (janusState.status === "CONNECTED") handleLocalStream(janusState.stream.local)
         if (janusState.status === "CONNECTED" && janusState.stream.local && publish) handleLocalStream(janusState.stream.local)
-        // if (janusState.status === "CONNECTED" && janusState.stream.remote && publish) handleRemoteStream(janusState.stream.remote)
-        // if (janusState.status === "CLEANUP") setPublish(!publish)
+        if (janusState.status === "CONNECTED" && janusState.stream.remote && publish) handleRemoteStream(janusState.stream.remote)
     }, [janusState])
 
     const handleStart = () => {
-        // setStatusChange(!statusChange)
+        setStatusChange(!statusChange)
         JanusHelperVideoRoom.getInstance().start(1234)
+    }
+    const handleStop = () => {
+        JanusHelperVideoRoom.getInstance().stop()
+        window.location.reload()
     }
     const handleCheckEnter = (event) => {
         var theCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode
@@ -46,23 +46,9 @@ export default function VideoRoom(props) {
         }
     }
     const handleRegisterName = () => {
-        // setStatusChange(!statusChange)
+        setStatusChange(!statusChange)
         JanusHelperVideoRoom.getInstance().registerUsername(userName)
     }
-    // const handleNewRemoteFeed = (msg) => {
-    //     console.log("handleNewRemoteFeed: ---------- ", msg)
-
-    //     var list = msg["publishers"]
-    //     window.Janus.debug("Got a list of available publishers/feeds:", list)
-    //     for (var f in list) {
-    //         var id = list[f]["id"]
-    //         var display = list[f]["display"]
-    //         var audio = list[f]["audio_codec"]
-    //         var video = list[f]["video_codec"]
-    //         window.Janus.debug("  >> [" + id + "] " + display + " (audio: " + audio + ", video: " + video + ")")
-    //         JanusHelperVideoRoom.getInstance().newRemoteFeed(id, display, audio, video)
-    //     }
-    // }
     const handlePublishing = () => {
         window.$.blockUI({
             message: "<b>Publishing...</b>",
@@ -74,12 +60,17 @@ export default function VideoRoom(props) {
         })
     }
     const handleLocalStream = (stream) => {
-        console.log("handleLocalStream: ------------- ", stream)
         window.Janus.attachMediaStream(document.getElementById("myvideo"), stream)
     }
-    const handleRemoteStream = (stream) => {
-        console.log("handleRemoteStream: ------------- ", stream)
-        setRemoteStream(stream)
+    const handleRemoteStream = (sessions) => {
+        sessions.forEach((session, i) => {
+            if (session && document.getElementById(`curres${i}`)) {
+                console.log("session: --------------- ", session, i, document.getElementById(`remotevideo${i}`))
+                window.Janus.attachMediaStream(document.getElementById(`remotevideo${i}`), session.webrtcStuff.remoteStream)
+                document.getElementById(`curres${i}`).textContent =
+                    document.getElementById(`remotevideo${i}`).videoWidth + "x" + document.getElementById(`remotevideo${i}`).videoHeight
+            }
+        })
     }
     const handleToggleMute = () => {
         setToggleMute(!toggleMute)
@@ -135,11 +126,11 @@ export default function VideoRoom(props) {
                                     className="btn btn-default"
                                     autoComplete="off"
                                     id="start"
-                                    // disabled={statusChange}
+                                    disabled={statusChange}
                                     onClick={() =>
                                         janusState.status === "INITIALIZED" || janusState.status === "ATACHED"
                                             ? handleStart()
-                                            : window.location.reload()
+                                            : handleStop()
                                     }
                                     // disabled={janusState.status === "joined"}
                                 >
@@ -225,7 +216,9 @@ export default function VideoRoom(props) {
                                             <div className="panel-heading">
                                                 <h3 className="panel-title">
                                                     Local Video
-                                                    <span className="label label-primary" id="publisher"></span>
+                                                    <span className="label label-primary" id="publisher">
+                                                        {userName}
+                                                    </span>
                                                     <div className="btn-group btn-group-xs pull-right">
                                                         <div className="btn-group btn-group-xs">
                                                             <button
@@ -320,26 +313,61 @@ export default function VideoRoom(props) {
                                             </div>
                                         </div>
                                     </div>
-                                    {/* {janusState.stream.remote.length > 0 &&
-                                        janusState.stream.remote.map((stream, i) => {
-                                            if (stream) {
+                                    {janusState.stream.remote.length > 0 &&
+                                        janusState.stream.remote.map((session, i) => {
+                                            if (session) {
                                                 return (
                                                     <div key={i}>
                                                         <div className="col-md-4">
                                                             <div className="panel panel-default">
                                                                 <div className="panel-heading">
                                                                     <h3 className="panel-title">
-                                                                        Remote Video #1
-                                                                        <span className="label label-info" id="remote1"></span>
+                                                                        Remote Video #{i}
+                                                                        <span className="label label-info" id={`remote${i}`}>
+                                                                            {session.rfdisplay}
+                                                                        </span>
                                                                     </h3>
                                                                 </div>
-                                                                <div className="panel-body relative" id="videoremote1"></div>
+                                                                <div className="panel-body relative" id="videoremote1">
+                                                                    <video
+                                                                        className="rounded centered relative"
+                                                                        id={`remotevideo${i}`}
+                                                                        width="100%"
+                                                                        height="100%"
+                                                                        autoPlay
+                                                                        playsInline
+                                                                        // controls
+                                                                        // loop
+                                                                    ></video>
+                                                                    <span
+                                                                        className="label label-primary"
+                                                                        id={`curres${i}`}
+                                                                        style={{
+                                                                            position: "absolute",
+                                                                            bottom: "0px",
+                                                                            left: "0px",
+                                                                            margin: "15px",
+                                                                        }}
+                                                                    ></span>
+                                                                    <span
+                                                                        className="label label-info"
+                                                                        id={`curbitrate${i}`}
+                                                                        style={{
+                                                                            position: "absolute",
+                                                                            bottom: "0px",
+                                                                            right: "0px",
+                                                                            margin: "15px",
+                                                                        }}
+                                                                    >
+                                                                        {session.getBitrate()}
+                                                                    </span>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 )
                                             }
-                                        })} */}
+                                        })}
 
                                     {/* <div className="col-md-4">
                                         <div className="panel panel-default">
