@@ -1,5 +1,4 @@
 import JanusHelper from "./janusHelper"
-import * as $ from "jquery"
 
 export default class JanusHelperVideoRoom extends JanusHelper {
     static getInstance() {

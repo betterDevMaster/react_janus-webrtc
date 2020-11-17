@@ -6,6 +6,7 @@ import Header from "../widget/header"
 import Footer from "../widget/footer"
 import JanusHelperVideoRoom from "../janus/janusHelperVideoRoom"
 // import * as ActionTypes from "../Store/Action/ActionTypes"
+import * as $ from "jquery"
 
 export default function VideoRoom(props) {
     const dispatch = useDispatch()
@@ -15,19 +16,24 @@ export default function VideoRoom(props) {
     const janusState = useSelector((state) => state.janus)
     const [userName, setUserName] = useState("")
     const [toggleMute, setToggleMute] = useState(false)
-    const [statusChange, setStatusChange] = useState(false)
+    // const [statusChange, setStatusChange] = useState(true)
     const [publish, setPublish] = useState(true)
-    console.log("janusstate: --------------- ", janusState, publish)
+    const [remoteStream, setRemoteStream] = useState([])
 
     useEffect(() => {
-        setStatusChange(!statusChange)
-        if (janusState.message.publishers) handleNewRemoteFeed(janusState.message)
+        console.log("janusstate: --------------- ", janusState, publish)
+
+        // setStatusChange(!statusChange)
+        // if (janusState.message.publishers) handleNewRemoteFeed(janusState.message)
+        if (janusState.status === "RUNNING") handlePublishing()
+        // if (janusState.status === "CONNECTED") handleLocalStream(janusState.stream.local)
         if (janusState.status === "CONNECTED" && janusState.stream.local && publish) handleLocalStream(janusState.stream.local)
+        // if (janusState.status === "CONNECTED" && janusState.stream.remote && publish) handleRemoteStream(janusState.stream.remote)
         // if (janusState.status === "CLEANUP") setPublish(!publish)
     }, [janusState])
 
     const handleStart = () => {
-        setStatusChange(!statusChange)
+        // setStatusChange(!statusChange)
         JanusHelperVideoRoom.getInstance().start(1234)
     }
     const handleCheckEnter = (event) => {
@@ -40,24 +46,40 @@ export default function VideoRoom(props) {
         }
     }
     const handleRegisterName = () => {
+        // setStatusChange(!statusChange)
         JanusHelperVideoRoom.getInstance().registerUsername(userName)
     }
-    const handleNewRemoteFeed = (msg) => {
-        console.log("handleNewRemoteFeed: ---------- ", msg)
+    // const handleNewRemoteFeed = (msg) => {
+    //     console.log("handleNewRemoteFeed: ---------- ", msg)
 
-        var list = msg["publishers"]
-        window.Janus.debug("Got a list of available publishers/feeds:", list)
-        for (var f in list) {
-            var id = list[f]["id"]
-            var display = list[f]["display"]
-            var audio = list[f]["audio_codec"]
-            var video = list[f]["video_codec"]
-            window.Janus.debug("  >> [" + id + "] " + display + " (audio: " + audio + ", video: " + video + ")")
-            JanusHelperVideoRoom.getInstance().newRemoteFeed(id, display, audio, video)
-        }
+    //     var list = msg["publishers"]
+    //     window.Janus.debug("Got a list of available publishers/feeds:", list)
+    //     for (var f in list) {
+    //         var id = list[f]["id"]
+    //         var display = list[f]["display"]
+    //         var audio = list[f]["audio_codec"]
+    //         var video = list[f]["video_codec"]
+    //         window.Janus.debug("  >> [" + id + "] " + display + " (audio: " + audio + ", video: " + video + ")")
+    //         JanusHelperVideoRoom.getInstance().newRemoteFeed(id, display, audio, video)
+    //     }
+    // }
+    const handlePublishing = () => {
+        window.$.blockUI({
+            message: "<b>Publishing...</b>",
+            css: {
+                border: "none",
+                backgroundColor: "transparent",
+                color: "white",
+            },
+        })
     }
     const handleLocalStream = (stream) => {
+        console.log("handleLocalStream: ------------- ", stream)
         window.Janus.attachMediaStream(document.getElementById("myvideo"), stream)
+    }
+    const handleRemoteStream = (stream) => {
+        console.log("handleRemoteStream: ------------- ", stream)
+        setRemoteStream(stream)
     }
     const handleToggleMute = () => {
         setToggleMute(!toggleMute)
@@ -113,7 +135,7 @@ export default function VideoRoom(props) {
                                     className="btn btn-default"
                                     autoComplete="off"
                                     id="start"
-                                    disabled={statusChange}
+                                    // disabled={statusChange}
                                     onClick={() =>
                                         janusState.status === "INITIALIZED" || janusState.status === "ATACHED"
                                             ? handleStart()
@@ -195,7 +217,7 @@ export default function VideoRoom(props) {
                                 </div>
                             </div>
                         )}
-                        {janusState.status === "CONNECTED" && (
+                        {(janusState.status === "RUNNING" || janusState.status === "CONNECTED") && (
                             <div className="container" id="videos">
                                 <div className="row">
                                     <div className="col-md-4">
@@ -284,7 +306,12 @@ export default function VideoRoom(props) {
                                                             className="btn btn-warning btn-xs"
                                                             id="unpublish"
                                                             onClick={handleUnpublish}
-                                                            style={{ position: "absolute", bottom: "0px", right: "0px", margin: "15px" }}
+                                                            style={{
+                                                                position: "absolute",
+                                                                bottom: "0px",
+                                                                right: "0px",
+                                                                margin: "15px",
+                                                            }}
                                                         >
                                                             Unpublish
                                                         </button>
@@ -293,7 +320,28 @@ export default function VideoRoom(props) {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="col-md-4">
+                                    {/* {janusState.stream.remote.length > 0 &&
+                                        janusState.stream.remote.map((stream, i) => {
+                                            if (stream) {
+                                                return (
+                                                    <div key={i}>
+                                                        <div className="col-md-4">
+                                                            <div className="panel panel-default">
+                                                                <div className="panel-heading">
+                                                                    <h3 className="panel-title">
+                                                                        Remote Video #1
+                                                                        <span className="label label-info" id="remote1"></span>
+                                                                    </h3>
+                                                                </div>
+                                                                <div className="panel-body relative" id="videoremote1"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )
+                                            }
+                                        })} */}
+
+                                    {/* <div className="col-md-4">
                                         <div className="panel panel-default">
                                             <div className="panel-heading">
                                                 <h3 className="panel-title">
@@ -314,9 +362,9 @@ export default function VideoRoom(props) {
                                             </div>
                                             <div className="panel-body relative" id="videoremote2"></div>
                                         </div>
-                                    </div>
+                                    </div> */}
                                 </div>
-                                <div className="row">
+                                {/* <div className="row">
                                     <div className="col-md-4">
                                         <div className="panel panel-default">
                                             <div className="panel-heading">
@@ -351,6 +399,7 @@ export default function VideoRoom(props) {
                                         </div>
                                     </div>
                                 </div>
+                             */}
                             </div>
                         )}
                     </div>

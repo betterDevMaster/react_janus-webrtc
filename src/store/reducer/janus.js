@@ -9,7 +9,7 @@ const janus = (
     },
     action
 ) => {
-    console.log("janus reducer: -------------- ", action)
+    // console.log("janus reducer: -------------- ", state, action)
     switch (action.type) {
         // case actionTypes.ATTACH_CLEAR_ALL:
         //     return clearAll(state, action)
@@ -25,7 +25,8 @@ const janus = (
                     remote: state.stream.remote,
                 },
             }
-        case "JANUS_ADDREMOTESTREAM":
+        case "JANUS_REMOTESTREAM":
+            console.log("janus reducer: JANUS_REMOTESTREAM: -------------- ", state, action)
             return {
                 ...state,
                 stream: {
@@ -33,7 +34,7 @@ const janus = (
                     remote: [...state.stream.remote, action.value],
                 },
             }
-        case "JANUS_REMOVEREMOTESTREAM":
+        // case "JANUS_REMOVEREMOTESTREAM":
 
         default:
             return state

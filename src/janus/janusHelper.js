@@ -3,7 +3,7 @@
  *          JANUS_STATE : enum { INITIALIZED, CONNECTED, DISCONNECTED, REJECTED}
  *          JANUS_MESSAGE: event from server
  *          JANUS_LOCALSTREAM: local stream
- *          JANUS_ADDREMOTESTREAM: remote stream
+ *          JANUS_REMOTESTREAM: remote stream
  *
  */
 
@@ -32,7 +32,7 @@ export default class JanusHelper {
 
     initJanus(debug = "all") {
         window.Janus.init({
-            debug,
+            // debug,
             callback: () => {
                 this.dispatch({ type: "JANUS_STATE", value: "INITIALIZED" })
             },
@@ -85,7 +85,6 @@ export default class JanusHelper {
 
     onAttach(pluginHandle) {
         this.janusPlugin = pluginHandle
-        console.log("onAttach: ------------ ", this.janusPlugin)
         this.dispatch({ type: "JANUS_STATE", value: "ATTACHED" })
     }
 
@@ -111,14 +110,14 @@ export default class JanusHelper {
     }
 
     onWebrtcStateChange(on) {
-        console.log("Janus says our WebRTC PeerConnection is ------------------- " + (on ? "up" : "down") + " now")
+        // window.Janus.log("Janus says our WebRTC PeerConnection is ------------------- " + (on ? "up" : "down") + " now")
         this.closeWaitDialog()
         this.dispatch({ type: "JANUS_STATE", value: on ? "CONNECTED" : "DISCONNECTED" })
     }
 
     onMessage(msg, jsep) {
         var event = msg["videoroom"]
-        console.log("onMessage: ----------------- ", event, msg, jsep)
+        console.log("localFeed: onMessage: ----------------- ", event, msg, jsep)
 
         if (event) {
             switch (event) {
@@ -175,7 +174,7 @@ export default class JanusHelper {
 
     onLocalStream(stream) {
         this.mystream = stream
-        this.dispatch({ type: "JANUS_STATUS", value: "RUNNING" })
+        this.dispatch({ type: "JANUS_STATE", value: "RUNNING" })
         this.dispatch({ type: "JANUS_LOCALSTREAM", value: stream })
     }
 
@@ -204,7 +203,7 @@ export default class JanusHelper {
     }
 
     registerUsername(username) {
-        this.publishOwnFeed(true)
+        // this.publishOwnFeed(true)
         if (username === "") {
             console.error("Insert your display name (e.g., pippo)")
             return
@@ -220,13 +219,13 @@ export default class JanusHelper {
             ptype: "publisher",
             display: this.myusername,
         }
-        console.log("registerUsername : ------------ ", register)
+        // console.log("registerUsername : ------------ ", register)
         this.janusPlugin.send({ message: register })
     }
 
     toggleMute() {
         var muted = this.janusPlugin.isAudioMuted()
-        console.log("toggleMute: ------------ ", muted)
+        // console.log("toggleMute: ------------ ", muted)
 
         window.Janus.log((muted ? "Unmuting" : "Muting") + " local stream...")
         if (muted) this.janusPlugin.unmuteAudio()
@@ -344,6 +343,7 @@ export default class JanusHelper {
                 //Janus.debug(" ::: Got a message (subscriber) :::", msg)
                 var event = msg["videoroom"]
                 //Janus.debug("Event: " + event)
+                console.log("newRemoteFeed: onmessage: ----------------- ", event, msg, jsep)
                 if (msg["error"]) {
                     window.bootbox.alert(msg["error"])
                 } else if (event) {
@@ -357,6 +357,8 @@ export default class JanusHelper {
                                     break
                                 }
                             }
+                            console.log("feeds: -------------- ", this.feeds)
+
                             remoteFeed.rfid = msg["id"]
                             remoteFeed.rfdisplay = msg["display"]
                             this.dispatch({ type: "JANUS_REMOTESTREAM", value: this.feeds })
