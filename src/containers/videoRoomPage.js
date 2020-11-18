@@ -1,26 +1,22 @@
 import React, { useState, useEffect } from "react"
 import { useSelector, useDispatch } from "react-redux"
 import Header from "../widget/header"
-// import Banner from "../Components/w/Homew/Banner"
-// import ItemSec from "../Components/w/Homew/ItemSec"
 import Footer from "../widget/footer"
 import JanusHelperVideoRoom from "../janus/janusHelperVideoRoom"
 import LocalVideo from "../component/localVideo"
 import RemoteVideo from "../component/remoteVideo"
-// import * as $ from "jquery"
 
 export default function VideoRoomPage(props) {
     const dispatch = useDispatch()
-    useEffect(() => {
-        JanusHelperVideoRoom.getInstance().init(dispatch, "janus.plugin.videoroom")
-    }, [])
     const janusState = useSelector((state) => state.janus)
     const [userName, setUserName] = useState("")
     const [statusChange, setStatusChange] = useState(false)
 
     useEffect(() => {
+        JanusHelperVideoRoom.getInstance().init(dispatch, "videoRoom", "janus.plugin.videoroom")
+    }, [])
+    useEffect(() => {
         // console.log("janusstate: --------------- ", janusState)
-
         setStatusChange(!statusChange)
         if (janusState.status === "RUNNING") handlePublishing()
     }, [janusState])

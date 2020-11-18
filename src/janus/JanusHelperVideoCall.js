@@ -1,11 +1,11 @@
 import JanusHelper from "./janusHelper"
 
-export default class JanusHelperVideoRoom extends JanusHelper {
+export default class JanusHelperVideoCall extends JanusHelper {
     static getInstance() {
-        if (!JanusHelperVideoRoom._inst) {
-            JanusHelperVideoRoom._inst = new JanusHelperVideoRoom()
+        if (!JanusHelperVideoCall._inst) {
+            JanusHelperVideoCall._inst = new JanusHelperVideoCall()
         }
-        return JanusHelperVideoRoom._inst
+        return JanusHelperVideoCall._inst
     }
     init(dispatch, roomType, pluginName) {
         super.init(dispatch, roomType, pluginName)

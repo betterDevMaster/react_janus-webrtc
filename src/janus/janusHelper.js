@@ -18,14 +18,17 @@ export default class JanusHelper {
         return JanusHelper._inst
     }
 
-    init(dispatch, pluginName) {
+    init(dispatch, roomType, pluginName) {
         this.dispatch = dispatch
+        this.roomType = roomType
         this.pluginName = pluginName
-        this.opaqueId = "videoroom-" + window.Janus.randomString(12)
+        this.opaqueId = roomType + "-" + window.Janus.randomString(12)
         this.session = null
         this.mystream = null
         this.myid = ""
         this.mypvtid = ""
+        this.myusername = ""
+        this.yourusername = ""
         this.feeds = []
         this.bitrateTimer = []
         this.initJanus()
@@ -33,7 +36,7 @@ export default class JanusHelper {
 
     initJanus(debug = "all") {
         window.Janus.init({
-            // debug,
+            debug,
             callback: () => {
                 this.dispatch({ type: "JANUS_STATE", value: "INITIALIZED" })
             },
@@ -86,6 +89,7 @@ export default class JanusHelper {
 
     onAttach(pluginHandle) {
         this.janusPlugin = pluginHandle
+        window.Janus.log("Plugin attached! (" + this.janusPlugin.getPlugin() + ", id=" + this.janusPlugin.getId() + ")")
         this.dispatch({ type: "JANUS_STATE", value: "ATTACHED" })
     }
 
@@ -117,11 +121,12 @@ export default class JanusHelper {
     }
 
     onMessage(msg, jsep) {
-        var event = msg["videoroom"]
-        // console.log("localFeed: onMessage: ----------------- ", event, msg, jsep)
+        var result = this.roomType === "videoRoom" ? msg["videoroom"] : this.roomType === "videoCall" ? msg["result"] : null
+        console.log("localFeed: onMessage: ----------------- ", this.roomType, result, msg, jsep)
 
-        if (event) {
-            switch (event) {
+        if (result) {
+            // Video Room
+            switch (result) {
                 case "joined":
                     this.myid = msg["id"]
                     this.mypvtid = msg["private_id"]
@@ -134,12 +139,12 @@ export default class JanusHelper {
                     window.bootbox.alert("The room has been destroyed", function () {
                         window.location.reload()
                     })
+                    break
                 case "event":
                     if (msg["publishers"]) {
                         // add new remote
                         this.addRemoteStreams(msg["publishers"])
                     } else if (msg["leaving"]) {
-                        // this.removeRemoteStreamById(msg["leaving"])
                         this.removeRemoteStream(msg["leaving"])
                     } else if (msg["unpublished"]) {
                         const id = msg["unpublished"]
@@ -149,11 +154,164 @@ export default class JanusHelper {
                         }
                         this.removeRemoteStream(id)
                     } else if (msg["error"]) {
-                        console.error(msg)
+                        if (msg["error_code"] === 426) {
+                            // This is a "no such room" error: give a more meaningful description
+                            window.bootbox.alert(
+                                "<p>Apparently room <code>" +
+                                    this.myroom +
+                                    "</code> (the one this demo uses as a test room) " +
+                                    "does not exist...</p><p>Do you have an updated <code>janus.plugin.videoroom.jcfg</code> " +
+                                    "configuration file? If not, make sure you copy the details of room <code>" +
+                                    this.myroom +
+                                    "</code> " +
+                                    "from that sample in your current configuration file, then restart Janus and try again."
+                            )
+                        } else {
+                            window.bootbox.alert(msg["error"])
+                        }
                     }
+                    break
+                default:
+                    console.log("onlocalMessage : default", result)
             }
-        }
 
+            // Video Call
+            var event = result["event"]
+            if (event === "registered") {
+                window.Janus.log("Successfully registered as " + this.myusername + "!")
+                this.janusPlugin.send({ message: { request: "list" } })
+            } else if (event === "calling") {
+                window.Janus.log("Waiting for the peer to answer...")
+                // TODO Any ringtone?
+                window.bootbox.alert("Waiting for the peer to answer...")
+            } else if (event === "incomingcall") {
+                window.Janus.log("Incoming call from " + result["username"] + "!")
+                this.yourusername = result["username"]
+                // Notify user
+                window.bootbox.hideAll()
+                let incoming = window.bootbox.dialog({
+                    message: "Incoming call from " + this.yourusername + "!",
+                    title: "Incoming call",
+                    closeButton: false,
+                    buttons: {
+                        success: {
+                            label: "Answer",
+                            className: "btn-success",
+                            callback: function () {
+                                incoming = null
+                                // $("#peer").val(result["username"]).attr("disabled", true)
+                                this.janusPlugin.createAnswer({
+                                    jsep: jsep,
+                                    // No media provided: by default, it's sendrecv for audio and video
+                                    media: { data: true }, // Let's negotiate data channels as well
+                                    // If you want to test simulcasting (Chrome and Firefox only), then
+                                    // pass a ?simulcast=true when opening this demo page: it will turn
+                                    // the following 'simulcast' property to pass to janus.js to true
+                                    simulcast: false,
+                                    success: (jsep) => {
+                                        window.Janus.debug("Got SDP!", jsep)
+                                        var body = { request: "accept" }
+                                        this.janusPlugin.send({ message: body, jsep: jsep })
+                                        // $("#peer").attr("disabled", true)
+                                        // $("#call")
+                                        //     .removeAttr("disabled")
+                                        //     .html("Hangup")
+                                        //     .removeClass("btn-success")
+                                        //     .addClass("btn-danger")
+                                        //     .unbind("click")
+                                        //     .click(doHangup)
+                                    },
+                                    error: (error) => {
+                                        window.Janus.error("WebRTC error:", error)
+                                        window.bootbox.alert("WebRTC error... " + error.message)
+                                    },
+                                })
+                            },
+                        },
+                        danger: {
+                            label: "Decline",
+                            className: "btn-danger",
+                            callback: function () {
+                                this.doHangup()
+                            },
+                        },
+                    },
+                })
+            } else if (event === "accepted") {
+                window.bootbox.hideAll()
+                var peer = result["username"]
+                if (!peer) {
+                    window.Janus.log("Call started!")
+                } else {
+                    window.Janus.log(peer + " accepted the call!")
+                    this.yourusername = peer
+                }
+                // Video call can start
+                if (jsep) this.janusPlugin.handleRemoteJsep({ jsep: jsep })
+                // $("#call")
+                //     .removeAttr("disabled")
+                //     .html("Hangup")
+                //     .removeClass("btn-success")
+                //     .addClass("btn-danger")
+                //     .unbind("click")
+                //     .click(doHangup)
+            } else if (event === "update") {
+                // An 'update' event may be used to provide renegotiation attempts
+                if (jsep) {
+                    if (jsep.type === "answer") {
+                        this.janusPlugin.handleRemoteJsep({ jsep: jsep })
+                    } else {
+                        this.janusPlugin.createAnswer({
+                            jsep: jsep,
+                            media: { data: true }, // Let's negotiate data channels as well
+                            success: (jsep) => {
+                                window.Janus.debug("Got SDP!", jsep)
+                                var body = { request: "set" }
+                                this.janusPlugin.send({ message: body, jsep: jsep })
+                            },
+                            error: (error) => {
+                                window.Janus.error("WebRTC error:", error)
+                                window.bootbox.alert("WebRTC error... " + error.message)
+                            },
+                        })
+                    }
+                }
+            } else if (event === "hangup") {
+                window.Janus.log("Call hung up by " + result["username"] + " (" + result["reason"] + ")!")
+                // Reset status
+                window.bootbox.hideAll()
+                this.janusPlugin.hangup()
+                if (window.spinner) window.spinner.stop()
+                // $("#waitingvideo").remove()
+                // $("#videos").hide()
+                // $("#peer").removeAttr("disabled").val("")
+                // $("#call")
+                //     .removeAttr("disabled")
+                //     .html("Call")
+                //     .removeClass("btn-danger")
+                //     .addClass("btn-success")
+                //     .unbind("click")
+                //     .click(doCall)
+                // $("#toggleaudio").attr("disabled", true)
+                // $("#togglevideo").attr("disabled", true)
+                // $("#bitrate").attr("disabled", true)
+                // $("#curbitrate").hide()
+                // $("#curres").hide()
+            }
+            //  else if (event === "simulcast") {
+            //     // Is simulcast in place?
+            //     var substream = result["substream"]
+            //     var temporal = result["temporal"]
+            //     if ((substream !== null && substream !== undefined) || (temporal !== null && temporal !== undefined)) {
+            //         if (!simulcastStarted) {
+            //             simulcastStarted = true
+            //             addSimulcastButtons(result["videocodec"] === "vp8" || result["videocodec"] === "h264")
+            //         }
+            //         // We just received notice that there's been a switch, update the buttons
+            //         updateSimulcastButtons(substream, temporal)
+            //     }
+            // }
+        }
         if (jsep) {
             // window.Janus.debug("Handling SDP as well...", jsep)
             this.janusPlugin.handleRemoteJsep({ jsep: jsep })
@@ -215,13 +373,26 @@ export default class JanusHelper {
             return
         }
         this.myusername = username
-        var register = {
-            request: "join",
-            room: this.myroom,
-            ptype: "publisher",
-            display: this.myusername,
-        }
-        // console.log("registerUsername : ------------ ", register)
+        // var register
+        // register = {
+        //     request: "join",
+        //     room: this.myroom,
+        //     ptype: "publisher",
+        //     display: this.myusername,
+        // }
+        // if (roomType === "videoCall") register = { request: "list" }
+        var register =
+            this.roomType === "videoRoom"
+                ? {
+                      request: "join",
+                      room: this.myroom,
+                      ptype: "publisher",
+                      display: this.myusername,
+                  }
+                : this.roomType === "videoCall"
+                ? { request: "register", username: this.myusername }
+                : null
+        console.log("registerUsername : ------------ ", this.roomType, register)
         this.janusPlugin.send({ message: register })
     }
 
@@ -290,10 +461,19 @@ export default class JanusHelper {
         }
     }
 
+    doHangup() {
+        // Hangup a call
+        // $("#call").attr("disabled", true).unbind("click")
+        var hangup = { request: "hangup" }
+        this.janusPlugin.send({ message: hangup })
+        this.janusPlugin.hangup()
+        this.yourusername = null
+    }
+
     getRemoteFeedById(remoteId) {
         var remoteFeed = null
         for (var i = 1; i < JanusHelper.MAX_VIDEOS; i++) {
-            if (this.feeds[i] && this.feeds[i].rfid == remoteId) {
+            if (this.feeds[i] && this.feeds[i].rfid === remoteId) {
                 remoteFeed = this.feeds[i]
                 break
             }
