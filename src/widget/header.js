@@ -8,12 +8,7 @@ export default function header(props) {
                 <a className="navbar-brand" href="index.html">
                     Janus
                 </a>
-                <button
-                    type="button"
-                    className="navbar-toggle"
-                    data-toggle="collapse"
-                    data-target=".navbar-collapse"
-                >
+                <button type="button" className="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                     <span className="icon-bar"></span>
                     <span className="icon-bar"></span>
                     <span className="icon-bar"></span>
@@ -25,16 +20,9 @@ export default function header(props) {
                         <a href="index.html">Home</a>
                     </li>
                     <li className="dropdown">
-                        <a
-                            href="#"
-                            className="dropdown-toggle"
-                            data-toggle="dropdown"
-                        >
+                        <a href="#" className="dropdown-toggle" data-toggle="dropdown">
                             Demos <b className="caret"></b>
                         </a>
-                        {/* <Link to="/" className="dropdown-toggle">
-                            Demos <b className="caret"></b>
-                        </Link> */}
                         <ul className="dropdown-menu">
                             <li>
                                 <a href="demos.html">Index</a>
@@ -48,14 +36,12 @@ export default function header(props) {
                             </li>
                             <li>
                                 <Link to="/videoCall">Video Call</Link>
-                                {/* <a href="videocalltest.html">Video Call</a> */}
                             </li>
                             <li>
                                 <a href="siptest.html">SIP Gateway</a>
                             </li>
                             <li>
                                 <Link to="/videoRoom">Video Room</Link>
-                                {/* <a href="videoroomtest.html">Video Room</a> */}
                             </li>
                             <li>
                                 <a href="audiobridgetest.html">Audio Bridge</a>
@@ -67,16 +53,11 @@ export default function header(props) {
                                 <a href="voicemailtest.html">Voice Mail</a>
                             </li>
                             <li>
-                                <a href="recordplaytest.html">
-                                    Recorder/Playout
-                                </a>
+                                <a href="recordplaytest.html">Recorder/Playout</a>
                             </li>
                             <li className="divider"></li>
                             <li>
                                 <Link to="/screenShare">Screen Sharing</Link>
-                                {/* <a href="screensharingtest.html">
-                                    Screen Sharing
-                                </a> */}
                             </li>
                             <li>
                                 <a href="nosiptest.html">NoSIP (SDP/RTP)</a>
@@ -89,9 +70,7 @@ export default function header(props) {
                                 <a href="e2etest.html">End-to-end Encryption</a>
                             </li>
                             <li>
-                                <a href="multiopus.html">
-                                    Multichannel Opus (surround)
-                                </a>
+                                <a href="multiopus.html">Multichannel Opus (surround)</a>
                             </li>
                             <li>
                                 <a href="canvas.html">Canvas Capture</a>
@@ -115,11 +94,7 @@ export default function header(props) {
                         <a href="support.html">Need help?</a>
                     </li>
                     <li>
-                        <a
-                            className="januscon"
-                            target="_blank"
-                            href="https://januscon.it"
-                        >
+                        <a className="januscon" target="_blank" href="https://januscon.it">
                             JanusCon!
                         </a>
                     </li>
@@ -127,11 +102,7 @@ export default function header(props) {
                 <div className="navbar-header navbar-right">
                     <ul className="nav navbar-nav">
                         <li>
-                            <a
-                                target="_blank"
-                                href="http://www.meetecho.com"
-                                className="navbar-link meetecho-logo"
-                            >
+                            <a target="_blank" href="http://www.meetecho.com" className="navbar-link meetecho-logo">
                                 <img src="img/meetecho-logo.png" />
                             </a>
                         </li>

@@ -1,10 +1,9 @@
 import React from "react"
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom"
 import demosPage from "./containers/demosPage"
-import videoRoom from "./pages/videoRoom"
 import videoRoomPage from "./containers/videoRoomPage"
-import videoCallPage from "./containers/videoCallPage"
-import screenSharePage from "./containers/screenSharePage"
+// import videoCallPage from "./containers/videoCallPage"
+// import screenSharePage from "./containers/screenSharePage"
 
 function App() {
     return (
@@ -12,9 +11,8 @@ function App() {
             <Switch>
                 <Route path="/" exact component={demosPage} />
                 <Route path="/videoRoom" exact component={videoRoomPage} />
-                <Route path="/videoRoom2" exact component={videoRoom} />
-                <Route path="/videoCall" exact component={videoCallPage} />
-                <Route path="/screenShare" exact component={screenSharePage} />
+                {/* <Route path="/videoCall" exact component={videoCallPage} /> */}
+                {/* <Route path="/screenShare" exact component={screenSharePage} /> */}
             </Switch>
         </Router>
     )

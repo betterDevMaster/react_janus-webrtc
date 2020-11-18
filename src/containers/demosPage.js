@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from "react"
-import { useSelector, useDispatch } from "react-redux"
 import Header from "../widget/header"
-// import Banner from "../Components/Widget/HomeWidget/Banner"
-// import ItemSec from "../Components/Widget/HomeWidget/ItemSec"
 import Footer from "../widget/footer"
-// import * as ActionTypes from "../Store/Action/ActionTypes"
+import { Link } from "react-router-dom"
 
 export default function demosPage(props) {
     return (
@@ -44,110 +41,61 @@ export default function demosPage(props) {
                                     <td>
                                         <a href="echotest.html">Echo Test</a>
                                     </td>
-                                    <td>
-                                        A simple Echo Test demo, with knobs to
-                                        control the bitrate.
-                                    </td>
+                                    <td>A simple Echo Test demo, with knobs to control the bitrate.</td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <a href="streamingtest.html">
-                                            Streaming
-                                        </a>
+                                        <a href="streamingtest.html">Streaming</a>
                                     </td>
-                                    <td>
-                                        A media Streaming demo, with sample live
-                                        and on-demand streams.
-                                    </td>
+                                    <td>A media Streaming demo, with sample live and on-demand streams.</td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <a href="videocalltest.html">
-                                            Video Call
-                                        </a>
+                                        <Link to="/videoCall">Video Call</Link>
                                     </td>
-                                    <td>
-                                        A Video Call demo, a bit like AppRTC but
-                                        with media passing through Janus.
-                                    </td>
+                                    <td>A Video Call demo, a bit like AppRTC but with media passing through Janus.</td>
                                 </tr>
                                 <tr>
                                     <td>
                                         <a href="siptest.html">SIP Gateway</a>
                                     </td>
-                                    <td>
-                                        A SIP Gateway demo, allowing you to
-                                        register at a SIP server and
-                                        start/receive calls.
-                                    </td>
+                                    <td>A SIP Gateway demo, allowing you to register at a SIP server and start/receive calls.</td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <a href="videoroomtest.html">
-                                            Video Room
-                                        </a>
+                                        <Link to="/videoRoom">Video Room</Link>
                                     </td>
-                                    <td>
-                                        A videoconferencing demo, allowing you
-                                        to join a video room with up to six
-                                        users.
-                                    </td>
+                                    <td>A videoconferencing demo, allowing you to join a video room with up to six users.</td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <a href="audiobridgetest.html">
-                                            Audio Room
-                                        </a>
+                                        <a href="audiobridgetest.html">Audio Room</a>
                                     </td>
-                                    <td>
-                                        An audio mixing/bridge demo, allowing
-                                        you join an Audio Room.
-                                    </td>
+                                    <td>An audio mixing/bridge demo, allowing you join an Audio Room.</td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <a href="textroomtest.html">
-                                            Text Room
-                                        </a>
+                                        <a href="textroomtest.html">Text Room</a>
                                     </td>
-                                    <td>
-                                        A text room demo, using DataChannels
-                                        only.
-                                    </td>
+                                    <td>A text room demo, using DataChannels only.</td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <a href="voicemailtest.html">
-                                            Voice Mail
-                                        </a>
+                                        <a href="voicemailtest.html">Voice Mail</a>
                                     </td>
-                                    <td>
-                                        A simple audio recorder demo, returning
-                                        an .opus file after 10 seconds.
-                                    </td>
+                                    <td>A simple audio recorder demo, returning an .opus file after 10 seconds.</td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <a href="recordplaytest.html">
-                                            Recorder/Playout
-                                        </a>
+                                        <a href="recordplaytest.html">Recorder/Playout</a>
                                     </td>
-                                    <td>
-                                        A demo to record audio/video messages,
-                                        and subsequently replay them through
-                                        WebRTC.
-                                    </td>
+                                    <td>A demo to record audio/video messages, and subsequently replay them through WebRTC.</td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <a href="screensharingtest.html">
-                                            Screen Sharing
-                                        </a>
+                                        <a href="screensharingtest.html">Screen Sharing</a>
                                     </td>
-                                    <td>
-                                        A webinar-like screen sharing session,
-                                        based on the Video Room plugin.
-                                    </td>
+                                    <td>A webinar-like screen sharing session, based on the Video Room plugin.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -160,15 +108,9 @@ export default function demosPage(props) {
                                 </tr>
                                 <tr>
                                     <td>
-                                        <a href="nosiptest.html">
-                                            NoSIP (SDP/RTP)
-                                        </a>
+                                        <a href="nosiptest.html">NoSIP (SDP/RTP)</a>
                                     </td>
-                                    <td>
-                                        A legacy interop demo (e.g., with a SIP
-                                        peer) where signalling is up to the
-                                        application.
-                                    </td>
+                                    <td>A legacy interop demo (e.g., with a SIP peer) where signalling is up to the application.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -181,71 +123,46 @@ export default function demosPage(props) {
                                 </tr>
                                 <tr>
                                     <td>
-                                        <a href="devicetest.html">
-                                            Device Selection
-                                        </a>
+                                        <a href="devicetest.html">Device Selection</a>
+                                    </td>
+                                    <td>A variant of the Echo Test demo, that allows you to choose a specific capture device.</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <a href="e2etest.html">End-to-end Encryption</a>
                                     </td>
                                     <td>
-                                        A variant of the Echo Test demo, that
-                                        allows you to choose a specific capture
-                                        device.
+                                        A variant of the Echo Test demo, that allows you to encrypt the video in a way that Janus can't
+                                        access it, but can still route it.
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <a href="e2etest.html">
-                                            End-to-end Encryption
-                                        </a>
+                                        <a href="multiopus.html">Multichannel Opus (surround)</a>
                                     </td>
-                                    <td>
-                                        A variant of the Echo Test demo, that
-                                        allows you to encrypt the video in a way
-                                        that Janus can't access it, but can
-                                        still route it.
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <a href="multiopus.html">
-                                            Multichannel Opus (surround)
-                                        </a>
-                                    </td>
-                                    <td>
-                                        A variant of the Echo Test demo, that
-                                        shows multichannel/surround Opus
-                                        support.
-                                    </td>
+                                    <td>A variant of the Echo Test demo, that shows multichannel/surround Opus support.</td>
                                 </tr>
                                 <tr>
                                     <td>
                                         <a href="canvas.html">Canvas Capture</a>
                                     </td>
                                     <td>
-                                        A variant of the Echo Test demo, that
-                                        shows how to use a canvas element as a
-                                        WebRTC media source.
+                                        A variant of the Echo Test demo, that shows how to use a canvas element as a WebRTC media source.
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <a href="vp9svctest.html">
-                                            VP9-SVC Video Room
-                                        </a>
+                                        <a href="vp9svctest.html">VP9-SVC Video Room</a>
                                     </td>
                                     <td>
-                                        A variant of the Video Room demo, that
-                                        allows you to test the VP9 SVC layer
-                                        selection, if available.
+                                        A variant of the Video Room demo, that allows you to test the VP9 SVC layer selection, if available.
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>
                                         <a href="admin.html">Admin/Monitor</a>
                                     </td>
-                                    <td>
-                                        A simple page showcasing how you can use
-                                        the Janus Admin/Monitor API.
-                                    </td>
+                                    <td>A simple page showcasing how you can use the Janus Admin/Monitor API.</td>
                                 </tr>
                             </tbody>
                         </table>

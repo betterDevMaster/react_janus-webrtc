@@ -9,6 +9,7 @@
 
 export default class JanusHelper {
     static baseUrl = "https://janusserver.simportal.net:8089/janus"
+    static MAX_VIDEOS = 6
 
     static getInstance() {
         if (!JanusHelper._inst) {
@@ -110,14 +111,14 @@ export default class JanusHelper {
     }
 
     onWebrtcStateChange(on) {
-        window.Janus.log("Janus says our WebRTC PeerConnection is ------------------- " + (on ? "up" : "down") + " now")
+        window.Janus.log("Janus says our WebRTC PeerConnection is " + (on ? "up" : "down") + " now")
         this.closeWaitDialog()
         this.dispatch({ type: "JANUS_STATE", value: on ? "CONNECTED" : "DISCONNECTED" })
     }
 
     onMessage(msg, jsep) {
         var event = msg["videoroom"]
-        console.log("localFeed: onMessage: ----------------- ", event, msg, jsep)
+        // console.log("localFeed: onMessage: ----------------- ", event, msg, jsep)
 
         if (event) {
             switch (event) {
@@ -180,7 +181,7 @@ export default class JanusHelper {
     }
 
     onCleanUp() {
-        console.log(" ::: Got a cleanup notification: we are unpublished now :::")
+        window.Janus.log(" ::: Got a cleanup notification: we are unpublished now :::")
         this.mystream = null
         // this.dispatch({ type: "JANUS_STATE", value: "INITIALIZED" })
         this.dispatch({ type: "JANUS_STATE", value: "CONNECTED" })
@@ -291,7 +292,7 @@ export default class JanusHelper {
 
     getRemoteFeedById(remoteId) {
         var remoteFeed = null
-        for (var i = 1; i < 6; i++) {
+        for (var i = 1; i < JanusHelper.MAX_VIDEOS; i++) {
             if (this.feeds[i] && this.feeds[i].rfid == remoteId) {
                 remoteFeed = this.feeds[i]
                 break
@@ -302,7 +303,7 @@ export default class JanusHelper {
 
     removeRemoteStream(remoteId) {
         var remoteFeed = this.getRemoteFeedById(remoteId)
-        console.log("removeRemoteStream: ----------- ", remoteFeed, this.feeds)
+        // console.log("removeRemoteStream: ----------- ", remoteFeed, this.feeds)
         if (remoteFeed != null) {
             this.feeds[remoteFeed.rfindex] = null
             remoteFeed.detach()
@@ -345,14 +346,13 @@ export default class JanusHelper {
                 //Janus.debug(" ::: Got a message (subscriber) :::", msg)
                 var event = msg["videoroom"]
                 //Janus.debug("Event: " + event)
-                console.log("newRemoteFeed: onmessage: ----------------- ", event, msg, jsep)
                 if (msg["error"]) {
                     window.bootbox.alert(msg["error"])
                 } else if (event) {
                     switch (event) {
                         case "attached":
                             // add remote stream in blank record of feeds array
-                            for (var i = 1; i < 6; i++) {
+                            for (var i = 1; i < JanusHelper.MAX_VIDEOS; i++) {
                                 if (!this.feeds[i]) {
                                     this.feeds[i] = remoteFeed
                                     remoteFeed.rfindex = i
@@ -424,9 +424,10 @@ export default class JanusHelper {
             },
             onremotestream: (stream) => {
                 // window.Janus.debug("Remote feed #" + remoteFeed.rfindex + ", stream:", stream)
-                // console.log("newRemoteStream: ------------- ", stream)
-                remoteFeed["stream"] = stream
-                // this.dispatch({ type: "JANUS_REMOTESTREAM", value: this.feeds })
+                // console.log("newRemoteStream: ------------->>>> ", stream)
+                this.feeds[remoteFeed.rfindex].stream = stream
+                // remoteFeed["stream"] = stream
+                this.dispatch({ type: "JANUS_REMOTESTREAM", value: this.feeds })
             },
             oncleanup: () => {
                 this.removeRemoteStream(remoteFeed.rfindex)
