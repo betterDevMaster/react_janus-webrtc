@@ -10,6 +10,7 @@ export default function LocalVideo({ stream, userName }) {
 
         if (stream && localVideoDom) {
             if (localVideoDom.srcObject == null) {
+                console.log("open local video stream")
                 window.Janus.attachMediaStream(localVideoDom, stream)
             }
         }

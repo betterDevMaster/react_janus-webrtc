@@ -59,6 +59,12 @@ export default class JanusHelper {
     createSession() {
         this.session = new window.Janus({
             server: JanusHelper.baseUrl,
+            iceServers: [
+                { url: "stun:stun.l.google.com:19302" },
+                { url: "stun:stun1.l.google.com:19302" },
+                { url: "stun:stun2.l.google.com:19302" },
+                { url: "stun:stun.l.google.com:19302?transport=udp" },
+            ],
             success: () => this.onInit(),
             error: (error) => this.onError("Critical Error --", error),
             destroyed: () => this.onDestroyed(),
@@ -340,9 +346,9 @@ export default class JanusHelper {
 
     onCleanUp() {
         window.Janus.log(" ::: Got a cleanup notification: we are unpublished now :::")
-        this.mystream = null
+        // this.mystream = null
         // this.dispatch({ type: "JANUS_STATE", value: "INITIALIZED" })
-        this.dispatch({ type: "JANUS_STATE", value: "CONNECTED" })
+        // this.dispatch({ type: "JANUS_STATE", value: "CONNECTED" })
         this.closeWaitDialog()
     }
 
