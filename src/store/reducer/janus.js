@@ -31,6 +31,11 @@ const janus = (
                     remote: [...action.value],
                 },
             }
+        case "JANUS_CLEANUP":
+            return {
+                ...state,
+                cleanUp: action.value,
+            }
         default:
             return state
     }

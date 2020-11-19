@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from "react"
 import JanusHelperVideoRoom from "../janus/janusHelperVideoRoom"
 
-export default function LocalVideo({ stream, userName }) {
+export default function LocalVideo(props) {
     const [toggleMute, setToggleMute] = useState(false)
-    const [publish, setPublish] = useState(true)
-
+    // const [publish, setPublish] = useState(true)
+    console.log("localVideo: -------------------------------------", props)
     const update = () => {
         const localVideoDom = document.getElementById("myvideo")
+        if (props.stream && localVideoDom) {
+            // console.log("update: ----------- ", localVideoDom, publish, props.state)
+            // if (props.state === "DISCONNECTED") localVideoDom.srcObject = null
+            if (localVideoDom.srcObject === null) {
+                console.log("localVideo Attach: ------------ ", props.stream, props.state)
 
-        if (stream && localVideoDom) {
-            if (localVideoDom.srcObject == null) {
-                console.log("open local video stream")
-                window.Janus.attachMediaStream(localVideoDom, stream)
+                window.Janus.attachMediaStream(localVideoDom, props.stream)
             }
         }
         setTimeout(update, 1000)
@@ -19,7 +21,7 @@ export default function LocalVideo({ stream, userName }) {
 
     useEffect(() => {
         update()
-    }, [])
+    }, [props])
 
     const handleBitrate = (rate) => {
         var bitrate = rate * 1000
@@ -35,19 +37,27 @@ export default function LocalVideo({ stream, userName }) {
     }
 
     const handleToggleMute = () => {
-        setToggleMute(!toggleMute)
         JanusHelperVideoRoom.getInstance().toggleMute()
+        setToggleMute(!toggleMute)
     }
 
     const handleUnpublish = () => {
+        // console.log("handlePublish: ", document.getElementById("myvideo"), localVideoDom)
+        // if (document.getElementById("myvideo") !== null) localVideoDom.srcObject = null
         JanusHelperVideoRoom.getInstance().unpublishOwnFeed()
-        setPublish(!publish)
+        // setPublish(!publish)
     }
     const handlePublish = () => {
+        // console.log("handlePublish: ============== ", document.getElementById("myvideo"), localVideoDom)
+        // if (document.getElementById("myvideo") !== null) localVideoDom.srcObject = null
         JanusHelperVideoRoom.getInstance().publishOwnFeed(true)
-        setPublish(!publish)
+        // setPublish(!publish)
     }
-
+    const handleDisconnectPublish = () => {
+        // console.log("handleDisconnectPublish: ", document.getElementById("myvideo"), localVideoDom)
+        // if (document.getElementById("myvideo") !== null) localVideoDom.srcObject = null
+        JanusHelperVideoRoom.getInstance().publishOwnFeed(true)
+    }
     return (
         <div className="col-md-4">
             <div className="panel panel-default">
@@ -55,7 +65,7 @@ export default function LocalVideo({ stream, userName }) {
                     <h3 className="panel-title">
                         Local Video
                         <span className="label label-primary" id="publisher">
-                            {userName}
+                            {props.userName}
                         </span>
                         <div className="btn-group btn-group-xs pull-right">
                             <div className="btn-group btn-group-xs">
@@ -110,16 +120,32 @@ export default function LocalVideo({ stream, userName }) {
                     </h3>
                 </div>
                 <div className="panel-body" id="videolocal">
-                    {!stream ? (
-                        <div className="no-video-container">
-                            <i className="fa fa-video-camera fa-5 no-video-icon"></i>
-                            <span className="no-video-text">No remote video available</span>
+                    {props.state === "DISCONNECTED" ? (
+                        <div>
+                            <button className="btn btn-primary" id="unpublish" onClick={handlePublish}>
+                                Publish
+                            </button>
+                            <b
+                                style={{
+                                    float: "right",
+                                    padding: "10px",
+                                }}
+                            >
+                                No video available
+                            </b>
                         </div>
-                    ) : !publish ? (
-                        <button id="publish" className="btn btn-primary" onClick={handlePublish}>
-                            Publish
-                        </button>
-                    ) : (
+                    ) : props.state === "RUNNING" ? (
+                        <div className="blockingUI">
+                            <div className="blockingElement">
+                                <b>Publishing...</b>
+                            </div>
+                        </div>
+                    ) : props.state === "CONNECTED" ? (
+                        // !publish ? (
+                        //     <button id="publish" className="btn btn-primary" onClick={handlePublish}>
+                        //         Publish
+                        //     </button>
+                        // ) : (
                         <>
                             <video
                                 className="rounded centered"
@@ -152,7 +178,8 @@ export default function LocalVideo({ stream, userName }) {
                                 Unpublish
                             </button>
                         </>
-                    )}
+                    ) : // )
+                    null}
                 </div>
             </div>
         </div>

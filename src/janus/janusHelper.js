@@ -36,7 +36,7 @@ export default class JanusHelper {
 
     initJanus(debug = "all") {
         window.Janus.init({
-            debug,
+            // debug,
             callback: () => {
                 this.dispatch({ type: "JANUS_STATE", value: "INITIALIZED" })
             },
@@ -52,18 +52,19 @@ export default class JanusHelper {
     }
 
     stop() {
+        console.log("stop: ------------- ", this.session)
         this.session && this.session.destroy()
-        this.session = null
+        // this.session = null
+        // window.location.reload()
     }
 
     createSession() {
         this.session = new window.Janus({
             server: JanusHelper.baseUrl,
             iceServers: [
-                { url: "stun:stun.l.google.com:19302" },
-                { url: "stun:stun1.l.google.com:19302" },
-                { url: "stun:stun2.l.google.com:19302" },
-                { url: "stun:stun.l.google.com:19302?transport=udp" },
+                { urls: "turn:turn.contactprocrm.com:3478", username: "bruno", credential: "crmsite" },
+                { urls: "turn:csturn.contactprocrm.com:3478", username: "bruno", credential: "crmsite" },
+                { urls: "turn:india.contactprocrm.com:3478", username: "bruno", credential: "brunoedward" },
             ],
             success: () => this.onInit(),
             error: (error) => this.onError("Critical Error --", error),
@@ -77,7 +78,7 @@ export default class JanusHelper {
             plugin: this.pluginName, // "janus.plugin.videoroom",
             opaqueId: this.opaqueId,
             success: (pluginHandle) => this.onAttach(pluginHandle),
-            error: (error) => this.onError("Error attaching plugin... ", error),
+            error: (error) => this.onError("Error attaching plugin in LocalStream... ", error),
             consentDialog: (on) => this.onWaitDialog(on),
             iceState: (state) => {
                 window.Janus.log("ICE state changed to " + state)
@@ -95,6 +96,7 @@ export default class JanusHelper {
 
     onAttach(pluginHandle) {
         this.janusPlugin = pluginHandle
+        console.log("onAttach: ------------- ", this.janusPlugin)
         window.Janus.log("Plugin attached! (" + this.janusPlugin.getPlugin() + ", id=" + this.janusPlugin.getId() + ")")
         this.dispatch({ type: "JANUS_STATE", value: "ATTACHED" })
     }
@@ -123,6 +125,8 @@ export default class JanusHelper {
     onWebrtcStateChange(on) {
         window.Janus.log("Janus says our WebRTC PeerConnection is " + (on ? "up" : "down") + " now")
         this.closeWaitDialog()
+        // if (on) this.dispatch({ type: "JANUS_CLEANUP", value: false })
+
         this.dispatch({ type: "JANUS_STATE", value: on ? "CONNECTED" : "DISCONNECTED" })
     }
 
@@ -142,6 +146,8 @@ export default class JanusHelper {
                     this.addRemoteStreams(msg["publishers"])
                     break
                 case "destroyed":
+                    // The room has been destroyed
+                    window.Janus.warn("The room has been destroyed!")
                     window.bootbox.alert("The room has been destroyed", function () {
                         window.location.reload()
                     })
@@ -154,6 +160,8 @@ export default class JanusHelper {
                         this.removeRemoteStream(msg["leaving"])
                     } else if (msg["unpublished"]) {
                         const id = msg["unpublished"]
+                        window.Janus.log("Publisher left: " + id)
+
                         if (id === "ok") {
                             this.janusPlugin.hangup()
                             return
@@ -182,128 +190,129 @@ export default class JanusHelper {
             }
 
             // Video Call
-            var event = result["event"]
-            if (event === "registered") {
-                window.Janus.log("Successfully registered as " + this.myusername + "!")
-                this.janusPlugin.send({ message: { request: "list" } })
-            } else if (event === "calling") {
-                window.Janus.log("Waiting for the peer to answer...")
-                // TODO Any ringtone?
-                window.bootbox.alert("Waiting for the peer to answer...")
-            } else if (event === "incomingcall") {
-                window.Janus.log("Incoming call from " + result["username"] + "!")
-                this.yourusername = result["username"]
-                // Notify user
-                window.bootbox.hideAll()
-                let incoming = window.bootbox.dialog({
-                    message: "Incoming call from " + this.yourusername + "!",
-                    title: "Incoming call",
-                    closeButton: false,
-                    buttons: {
-                        success: {
-                            label: "Answer",
-                            className: "btn-success",
-                            callback: function () {
-                                incoming = null
-                                // $("#peer").val(result["username"]).attr("disabled", true)
-                                this.janusPlugin.createAnswer({
-                                    jsep: jsep,
-                                    // No media provided: by default, it's sendrecv for audio and video
-                                    media: { data: true }, // Let's negotiate data channels as well
-                                    // If you want to test simulcasting (Chrome and Firefox only), then
-                                    // pass a ?simulcast=true when opening this demo page: it will turn
-                                    // the following 'simulcast' property to pass to janus.js to true
-                                    simulcast: false,
-                                    success: (jsep) => {
-                                        window.Janus.debug("Got SDP!", jsep)
-                                        var body = { request: "accept" }
-                                        this.janusPlugin.send({ message: body, jsep: jsep })
-                                        // $("#peer").attr("disabled", true)
-                                        // $("#call")
-                                        //     .removeAttr("disabled")
-                                        //     .html("Hangup")
-                                        //     .removeClass("btn-success")
-                                        //     .addClass("btn-danger")
-                                        //     .unbind("click")
-                                        //     .click(doHangup)
-                                    },
-                                    error: (error) => {
-                                        window.Janus.error("WebRTC error:", error)
-                                        window.bootbox.alert("WebRTC error... " + error.message)
-                                    },
-                                })
-                            },
-                        },
-                        danger: {
-                            label: "Decline",
-                            className: "btn-danger",
-                            callback: function () {
-                                this.doHangup()
-                            },
-                        },
-                    },
-                })
-            } else if (event === "accepted") {
-                window.bootbox.hideAll()
-                var peer = result["username"]
-                if (!peer) {
-                    window.Janus.log("Call started!")
-                } else {
-                    window.Janus.log(peer + " accepted the call!")
-                    this.yourusername = peer
-                }
-                // Video call can start
-                if (jsep) this.janusPlugin.handleRemoteJsep({ jsep: jsep })
-                // $("#call")
-                //     .removeAttr("disabled")
-                //     .html("Hangup")
-                //     .removeClass("btn-success")
-                //     .addClass("btn-danger")
-                //     .unbind("click")
-                //     .click(doHangup)
-            } else if (event === "update") {
-                // An 'update' event may be used to provide renegotiation attempts
-                if (jsep) {
-                    if (jsep.type === "answer") {
-                        this.janusPlugin.handleRemoteJsep({ jsep: jsep })
-                    } else {
-                        this.janusPlugin.createAnswer({
-                            jsep: jsep,
-                            media: { data: true }, // Let's negotiate data channels as well
-                            success: (jsep) => {
-                                window.Janus.debug("Got SDP!", jsep)
-                                var body = { request: "set" }
-                                this.janusPlugin.send({ message: body, jsep: jsep })
-                            },
-                            error: (error) => {
-                                window.Janus.error("WebRTC error:", error)
-                                window.bootbox.alert("WebRTC error... " + error.message)
-                            },
-                        })
-                    }
-                }
-            } else if (event === "hangup") {
-                window.Janus.log("Call hung up by " + result["username"] + " (" + result["reason"] + ")!")
-                // Reset status
-                window.bootbox.hideAll()
-                this.janusPlugin.hangup()
-                if (window.spinner) window.spinner.stop()
-                // $("#waitingvideo").remove()
-                // $("#videos").hide()
-                // $("#peer").removeAttr("disabled").val("")
-                // $("#call")
-                //     .removeAttr("disabled")
-                //     .html("Call")
-                //     .removeClass("btn-danger")
-                //     .addClass("btn-success")
-                //     .unbind("click")
-                //     .click(doCall)
-                // $("#toggleaudio").attr("disabled", true)
-                // $("#togglevideo").attr("disabled", true)
-                // $("#bitrate").attr("disabled", true)
-                // $("#curbitrate").hide()
-                // $("#curres").hide()
-            }
+            // var event = result["event"]
+            // if (event === "registered") {
+            //     window.Janus.log("Successfully registered as " + this.myusername + "!")
+            //     this.janusPlugin.send({ message: { request: "list" } })
+            // } else if (event === "calling") {
+            //     window.Janus.log("Waiting for the peer to answer...")
+            //     // TODO Any ringtone?
+            //     window.bootbox.alert("Waiting for the peer to answer...")
+            // } else if (event === "incomingcall") {
+            //     window.Janus.log("Incoming call from " + result["username"] + "!")
+            //     this.yourusername = result["username"]
+            //     // Notify user
+            //     window.bootbox.hideAll()
+            //     let incoming = window.bootbox.dialog({
+            //         message: "Incoming call from " + this.yourusername + "!",
+            //         title: "Incoming call",
+            //         closeButton: false,
+            //         buttons: {
+            //             success: {
+            //                 label: "Answer",
+            //                 className: "btn-success",
+            //                 callback: function () {
+            //                     incoming = null
+            //                     // $("#peer").val(result["username"]).attr("disabled", true)
+            //                     this.janusPlugin.createAnswer({
+            //                         jsep: jsep,
+            //                         // No media provided: by default, it's sendrecv for audio and video
+            //                         media: { data: true }, // Let's negotiate data channels as well
+            //                         // If you want to test simulcasting (Chrome and Firefox only), then
+            //                         // pass a ?simulcast=true when opening this demo page: it will turn
+            //                         // the following 'simulcast' property to pass to janus.js to true
+            //                         simulcast: false,
+            //                         success: (jsep) => {
+            //                             window.Janus.debug("Got SDP!", jsep)
+            //                             var body = { request: "accept" }
+            //                             this.janusPlugin.send({ message: body, jsep: jsep })
+            //                             // $("#peer").attr("disabled", true)
+            //                             // $("#call")
+            //                             //     .removeAttr("disabled")
+            //                             //     .html("Hangup")
+            //                             //     .removeClass("btn-success")
+            //                             //     .addClass("btn-danger")
+            //                             //     .unbind("click")
+            //                             //     .click(doHangup)
+            //                         },
+            //                         error: (error) => {
+            //                             window.Janus.error("WebRTC error:", error)
+            //                             window.bootbox.alert("WebRTC error... " + error.message)
+            //                         },
+            //                     })
+            //                 },
+            //             },
+            //             danger: {
+            //                 label: "Decline",
+            //                 className: "btn-danger",
+            //                 callback: function () {
+            //                     this.doHangup()
+            //                 },
+            //             },
+            //         },
+            //     })
+            // } else if (event === "accepted") {
+            //     window.bootbox.hideAll()
+            //     var peer = result["username"]
+            //     if (!peer) {
+            //         window.Janus.log("Call started!")
+            //     } else {
+            //         window.Janus.log(peer + " accepted the call!")
+            //         this.yourusername = peer
+            //     }
+            //     // Video call can start
+            //     if (jsep) this.janusPlugin.handleRemoteJsep({ jsep: jsep })
+            //     // $("#call")
+            //     //     .removeAttr("disabled")
+            //     //     .html("Hangup")
+            //     //     .removeClass("btn-success")
+            //     //     .addClass("btn-danger")
+            //     //     .unbind("click")
+            //     //     .click(doHangup)
+            // } else if (event === "update") {
+            //     // An 'update' event may be used to provide renegotiation attempts
+            //     if (jsep) {
+            //         if (jsep.type === "answer") {
+            //             this.janusPlugin.handleRemoteJsep({ jsep: jsep })
+            //         } else {
+            //             this.janusPlugin.createAnswer({
+            //                 jsep: jsep,
+            //                 media: { data: true }, // Let's negotiate data channels as well
+            //                 success: (jsep) => {
+            //                     window.Janus.debug("Got SDP!", jsep)
+            //                     var body = { request: "set" }
+            //                     this.janusPlugin.send({ message: body, jsep: jsep })
+            //                 },
+            //                 error: (error) => {
+            //                     window.Janus.error("WebRTC error:", error)
+            //                     window.bootbox.alert("WebRTC error... " + error.message)
+            //                 },
+            //             })
+            //         }
+            //     }
+            // } else if (event === "hangup") {
+            //     window.Janus.log("Call hung up by " + result["username"] + " (" + result["reason"] + ")!")
+            //     // Reset status
+            //     window.bootbox.hideAll()
+            //     this.janusPlugin.hangup()
+            //     if (window.spinner) window.spinner.stop()
+            //     // $("#waitingvideo").remove()
+            //     // $("#videos").hide()
+            //     // $("#peer").removeAttr("disabled").val("")
+            //     // $("#call")
+            //     //     .removeAttr("disabled")
+            //     //     .html("Call")
+            //     //     .removeClass("btn-danger")
+            //     //     .addClass("btn-success")
+            //     //     .unbind("click")
+            //     //     .click(doCall)
+            //     // $("#toggleaudio").attr("disabled", true)
+            //     // $("#togglevideo").attr("disabled", true)
+            //     // $("#bitrate").attr("disabled", true)
+            //     // $("#curbitrate").hide()
+            //     // $("#curres").hide()
+            // }
+
             //  else if (event === "simulcast") {
             //     // Is simulcast in place?
             //     var substream = result["substream"]
@@ -339,6 +348,7 @@ export default class JanusHelper {
     }
 
     onLocalStream(stream) {
+        console.log("onLocalStream: ------------- ", stream)
         this.mystream = stream
         this.dispatch({ type: "JANUS_STATE", value: "RUNNING" })
         this.dispatch({ type: "JANUS_LOCALSTREAM", value: stream })
@@ -346,21 +356,28 @@ export default class JanusHelper {
 
     onCleanUp() {
         window.Janus.log(" ::: Got a cleanup notification: we are unpublished now :::")
-        // this.mystream = null
+        this.mystream = null
         // this.dispatch({ type: "JANUS_STATE", value: "INITIALIZED" })
-        // this.dispatch({ type: "JANUS_STATE", value: "CONNECTED" })
+        // this.dispatch({ type: "JANUS_STATE", value: "RUNNING" })
+        // this.dispatch({ type: "JANUS_CLEANUP", value: true })
         this.closeWaitDialog()
     }
 
     onDestroyed() {
-        this.dispatch({ type: "JANUS_STATE", value: "DESTROYED" })
-        this.janusPlugin = null
+        // this.dispatch({ type: "JANUS_STATE", value: "DESTROYED" })
+        // this.session && this.session.destroy()
+        // this.session = null
+        // this.janusPlugin = null
+        window.location.reload()
     }
 
     onError(title, detail) {
         window.Janus.error(title, detail)
-        window.bootbox.alert(title + detail, () => {
-            this.dispatch({ type: "JANUS_STATE", value: "DESTROYED" })
+        const alt = "Probably a network error. Please contact with the SupportTeam."
+        // window.bootbox.alert(title + detail, () => {
+        window.bootbox.alert(alt, () => {
+            window.location.reload()
+            // this.dispatch({ type: "JANUS_STATE", value: "DESTROYED" })
         })
     }
 
@@ -454,6 +471,7 @@ export default class JanusHelper {
     }
 
     unpublishOwnFeed() {
+        // console.log("unplbishOwnFeed: --------------- ")
         // Unpublish our stream
         var unpublish = { request: "unpublish" }
         this.janusPlugin.send({ message: unpublish })
@@ -491,6 +509,7 @@ export default class JanusHelper {
         var remoteFeed = this.getRemoteFeedById(remoteId)
         // console.log("removeRemoteStream: ----------- ", remoteFeed, this.feeds)
         if (remoteFeed != null) {
+            window.Janus.debug("Feed " + remoteFeed.rfid + " (" + remoteFeed.rfdisplay + ") has left the room, detaching")
             this.feeds[remoteFeed.rfindex] = null
             remoteFeed.detach()
             this.dispatch({ type: "JANUS_REMOTESTREAM", value: this.feeds })
@@ -525,8 +544,8 @@ export default class JanusHelper {
                 remoteFeed.send({ message: subscribe })
             },
             error: (error) => {
-                window.Janus.error("  -- Error attaching plugin...", error)
-                window.bootbox.alert("Error attaching plugin... " + error)
+                window.Janus.error("Error attaching plugin in RemoteStream...", error)
+                window.bootbox.alert("Error attaching plugin in RemoteStream... " + error)
             },
             onmessage: (msg, jsep) => {
                 //Janus.debug(" ::: Got a message (subscriber) :::", msg)

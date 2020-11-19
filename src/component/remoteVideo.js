@@ -4,14 +4,14 @@ export default function RemoteVideo({ session }) {
     const [bitRate, setBitRate] = useState(0)
     const [videoSizeText, setVideoSizeText] = useState("")
     const update = () => {
-        const remoteVideoDom = document.getElementById(`remotevideo${session.rfindex}`)
-
-        if (session && session.getBitrate && remoteVideoDom) {
+        let remoteVideoDom = document.getElementById(`remotevideo${session.rfindex}`)
+        if (session && remoteVideoDom) {
             setBitRate(session.getBitrate())
             setVideoSizeText(remoteVideoDom.videoWidth + "x" + remoteVideoDom.videoHeight)
         }
         if (session.stream && remoteVideoDom) {
             if (remoteVideoDom.srcObject == null) {
+                console.log("remoteVideo Attach: ------------ ")
                 // console.log("Attach stream to video tag")
                 window.Janus.attachMediaStream(remoteVideoDom, session.stream)
             }

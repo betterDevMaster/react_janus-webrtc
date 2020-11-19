@@ -16,18 +16,17 @@ export default function VideoRoomPage(props) {
         JanusHelperVideoRoom.getInstance().init(dispatch, "videoRoom", "janus.plugin.videoroom")
     }, [])
     useEffect(() => {
-        // console.log("janusstate: --------------- ", janusState)
-        setStatusChange(!statusChange)
-        if (janusState.status === "RUNNING") handlePublishing()
+        if (janusState.status === "RUNNING" || "CONNECTED" || "DISCONNECTED") setStatusChange(false)
+        else setStatusChange(!statusChange)
     }, [janusState])
 
     const handleStart = () => {
+        // console.log("handleStart: ------------- ", statusChange)
         setStatusChange(!statusChange)
         JanusHelperVideoRoom.getInstance().start(1234)
     }
     const handleStop = () => {
         JanusHelperVideoRoom.getInstance().stop()
-        window.location.reload()
     }
     const handleCheckEnter = (event) => {
         var theCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode
@@ -39,19 +38,11 @@ export default function VideoRoomPage(props) {
         }
     }
     const handleRegisterName = () => {
+        // console.log("handleStarthandleRegisterName: ------------- ", statusChange)
         setStatusChange(!statusChange)
         JanusHelperVideoRoom.getInstance().registerUsername(userName)
     }
-    const handlePublishing = () => {
-        window.$.blockUI({
-            message: "<b>Publishing...</b>",
-            css: {
-                border: "none",
-                backgroundColor: "transparent",
-                color: "white",
-            },
-        })
-    }
+    console.log("janusstate: --------------- ", janusState, statusChange)
 
     return (
         <div>
@@ -83,12 +74,8 @@ export default function VideoRoomPage(props) {
                                     className="btn btn-default"
                                     autoComplete="off"
                                     id="start"
-                                    disabled={statusChange}
-                                    onClick={() =>
-                                        janusState.status === "INITIALIZED" || janusState.status === "ATACHED"
-                                            ? handleStart()
-                                            : handleStop()
-                                    }
+                                    disabled={statusChange ? "disabled" : ""}
+                                    onClick={() => (janusState.status === "INITIALIZED" || "ATACHED" ? handleStart() : handleStop())}
                                 >
                                     {janusState.status === "INITIALIZED" ? "Start" : "Stop"}
                                 </button>
@@ -164,10 +151,12 @@ export default function VideoRoomPage(props) {
                                 </div>
                             </div>
                         )}
-                        {(janusState.status === "RUNNING" || janusState.status === "CONNECTED") && (
+                        {(janusState.status === "RUNNING" || "CONNECTED" || "DISCONNECTED") && (
                             <div className="container" id="videos">
                                 <div className="row">
-                                    {janusState.stream.local && <LocalVideo stream={janusState.stream.local} userName={userName} />}
+                                    {janusState.stream.local && (
+                                        <LocalVideo stream={janusState.stream.local} userName={userName} state={janusState.status} />
+                                    )}
 
                                     {janusState.stream.remote.length > 0 &&
                                         janusState.stream.remote.map((session, i) => {

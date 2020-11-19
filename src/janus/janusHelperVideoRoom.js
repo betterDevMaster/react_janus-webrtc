@@ -15,6 +15,6 @@ export default class JanusHelperVideoRoom extends JanusHelper {
         super.start()
     }
     stop() {
-        if (this.session) this.session.destroy()
+        super.stop()
     }
 }
