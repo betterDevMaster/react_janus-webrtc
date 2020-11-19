@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from "react"
+import JanusHelperVideoRoom from "../janus/janusHelperVideoRoom"
 
 export default function RemoteVideo({ session }) {
     const [bitRate, setBitRate] = useState(0)
     const [videoSizeText, setVideoSizeText] = useState("")
+    const [toggleAudioMute, setToggleAudioMute] = useState(true)
+    const [toggleVideoMute, setToggleVideoMute] = useState(true)
+
+    useEffect(() => {
+        update()
+    }, [])
+
     const update = () => {
         let remoteVideoDom = document.getElementById(`remotevideo${session.rfindex}`)
         if (session && remoteVideoDom) {
@@ -18,10 +26,69 @@ export default function RemoteVideo({ session }) {
         }
         setTimeout(update, 1000)
     }
+    const handleToggleAudioMute = () => {
+        const dom = document.getElementById(`remotevideo${session.rfindex}`)
+        if (dom) {
+            dom.muted = toggleAudioMute
+            // JanusHelperVideoRoom.getInstance().toggleAudioMute(session)
+        }
+        setToggleAudioMute(!toggleAudioMute)
+    }
+    const handleToggleVideoMute = () => {
+        // JanusHelperVideoRoom.getInstance().toggleVideoMute(session)
+        setToggleVideoMute(!toggleVideoMute)
+    }
+    const NoVideo = () => (
+        <div className="no-video-container">
+            <i className="fa fa-video-camera fa-5 no-video-icon"></i>
+            <span className="no-video-text">No remote video available</span>
+        </div>
+    )
 
-    useEffect(() => {
-        update()
-    }, [])
+    const VideoFooter = () => (
+        <>
+            <span
+                className="label label-primary"
+                id={`curres${session.rfindex}`}
+                style={{
+                    position: "absolute",
+                    bottom: "2px",
+                    left: "0px",
+                    margin: "15px 0",
+                }}
+            >
+                {videoSizeText}
+            </span>
+            <span
+                className="label label-info"
+                id={`curbitrate${session.rfindex}`}
+                style={{
+                    position: "absolute",
+                    bottom: "2px",
+                    right: "0px",
+                    margin: "15px 0",
+                }}
+            >
+                {bitRate}
+            </span>
+            <button
+                className="btn btn-warning btn-xs"
+                id="audioMute"
+                onClick={handleToggleAudioMute}
+                style={{ position: "absolute", bottom: "-20px", left: "0px", margin: "15px 0" }}
+            >
+                {!toggleAudioMute ? "Enable audio" : "Disable audio"}
+            </button>
+            <button
+                className="btn btn-warning btn-xs"
+                id="videoMute"
+                onClick={handleToggleVideoMute}
+                style={{ position: "absolute", bottom: "-20px", right: "0px", margin: "15px 0" }}
+            >
+                {!toggleVideoMute ? "Enable video" : "Disable video"}
+            </button>
+        </>
+    )
     return (
         <div className="col-md-4" key={session.rfindex}>
             <div className="panel panel-default">
@@ -35,10 +102,16 @@ export default function RemoteVideo({ session }) {
                 </div>
                 <div className="panel-body relative" id={`videoremote${session.rfindex}`}>
                     {session.stream === undefined ? (
-                        <div className="no-video-container">
-                            <i className="fa fa-video-camera fa-5 no-video-icon"></i>
-                            <span className="no-video-text">No remote video available</span>
-                        </div>
+                        <NoVideo />
+                    ) : // <div className="no-video-container">
+                    //     <i className="fa fa-video-camera fa-5 no-video-icon"></i>
+                    //     <span className="no-video-text">No remote video available</span>
+                    // </div>
+                    !toggleVideoMute ? (
+                        <>
+                            <NoVideo />
+                            <VideoFooter />
+                        </>
                     ) : (
                         <>
                             <video
@@ -49,30 +122,7 @@ export default function RemoteVideo({ session }) {
                                 autoPlay
                                 playsInline
                             ></video>
-                            <span
-                                className="label label-primary"
-                                id={`curres${session.rfindex}`}
-                                style={{
-                                    position: "absolute",
-                                    bottom: "0px",
-                                    left: "0px",
-                                    margin: "15px",
-                                }}
-                            >
-                                {videoSizeText}
-                            </span>
-                            <span
-                                className="label label-info"
-                                id={`curbitrate${session.rfindex}`}
-                                style={{
-                                    position: "absolute",
-                                    bottom: "0px",
-                                    right: "0px",
-                                    margin: "15px",
-                                }}
-                            >
-                                {bitRate}
-                            </span>
+                            <VideoFooter />
                         </>
                     )}
                 </div>

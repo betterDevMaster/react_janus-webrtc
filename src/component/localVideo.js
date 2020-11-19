@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react"
 import JanusHelperVideoRoom from "../janus/janusHelperVideoRoom"
 
 export default function LocalVideo(props) {
-    const [toggleMute, setToggleMute] = useState(false)
+    const [toggleAudioMute, setToggleAudioMute] = useState(false)
     // const [publish, setPublish] = useState(true)
     console.log("localVideo: -------------------------------------", props)
     const update = () => {
@@ -36,9 +36,9 @@ export default function LocalVideo(props) {
         })
     }
 
-    const handleToggleMute = () => {
-        JanusHelperVideoRoom.getInstance().toggleMute()
-        setToggleMute(!toggleMute)
+    const handleToggleAudioMute = () => {
+        JanusHelperVideoRoom.getInstance().toggleAudioMute()
+        setToggleAudioMute(!toggleAudioMute)
     }
 
     const handleUnpublish = () => {
@@ -159,10 +159,10 @@ export default function LocalVideo(props) {
                             <button
                                 className="btn btn-warning btn-xs"
                                 id="mute"
-                                onClick={handleToggleMute}
+                                onClick={handleToggleAudioMute}
                                 style={{ position: "absolute", bottom: "0px", left: "0px", margin: "15px" }}
                             >
-                                {!toggleMute ? "Mute" : "Unmute"}
+                                {!toggleAudioMute ? "Mute" : "Unmute"}
                             </button>
                             <button
                                 className="btn btn-warning btn-xs"

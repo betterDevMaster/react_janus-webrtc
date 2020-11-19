@@ -75,9 +75,9 @@ export default function VideoRoomPage(props) {
                                     autoComplete="off"
                                     id="start"
                                     disabled={statusChange ? "disabled" : ""}
-                                    onClick={() => (janusState.status === "INITIALIZED" || "ATACHED" ? handleStart() : handleStop())}
+                                    onClick={janusState.status === ("INITIALIZED" || "ATACHED") ? handleStart : handleStop}
                                 >
-                                    {janusState.status === "INITIALIZED" ? "Start" : "Stop"}
+                                    {janusState.status === ("INITIALIZED" || "ATACHED") ? "Start" : "Stop"}
                                 </button>
                             </h1>
                         </div>
@@ -158,7 +158,7 @@ export default function VideoRoomPage(props) {
                                         <LocalVideo stream={janusState.stream.local} userName={userName} state={janusState.status} />
                                     )}
 
-                                    {janusState.stream.remote.length > 0 &&
+                                    {janusState.stream.remote &&
                                         janusState.stream.remote.map((session, i) => {
                                             if (session) {
                                                 return <RemoteVideo key={i} session={session} />

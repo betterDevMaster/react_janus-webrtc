@@ -52,7 +52,8 @@ export default class JanusHelper {
     }
 
     stop() {
-        console.log("stop: ------------- ", this.session)
+        console.log("stop: ------------- ============= ", this.session)
+        this.dispatch({ type: "JANUS_DESTROYED" })
         this.session && this.session.destroy()
         // this.session = null
         // window.location.reload()
@@ -364,7 +365,7 @@ export default class JanusHelper {
     }
 
     onDestroyed() {
-        // this.dispatch({ type: "JANUS_STATE", value: "DESTROYED" })
+        // this.dispatch({ type: "JANUS_DESTROYED" })
         // this.session && this.session.destroy()
         // this.session = null
         // this.janusPlugin = null
@@ -376,6 +377,7 @@ export default class JanusHelper {
         const alt = "Probably a network error. Please contact with the SupportTeam."
         // window.bootbox.alert(title + detail, () => {
         window.bootbox.alert(alt, () => {
+            this.dispatch({ type: "JANUS_DESTROYED" })
             window.location.reload()
             // this.dispatch({ type: "JANUS_STATE", value: "DESTROYED" })
         })
@@ -415,18 +417,27 @@ export default class JanusHelper {
                 : this.roomType === "videoCall"
                 ? { request: "register", username: this.myusername }
                 : null
-        console.log("registerUsername : ------------ ", this.roomType, register)
+        // console.log("registerUsername : ------------ ", this.roomType, register)
         this.janusPlugin.send({ message: register })
     }
 
-    toggleMute() {
-        var muted = this.janusPlugin.isAudioMuted()
-        // console.log("toggleMute: ------------ ", muted)
+    toggleAudioMute(session) {
+        let plugin = session ? session : this.janusPlugin
+        var muted = plugin.isAudioMuted()
+        console.log("toggleAudioMute: ============ ", plugin, muted)
+        window.Janus.log((muted ? "Unmuting" : "Muting") + "in audio stream...")
+        if (muted) plugin.unmuteAudio()
+        else plugin.muteAudio()
+    }
 
-        window.Janus.log((muted ? "Unmuting" : "Muting") + " local stream...")
-        if (muted) this.janusPlugin.unmuteAudio()
-        else this.janusPlugin.muteAudio()
-        muted = this.janusPlugin.isAudioMuted()
+    toggleVideoMute(session) {
+        let plugin = session ? session : plugin
+        var muted = plugin.isVideoMuted()
+
+        console.log("toggleVideoMute: ============ ", plugin, muted)
+        window.Janus.log((muted ? "Unmuting" : "Muting") + " in video stream...")
+        if (muted) plugin.unmuteVideo()
+        else plugin.muteVideo()
     }
 
     publishOwnFeed(useAudio) {

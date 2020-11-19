@@ -9,7 +9,7 @@ const janus = (
     },
     action
 ) => {
-    // console.log("janus reducer: -------------- ", state, action)
+    console.log("janus reducer: -------------- ", state, action)
     switch (action.type) {
         case "JANUS_STATE":
             return { ...state, status: action.value }
@@ -31,10 +31,14 @@ const janus = (
                     remote: [...action.value],
                 },
             }
-        case "JANUS_CLEANUP":
+        case "JANUS_DESTROYED":
             return {
                 ...state,
-                cleanUp: action.value,
+                message: {},
+                status: "UNINITIALIZED",
+                stream: {
+                    local: null,
+                },
             }
         default:
             return state

@@ -77,17 +77,17 @@ div.no-video-container {
 
 .no-video-icon {
     width: 100%;
-    height: 200px;
+    height: 246px;
     text-align: center;
 }
 
 .no-video-text {
     text-align: center;
     position: absolute;
-    bottom: 0px;
+    bottom: 35px;
     right: 0px;
     left: 0px;
-    font-size: 22px;
+    font-size: 25px;
 }
 
 .meetecho-logo {
