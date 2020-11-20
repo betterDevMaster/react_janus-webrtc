@@ -28,7 +28,8 @@ const janus = (
                 ...state,
                 stream: {
                     local: state.stream.local,
-                    remote: [...action.value],
+                    // remote: [...action.value],
+                    remote: action.value,
                 },
             }
         case "JANUS_DESTROYED":

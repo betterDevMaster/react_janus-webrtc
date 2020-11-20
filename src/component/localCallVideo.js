@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from "react"
-import JanusHelperVideoRoom from "../janus/janusHelperVideoRoom"
+import JanusHelperVideoCall from "../janus/janusHelperVideoCall"
 
-export default function LocalVideo(props) {
+export default function LocalCallVideo(props) {
     const [toggleAudioMute, setToggleAudioMute] = useState(false)
-    // const [publish, setPublish] = useState(true)
-    console.log("localVideo: -------------------------------------", props)
+    const [toggleVideoMute, setToggleVideoMute] = useState(false)
+    const [datasendData, setDatasendData] = useState({ name: "", nameSet: false })
+
     const update = () => {
         const localVideoDom = document.getElementById("myvideo")
         if (props.stream && localVideoDom) {
-            // console.log("update: ----------- ", localVideoDom, publish, props.state)
-            // if (props.state === "DISCONNECTED") localVideoDom.srcObject = null
             if (localVideoDom.srcObject === null) {
                 console.log("localVideo Attach: ------------ ", props.stream, props.state)
 
@@ -31,52 +30,55 @@ export default function LocalVideo(props) {
             window.Janus.log("Capping bandwidth to " + bitrate + " via REMB")
         }
 
-        JanusHelperVideoRoom.getInstance().janusPlugin.send({
-            message: { request: "configure", bitrate: bitrate },
+        JanusHelperVideoCall.getInstance().janusPlugin.send({
+            message: { request: "set", bitrate: bitrate },
         })
     }
-
     const handleToggleAudioMute = () => {
-        JanusHelperVideoRoom.getInstance().toggleAudioMute()
+        JanusHelperVideoCall.getInstance().toggleAudioMute()
         setToggleAudioMute(!toggleAudioMute)
     }
-
-    const handleUnpublish = () => {
-        // console.log("handlePublish: ", document.getElementById("myvideo"), localVideoDom)
-        // if (document.getElementById("myvideo") !== null) localVideoDom.srcObject = null
-        JanusHelperVideoRoom.getInstance().unpublishOwnFeed()
-        // setPublish(!publish)
+    const handleToggleVideoMute = () => {
+        JanusHelperVideoCall.getInstance().toggleVideoMute()
+        setToggleVideoMute(!toggleVideoMute)
+    }
+    const handleCheckEnter = (event) => {
+        var theCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode
+        if (theCode === 13) {
+            if (event.target.id === "datasend") {
+                setDatasendData({ name: event.target.value, nameSet: true })
+                JanusHelperVideoCall.getInstance().sendData(event.target.value)
+            }
+            return false
+        } else {
+            return true
+        }
     }
     const handlePublish = () => {
-        // console.log("handlePublish: ============== ", document.getElementById("myvideo"), localVideoDom)
-        // if (document.getElementById("myvideo") !== null) localVideoDom.srcObject = null
-        JanusHelperVideoRoom.getInstance().publishOwnFeed(true)
-        // setPublish(!publish)
+        JanusHelperVideoCall.getInstance().publishOwnFeed(true)
     }
-    const handleDisconnectPublish = () => {
-        // console.log("handleDisconnectPublish: ", document.getElementById("myvideo"), localVideoDom)
-        // if (document.getElementById("myvideo") !== null) localVideoDom.srcObject = null
-        JanusHelperVideoRoom.getInstance().publishOwnFeed(true)
-    }
+
     return (
-        <div className="col-md-4">
+        <div className="col-md-6">
             <div className="panel panel-default">
                 <div className="panel-heading">
                     <h3 className="panel-title">
-                        Local Video
-                        <span className="label label-primary" id="publisher">
-                            {props.userName}
-                        </span>
-                        <div className="btn-group btn-group-xs pull-right">
+                        Local Stream
+                        <div className="btn-group btn-group-xs pull-right hide">
+                            <button className="btn btn-danger" autoComplete="off" id="toggleaudio" onClick={handleToggleAudioMute}>
+                                Disable audio
+                            </button>
+                            <button className="btn btn-danger" autoComplete="off" id="togglevideo" onClick={handleToggleVideoMute}>
+                                Disable video
+                            </button>
                             <div className="btn-group btn-group-xs">
                                 <button
-                                    id="bitrateset"
                                     autoComplete="off"
+                                    id="bitrateset"
                                     className="btn btn-primary dropdown-toggle"
                                     data-toggle="dropdown"
                                 >
-                                    Bandwidth
-                                    <span className="caret"></span>
+                                    Bandwidth<span className="caret"></span>
                                 </button>
                                 <ul id="bitrate" className="dropdown-menu" role="menu">
                                     <li>
@@ -119,7 +121,7 @@ export default function LocalVideo(props) {
                         </div>
                     </h3>
                 </div>
-                <div className="panel-body" id="videolocal">
+                <div className="panel-body" id="videoleft">
                     {props.state === "DISCONNECTED" ? (
                         <div>
                             <button className="btn btn-primary" id="unpublish" onClick={handlePublish}>
@@ -141,46 +143,27 @@ export default function LocalVideo(props) {
                             </div>
                         </div>
                     ) : props.state === "CONNECTED" ? (
-                        // !publish ? (
-                        //     <button id="publish" className="btn btn-primary" onClick={handlePublish}>
-                        //         Publish
-                        //     </button>
-                        // ) : (
-                        <>
-                            <video
-                                className="rounded centered"
-                                id="myvideo"
-                                width="100%"
-                                height="100%"
-                                autoPlay
-                                playsInline
-                                muted="muted"
-                            />
-                            <button
-                                className="btn btn-warning btn-xs"
-                                id="mute"
-                                onClick={handleToggleAudioMute}
-                                style={{ position: "absolute", bottom: "0px", left: "0px", margin: "15px" }}
-                            >
-                                {!toggleAudioMute ? "Mute" : "Unmute"}
-                            </button>
-                            <button
-                                className="btn btn-warning btn-xs"
-                                id="unpublish"
-                                onClick={handleUnpublish}
-                                style={{
-                                    position: "absolute",
-                                    bottom: "0px",
-                                    right: "0px",
-                                    margin: "15px",
-                                }}
-                            >
-                                Unpublish
-                            </button>
-                        </>
-                    ) : // )
-                    null}
+                        <video className="rounded centered" id="myvideo" width="100%" height="100%" autoPlay playsInline muted="muted" />
+                    ) : null}
                 </div>
+            </div>
+            <div className="input-group margin-bottom-sm">
+                <span className="input-group-addon">
+                    <i className="fa fa-cloud-upload fa-fw"></i>
+                </span>
+                <input
+                    className="form-control"
+                    type="text"
+                    placeholder="Write a DataChannel message to your peer"
+                    autoComplete="off"
+                    id="datasend"
+                    value={datasendData.name}
+                    disabled={datasendData.nameSet}
+                    onChange={(e) => {
+                        setDatasendData({ ...datasendData, name: e.target.value })
+                    }}
+                    onKeyPress={(e) => handleCheckEnter(e)}
+                />
             </div>
         </div>
     )

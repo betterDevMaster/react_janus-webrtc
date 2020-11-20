@@ -2,24 +2,25 @@ import React, { useRef, useState, useEffect } from "react"
 import { useSelector, useDispatch } from "react-redux"
 import Header from "../widget/header"
 import Footer from "../widget/footer"
-import JanusHelperVideoCall from "../janus/JanusHelperVideoCall"
+import JanusHelperVideoCall from "../janus/janusHelperVideoCall"
+import LocalCallVideo from "../component/localCallVideo"
+import RemoteCallVideo from "../component/remoteCallVideo"
 
 export default function VideoCallPage(props) {
     const dispatch = useDispatch()
     const janusState = useSelector((state) => state.janus)
-    const [userName, setUserName] = useState({ name: "", nameSet: false })
-    const [peer, setPeer] = useState("")
-    const [datasend, setDatasend] = useState("")
+    const [userData, setUserData] = useState({ name: "", nameSet: false })
+    const [peerData, setPeerData] = useState({ name: "", peerSet: false })
     const [statusChange, setStatusChange] = useState(false)
 
     useEffect(() => {
         JanusHelperVideoCall.getInstance().init(dispatch, "videoCall", "janus.plugin.videocall")
     }, [])
     useEffect(() => {
+        console.log("janusstate: --------------- ", janusState, userData)
         setStatusChange(!statusChange)
-        // if (janusState.status === "RUNNING") handlePublishing()
+        if (janusState.status === "ATTACHED") setPeerData({ ...peerData, peerSet: false })
     }, [janusState])
-    console.log("janusstate: --------------- ", janusState, userName)
 
     const handleStart = () => {
         setStatusChange(!statusChange)
@@ -27,19 +28,25 @@ export default function VideoCallPage(props) {
     }
     const handleStop = () => {
         JanusHelperVideoCall.getInstance().stop()
-        window.location.reload()
     }
     const handleRegister = () => {
-        setUserName({ ...userName, nameSet: true })
-        JanusHelperVideoCall.getInstance().registerUsername(userName.name)
+        // console.log("UI: handleRegister: ----------------- ")
+        setUserData({ ...userData, nameSet: true })
+        JanusHelperVideoCall.getInstance().registerUsername(userData.name)
+    }
+    const handleCall = () => {
+        setPeerData({ ...peerData, peerSet: true })
+        JanusHelperVideoCall.getInstance().doCall(peerData.name)
     }
     const handleCheckEnter = (event) => {
         var theCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode
         if (theCode === 13) {
             if (event.target.id === "username") {
-                setUserName({ userName: event.target.value, nameSet: true })
+                // console.log("UI: handleCheckEnter: ----------------- ")
+
+                setUserData({ name: event.target.value, nameSet: true })
                 JanusHelperVideoCall.getInstance().registerUsername(event.target.value)
-            }
+            } else if (event.target.id == "peer") handleCall()
             return false
         } else {
             return true
@@ -74,14 +81,10 @@ export default function VideoCallPage(props) {
                                     className="btn btn-default"
                                     autoComplete="off"
                                     id="start"
-                                    disabled={statusChange}
-                                    onClick={() =>
-                                        janusState.status === "INITIALIZED" || janusState.status === "ATACHED"
-                                            ? handleStart()
-                                            : handleStop()
-                                    }
+                                    disabled={statusChange ? "disabled" : ""}
+                                    onClick={janusState.status === ("INITIALIZED" || "ATACHED") ? handleStart : handleStop}
                                 >
-                                    {janusState.status === "INITIALIZED" ? "Start" : "Stop"}
+                                    {janusState.status === ("INITIALIZED" || "ATACHED") ? "Start" : "Stop"}
                                 </button>
                             </h1>
                         </div>
@@ -129,9 +132,9 @@ export default function VideoCallPage(props) {
                                 </div>
                             </div>
                         )}
-                        {janusState.status === "ATTACHED" && (
-                            <div className="container" id="videocall">
-                                <div className="row">
+                        <div className="container" id="videocall">
+                            <div className="row">
+                                {janusState.status === "ATTACHED" && (
                                     <div className="col-md-12">
                                         <div className="col-md-6 container" id="login">
                                             <div className="input-group margin-bottom-sm">
@@ -144,10 +147,10 @@ export default function VideoCallPage(props) {
                                                     placeholder="Choose a username"
                                                     autoComplete="off"
                                                     id="username"
-                                                    value={userName.name}
-                                                    disabled={userName.nameSet}
+                                                    value={userData.name}
+                                                    disabled={userData.nameSet}
                                                     onChange={(e) => {
-                                                        setUserName({ ...userName, name: e.target.value })
+                                                        setUserData({ ...userData, name: e.target.value })
                                                     }}
                                                     onKeyPress={(e) => handleCheckEnter(e)}
                                                 />
@@ -156,16 +159,16 @@ export default function VideoCallPage(props) {
                                                 className="btn btn-success margin-bottom-sm"
                                                 autoComplete="off"
                                                 id="register"
-                                                disabled={userName.nameSet}
+                                                disabled={userData.nameSet}
                                                 onClick={handleRegister}
                                             >
                                                 Register
                                             </button>
                                             <span className="label label-info" id="youok">
-                                                {userName.nameSet ? "Registered as " + userName.name : null}
+                                                {userData.nameSet ? "Registered as " + userData.name : null}
                                             </span>
                                         </div>
-                                        {userName.nameSet ? (
+                                        {userData.nameSet ? (
                                             <div className="col-md-6 container" id="phone">
                                                 <div className="input-group margin-bottom-sm">
                                                     <span className="input-group-addon">
@@ -177,104 +180,32 @@ export default function VideoCallPage(props) {
                                                         placeholder="Who should we call?"
                                                         autoComplete="off"
                                                         id="peer"
-                                                        value={peer}
+                                                        value={peerData.name}
+                                                        disabled={peerData.peerSet}
                                                         onChange={(e) => {
-                                                            setPeer(e.target.value)
+                                                            setPeerData({ ...peerData, name: e.target.value })
                                                         }}
                                                         onKeyPress={(e) => handleCheckEnter(e)}
                                                     />
                                                 </div>
-                                                <button className="btn btn-success margin-bottom-sm" autoComplete="off" id="call">
+                                                <button
+                                                    className="btn btn-success margin-bottom-sm"
+                                                    autoComplete="off"
+                                                    id="call"
+                                                    disabled={peerData.peerSet}
+                                                    onClick={handleCall}
+                                                >
                                                     Call
                                                 </button>
                                             </div>
                                         ) : null}
                                     </div>
-                                    <div />
+                                )}
+                                {janusState.status === ("RUNNING" || "CONNECTED" || "DISCONNECTED") && (
                                     <div id="videos" className="">
-                                        <div className="col-md-6">
-                                            <div className="panel panel-default">
-                                                <div className="panel-heading">
-                                                    <h3 className="panel-title">
-                                                        Local Stream
-                                                        <div className="btn-group btn-group-xs pull-right">
-                                                            <button className="btn btn-danger" autoComplete="off" id="toggleaudio">
-                                                                Disable audio
-                                                            </button>
-                                                            <button className="btn btn-danger" autoComplete="off" id="togglevideo">
-                                                                Disable video
-                                                            </button>
-                                                            <div className="btn-group btn-group-xs">
-                                                                <button
-                                                                    autoComplete="off"
-                                                                    id="bitrateset"
-                                                                    className="btn btn-primary dropdown-toggle"
-                                                                    data-toggle="dropdown"
-                                                                >
-                                                                    Bandwidth<span className="caret"></span>
-                                                                </button>
-                                                                <ul id="bitrate" className="dropdown-menu" role="menu">
-                                                                    <li>
-                                                                        <a href="#" id="0">
-                                                                            No limit
-                                                                        </a>
-                                                                    </li>
-                                                                    <li>
-                                                                        <a href="#" id="128">
-                                                                            Cap to 128kbit
-                                                                        </a>
-                                                                    </li>
-                                                                    <li>
-                                                                        <a href="#" id="256">
-                                                                            Cap to 256kbit
-                                                                        </a>
-                                                                    </li>
-                                                                    <li>
-                                                                        <a href="#" id="512">
-                                                                            Cap to 512kbit
-                                                                        </a>
-                                                                    </li>
-                                                                    <li>
-                                                                        <a href="#" id="1024">
-                                                                            Cap to 1mbit
-                                                                        </a>
-                                                                    </li>
-                                                                    <li>
-                                                                        <a href="#" id="1500">
-                                                                            Cap to 1.5mbit
-                                                                        </a>
-                                                                    </li>
-                                                                    <li>
-                                                                        <a href="#" id="2000">
-                                                                            Cap to 2mbit
-                                                                        </a>
-                                                                    </li>
-                                                                </ul>
-                                                            </div>
-                                                        </div>
-                                                    </h3>
-                                                </div>
-                                                <div className="panel-body" id="videoleft"></div>
-                                            </div>
-                                            <div className="input-group margin-bottom-sm">
-                                                <span className="input-group-addon">
-                                                    <i className="fa fa-cloud-upload fa-fw"></i>
-                                                </span>
-                                                <input
-                                                    className="form-control"
-                                                    type="text"
-                                                    placeholder="Write a DataChannel message to your peer"
-                                                    autoComplete="off"
-                                                    id="datasend"
-                                                    value={datasend}
-                                                    onChange={(e) => {
-                                                        setDatasend(e.target.value)
-                                                    }}
-                                                    onKeyPress={(e) => handleCheckEnter(e)}
-                                                    disabled
-                                                />
-                                            </div>
-                                        </div>
+                                        {janusState.stream.local && (
+                                            <LocalCallVideo stream={janusState.stream.local} state={janusState.status} />
+                                        )}
                                         <div className="col-md-6">
                                             <div className="panel panel-default">
                                                 <div className="panel-heading">
@@ -294,9 +225,9 @@ export default function VideoCallPage(props) {
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                )}
                             </div>
-                        )}
+                        </div>
                     </div>
                 </div>
                 <hr />

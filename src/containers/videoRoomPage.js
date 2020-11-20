@@ -3,8 +3,8 @@ import { useSelector, useDispatch } from "react-redux"
 import Header from "../widget/header"
 import Footer from "../widget/footer"
 import JanusHelperVideoRoom from "../janus/janusHelperVideoRoom"
-import LocalVideo from "../component/localVideo"
-import RemoteVideo from "../component/remoteVideo"
+import LocalRoomVideo from "../component/localRoomVideo"
+import RemoteRoomVideo from "../component/remoteRoomVideo"
 
 export default function VideoRoomPage(props) {
     const dispatch = useDispatch()
@@ -16,6 +16,8 @@ export default function VideoRoomPage(props) {
         JanusHelperVideoRoom.getInstance().init(dispatch, "videoRoom", "janus.plugin.videoroom")
     }, [])
     useEffect(() => {
+        console.log("janusstate: --------------- ", janusState, statusChange)
+
         if (janusState.status === "RUNNING" || "CONNECTED" || "DISCONNECTED") setStatusChange(false)
         else setStatusChange(!statusChange)
     }, [janusState])
@@ -42,7 +44,6 @@ export default function VideoRoomPage(props) {
         setStatusChange(!statusChange)
         JanusHelperVideoRoom.getInstance().registerUsername(userName)
     }
-    console.log("janusstate: --------------- ", janusState, statusChange)
 
     return (
         <div>
@@ -155,13 +156,13 @@ export default function VideoRoomPage(props) {
                             <div className="container" id="videos">
                                 <div className="row">
                                     {janusState.stream.local && (
-                                        <LocalVideo stream={janusState.stream.local} userName={userName} state={janusState.status} />
+                                        <LocalRoomVideo stream={janusState.stream.local} userName={userName} state={janusState.status} />
                                     )}
 
                                     {janusState.stream.remote &&
                                         janusState.stream.remote.map((session, i) => {
                                             if (session) {
-                                                return <RemoteVideo key={i} session={session} />
+                                                return <RemoteRoomVideo key={i} session={session} />
                                             }
                                         })}
                                 </div>

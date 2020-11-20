@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"
 import JanusHelperVideoRoom from "../janus/janusHelperVideoRoom"
 
-export default function RemoteVideo({ session }) {
+export default function RemoteRoomVideo({ session }) {
     const [bitRate, setBitRate] = useState(0)
     const [videoSizeText, setVideoSizeText] = useState("")
     const [toggleAudioMute, setToggleAudioMute] = useState(true)
@@ -19,8 +19,6 @@ export default function RemoteVideo({ session }) {
         }
         if (session.stream && remoteVideoDom) {
             if (remoteVideoDom.srcObject == null) {
-                console.log("remoteVideo Attach: ------------ ")
-                // console.log("Attach stream to video tag")
                 window.Janus.attachMediaStream(remoteVideoDom, session.stream)
             }
         }
@@ -103,11 +101,7 @@ export default function RemoteVideo({ session }) {
                 <div className="panel-body relative" id={`videoremote${session.rfindex}`}>
                     {session.stream === undefined ? (
                         <NoVideo />
-                    ) : // <div className="no-video-container">
-                    //     <i className="fa fa-video-camera fa-5 no-video-icon"></i>
-                    //     <span className="no-video-text">No remote video available</span>
-                    // </div>
-                    !toggleVideoMute ? (
+                    ) : !toggleVideoMute ? (
                         <>
                             <NoVideo />
                             <VideoFooter />
