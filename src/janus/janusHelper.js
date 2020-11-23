@@ -59,9 +59,9 @@ export default class JanusHelper {
         this.session = new window.Janus({
             server: JanusHelper.baseUrl,
             iceServers: [
-                { urls: "turn:turn.contactprocrm.com:3478", username: "bruno", credential: "crmsite" },
-                { urls: "turn:csturn.contactprocrm.com:3478", username: "bruno", credential: "crmsite" },
-                { urls: "turn:india.contactprocrm.com:3478", username: "bruno", credential: "brunoedward" },
+                { urls: "turn:januswebrtc.com:3478", username: "sonny", credential: "sonny" },
+                // { urls: "turn:csturn.contactprocrm.com:3478", username: "bruno", credential: "crmsite" },
+                // { urls: "turn:india.contactprocrm.com:3478", username: "bruno", credential: "brunoedward" },
             ],
             success: () => this.onInit(),
             error: (error) => this.onError("Critical Error --", error),
