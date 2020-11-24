@@ -59,7 +59,7 @@ export default class JanusHelper {
         this.session = new window.Janus({
             server: JanusHelper.baseUrl,
             iceServers: [
-                { urls: "turn:januswebrtc.com:3478", username: "sonny", credential: "sonny" },
+                { urls: "turn:3.34.186.95:3478", username: "sonny", credential: "janus" },
                 // { urls: "turn:csturn.contactprocrm.com:3478", username: "bruno", credential: "crmsite" },
                 // { urls: "turn:india.contactprocrm.com:3478", username: "bruno", credential: "brunoedward" },
             ],
