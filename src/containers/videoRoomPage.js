@@ -12,15 +12,18 @@ export default function VideoRoomPage(props) {
     const [userName, setUserName] = useState("")
     const [statusChange, setStatusChange] = useState(false)
 
+    const status1 = ["RUNNING", "CONNECTED", "DISCONNECTED"]
+    const status2 = ["INITIALIZED", "ATACHED"]
+
     useEffect(() => {
         JanusHelperVideoRoom.getInstance().init(dispatch, "videoRoom", "janus.plugin.videoroom")
     }, [])
     useEffect(() => {
-        console
-            .log("janusstate: --------------- ", janusState, statusChange)
+        console.log("janusstate: --------------- ", janusState, statusChange)
 
-            [("RUNNING", "CONNECTED", "DISCONNECTED")].includes(janusState.status)
-            ? setStatusChange(false)
+        status1.includes(janusState.status)
+            ? // [("RUNNING", "CONNECTED", "DISCONNECTED")].includes(janusState.status)
+              setStatusChange(false)
             : setStatusChange(!statusChange)
     }, [janusState])
 
@@ -78,9 +81,9 @@ export default function VideoRoomPage(props) {
                                     autoComplete="off"
                                     id="start"
                                     disabled={statusChange ? "disabled" : ""}
-                                    onClick={["INITIALIZED", "ATACHED"].includes(janusState.status) ? handleStart : handleStop}
+                                    onClick={status2.includes(janusState.status) ? handleStart : handleStop}
                                 >
-                                    {["INITIALIZED", "ATACHED"].includes(janusState.status) ? "Start" : "Stop"}
+                                    {status2.includes(janusState.status) ? "Start" : "Stop"}
                                 </button>
                             </h1>
                         </div>
@@ -154,7 +157,7 @@ export default function VideoRoomPage(props) {
                                 </div>
                             </div>
                         )}
-                        {["RUNNING", "CONNECTED", "DISCONNECTED"].includes(janusState.status) && (
+                        {status1.includes(janusState.status) && (
                             <div className="container" id="videos">
                                 <div className="row">
                                     {janusState.stream.local && (

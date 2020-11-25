@@ -12,6 +12,7 @@ export default function VideoCallPage(props) {
     const [userData, setUserData] = useState({ name: "", nameSet: false })
     const [peerData, setPeerData] = useState({ name: "", peerSet: false })
     const [statusChange, setStatusChange] = useState(false)
+    const status = ["RUNNING", "CONNECTED", "DISCONNECTED"]
 
     useEffect(() => {
         JanusHelperVideoCall.getInstance().init(dispatch, "videoCall", "janus.plugin.videocall")
@@ -201,7 +202,7 @@ export default function VideoCallPage(props) {
                                         ) : null}
                                     </div>
                                 )}
-                                {["RUNNING", "CONNECTED", "DISCONNECTED"].includes(janusState.status) && (
+                                {status.includes(janusState.status) && (
                                     <div id="videos" className="">
                                         {janusState.stream.local && (
                                             <LocalCallVideo stream={janusState.stream.local} state={janusState.status} />
