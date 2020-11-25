@@ -87,6 +87,18 @@ export default class JanusHelper {
             onmessage: (msg, jsep) => this.onMessage(msg, jsep),
             onlocalstream: (stream) => this.onLocalStream(stream),
             onremotestream: (stream) => this.onRemoteStream(stream),
+            ondataopen: (data) => {
+                console.log("ondataopen: ------------ ", data)
+
+                window.Janus.log("The DataChannel is available!")
+            },
+            ondata: (data) => {
+                console.log("ondata: ------------ ", data)
+
+                window.Janus.debug("We got data from the DataChannel!", data)
+                // $("#datarecv").val(data)
+                this.dispatch({ type: "JANUS_MESSAGE", value: data })
+            },
             oncleanup: () => this.onCleanUp(),
         })
     }
@@ -190,117 +202,10 @@ export default class JanusHelper {
 
     onRemoteStream(stream) {
         window.Janus.debug(" ::: Got a remote stream :::", stream)
-        // var addButtons = false
-        this.dispatch({ type: "JANUS_REMOTESTREAM", value: stream })
-
-        // if ($("#remotevideo").length === 0) {
-        //     addButtons = true
-        //     $("#videoright").append(
-        //         '<video class="rounded centered hide" id="remotevideo" width="100%" height="100%" autoplay playsinline/>'
-        //     )
-        //     // Show the video, hide the spinner and show the resolution when we get a playing event
-        //     $("#remotevideo").bind("playing", function () {
-        //         $("#waitingvideo").remove()
-        //         if (this.videoWidth) $("#remotevideo").removeClass("hide").show()
-        //         if (spinner) spinner.stop()
-        //         spinner = null
-        //         var width = this.videoWidth
-        //         var height = this.videoHeight
-        //         $("#curres")
-        //             .removeClass("hide")
-        //             .text(width + "x" + height)
-        //             .show()
-        //     })
-        //     $("#callee").removeClass("hide").html(yourusername).show()
-        // }
-        // Janus.attachMediaStream($("#remotevideo").get(0), stream)
-        // var videoTracks = stream.getVideoTracks()
-        // if (!videoTracks || videoTracks.length === 0) {
-        //     // No remote video
-        //     $("#remotevideo").hide()
-        //     if ($("#videoright .no-video-container").length === 0) {
-        //         $("#videoright").append(
-        //             '<div class="no-video-container">' +
-        //                 '<i class="fa fa-video-camera fa-5 no-video-icon"></i>' +
-        //                 '<span class="no-video-text">No remote video available</span>' +
-        //                 "</div>"
-        //         )
-        //     }
-        // } else {
-        //     $("#videoright .no-video-container").remove()
-        //     $("#remotevideo").removeClass("hide").show()
-        // }
-        // if (!addButtons) return
-        // // Enable audio/video buttons and bitrate limiter
-        // audioenabled = true
-        // videoenabled = true
-        // $("#toggleaudio")
-        //     .html("Disable audio")
-        //     .removeClass("btn-success")
-        //     .addClass("btn-danger")
-        //     .unbind("click")
-        //     .removeAttr("disabled")
-        //     .click(function () {
-        //         audioenabled = !audioenabled
-        //         if (audioenabled) $("#toggleaudio").html("Disable audio").removeClass("btn-success").addClass("btn-danger")
-        //         else $("#toggleaudio").html("Enable audio").removeClass("btn-danger").addClass("btn-success")
-        //         videocall.send({
-        //             message: { request: "set", audio: audioenabled },
-        //         })
-        //     })
-        // $("#togglevideo")
-        //     .html("Disable video")
-        //     .removeClass("btn-success")
-        //     .addClass("btn-danger")
-        //     .unbind("click")
-        //     .removeAttr("disabled")
-        //     .click(function () {
-        //         videoenabled = !videoenabled
-        //         if (videoenabled) $("#togglevideo").html("Disable video").removeClass("btn-success").addClass("btn-danger")
-        //         else $("#togglevideo").html("Enable video").removeClass("btn-danger").addClass("btn-success")
-        //         videocall.send({
-        //             message: { request: "set", video: videoenabled },
-        //         })
-        //     })
-        // $("#toggleaudio").parent().removeClass("hide").show()
-        // $("#bitrateset").html("Bandwidth")
-        // $("#bitrate a")
-        //     .unbind("click")
-        //     .removeAttr("disabled")
-        //     .click(function () {
-        //         var id = $(this).attr("id")
-        //         var bitrate = parseInt(id) * 1000
-        //         if (bitrate === 0) {
-        //             Janus.log("Not limiting bandwidth via REMB")
-        //         } else {
-        //             Janus.log("Capping bandwidth to " + bitrate + " via REMB")
-        //         }
-        //         $("#bitrateset").html($(this).html()).parent().removeClass("open")
-        //         videocall.send({
-        //             message: { request: "set", bitrate: bitrate },
-        //         })
-        //         return false
-        //     })
-        // if (
-        //     Janus.webRTCAdapter.browserDetails.browser === "chrome" ||
-        //     Janus.webRTCAdapter.browserDetails.browser === "firefox" ||
-        //     Janus.webRTCAdapter.browserDetails.browser === "safari"
-        // ) {
-        //     $("#curbitrate").removeClass("hide").show()
-        //     bitrateTimer = setInterval(function () {
-        //         // Display updated bitrate, if supported
-        //         var bitrate = videocall.getBitrate()
-        //         $("#curbitrate").text(bitrate)
-        //         // Check if the resolution changed too
-        //         var width = $("#remotevideo").get(0).videoWidth
-        //         var height = $("#remotevideo").get(0).videoHeight
-        //         if (width > 0 && height > 0)
-        //             $("#curres")
-        //                 .removeClass("hide")
-        //                 .text(width + "x" + height)
-        //                 .show()
-        //     }, 1000)
-        // }
+        this.feeds[0] = this.janusPlugin
+        this.feeds[0].stream = stream
+        // console.log("onRemoteStream: ------------- ", this.myusername, this.yourusername)
+        this.dispatch({ type: "JANUS_REMOTESTREAM", value: this.feeds })
     }
 
     onCleanUp() {
@@ -375,6 +280,23 @@ export default class JanusHelper {
             error: (error) => {
                 window.Janus.error("WebRTC error...", error)
                 window.bootbox.alert("WebRTC error... " + error.message)
+            },
+        })
+    }
+
+    sendData(data) {
+        if (data === "") {
+            window.bootbox.alert("Insert a message to send on the DataChannel to your peer")
+            return
+        }
+        console.log("sendData ====================== ", data)
+        this.janusPlugin.data({
+            text: data,
+            error: function (reason) {
+                window.bootbox.alert(reason)
+            },
+            success: function () {
+                window.Janus.log("Data send Success.")
             },
         })
     }
@@ -454,7 +376,6 @@ export default class JanusHelper {
 
     doHangup() {
         // Hangup a call
-        // $("#call").attr("disabled", true).unbind("click")
         var hangup = { request: "hangup" }
         this.janusPlugin.send({ message: hangup })
         this.janusPlugin.hangup()
@@ -474,7 +395,6 @@ export default class JanusHelper {
 
     removeRemoteStream(remoteId) {
         var remoteFeed = this.getRemoteFeedById(remoteId)
-        // console.log("removeRemoteStream: ----------- ", remoteFeed, this.feeds)
         if (remoteFeed != null) {
             window.Janus.debug("Feed " + remoteFeed.rfid + " (" + remoteFeed.rfdisplay + ") has left the room, detaching")
             this.feeds[remoteFeed.rfindex] = null
@@ -518,8 +438,10 @@ export default class JanusHelper {
                 window.Janus.debug(" ::: Got a message (subscriber) :::", msg)
 
                 var event = msg["videoroom"]
+                window.Janus.debug("Event: " + event)
+
                 console.log("JanusHelper: remoteFeed: onMessage: ----------------- ", event, msg, jsep)
-                //Janus.debug("Event: " + event)
+
                 if (msg["error"]) {
                     window.bootbox.alert(msg["error"])
                 } else if (event) {
@@ -533,7 +455,6 @@ export default class JanusHelper {
                                     break
                                 }
                             }
-                            // console.log("feeds: -------------- ", this.feeds)
 
                             remoteFeed.rfid = msg["id"]
                             remoteFeed.rfdisplay = msg["display"]
@@ -598,7 +519,6 @@ export default class JanusHelper {
             },
             onremotestream: (stream) => {
                 // window.Janus.debug("Remote feed #" + remoteFeed.rfindex + ", stream:", stream)
-                // console.log("newRemoteStream: ------------->>>> ", stream)
                 this.feeds[remoteFeed.rfindex].stream = stream
                 // remoteFeed["stream"] = stream
                 this.dispatch({ type: "JANUS_REMOTESTREAM", value: this.feeds })

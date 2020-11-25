@@ -82,9 +82,9 @@ export default function VideoCallPage(props) {
                                     autoComplete="off"
                                     id="start"
                                     disabled={statusChange ? "disabled" : ""}
-                                    onClick={janusState.status === ("INITIALIZED" || "ATACHED") ? handleStart : handleStop}
+                                    onClick={["INITIALIZED", "ATACHED"].includes(janusState.status) ? handleStart : handleStop}
                                 >
-                                    {janusState.status === ("INITIALIZED" || "ATACHED") ? "Start" : "Stop"}
+                                    {["INITIALIZED", "ATACHED"].includes(janusState.status) ? "Start" : "Stop"}
                                 </button>
                             </h1>
                         </div>
@@ -201,29 +201,18 @@ export default function VideoCallPage(props) {
                                         ) : null}
                                     </div>
                                 )}
-                                {janusState.status === ("RUNNING" || "CONNECTED" || "DISCONNECTED") && (
+                                {["RUNNING", "CONNECTED", "DISCONNECTED"].includes(janusState.status) && (
                                     <div id="videos" className="">
                                         {janusState.stream.local && (
                                             <LocalCallVideo stream={janusState.stream.local} state={janusState.status} />
                                         )}
-                                        <div className="col-md-6">
-                                            <div className="panel panel-default">
-                                                <div className="panel-heading">
-                                                    <h3 className="panel-title">
-                                                        Remote Stream <span className="label label-info" id="callee"></span>{" "}
-                                                        <span className="label label-primary" id="curres"></span>{" "}
-                                                        <span className="label label-info" id="curbitrate"></span>
-                                                    </h3>
-                                                </div>
-                                                <div className="panel-body" id="videoright"></div>
-                                            </div>
-                                            <div className="input-group margin-bottom-sm">
-                                                <span className="input-group-addon">
-                                                    <i className="fa fa-cloud-download fa-fw"></i>
-                                                </span>
-                                                <input className="form-control" type="text" id="datarecv" disabled />
-                                            </div>
-                                        </div>
+                                        {janusState.stream.remote.length > 0 && (
+                                            <RemoteCallVideo
+                                                session={janusState.stream.remote[0]}
+                                                state={janusState.status}
+                                                datarecv={janusState.status === "JANUS_MESSAGE" ? janusState.message : ""}
+                                            />
+                                        )}
                                     </div>
                                 )}
                             </div>

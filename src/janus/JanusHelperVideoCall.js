@@ -42,6 +42,8 @@ export default class JanusHelperVideoCall extends JanusHelper {
                 case "incomingcall":
                     window.Janus.log("Incoming call from " + result["username"] + "!")
                     this.yourusername = result["username"]
+                    this.janusPlugin.rfdisplay = msg["display"]
+
                     // Notify user
                     window.bootbox.hideAll()
                     let plugin = this.janusPlugin
@@ -54,7 +56,6 @@ export default class JanusHelperVideoCall extends JanusHelper {
                                 label: "Answer",
                                 className: "btn-success",
                                 callback: function () {
-                                    console.log("incoming Call Callback: ------------- ", incoming, this.janusPlugin, plugin)
                                     incoming = null
                                     // $("#peer").val(result["username"]).attr("disabled", true)
                                     plugin.createAnswer({

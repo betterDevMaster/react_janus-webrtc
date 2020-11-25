@@ -16,10 +16,12 @@ export default function VideoRoomPage(props) {
         JanusHelperVideoRoom.getInstance().init(dispatch, "videoRoom", "janus.plugin.videoroom")
     }, [])
     useEffect(() => {
-        console.log("janusstate: --------------- ", janusState, statusChange)
+        console
+            .log("janusstate: --------------- ", janusState, statusChange)
 
-        if (janusState.status === "RUNNING" || "CONNECTED" || "DISCONNECTED") setStatusChange(false)
-        else setStatusChange(!statusChange)
+            [("RUNNING", "CONNECTED", "DISCONNECTED")].includes(janusState.status)
+            ? setStatusChange(false)
+            : setStatusChange(!statusChange)
     }, [janusState])
 
     const handleStart = () => {
@@ -76,9 +78,9 @@ export default function VideoRoomPage(props) {
                                     autoComplete="off"
                                     id="start"
                                     disabled={statusChange ? "disabled" : ""}
-                                    onClick={janusState.status === ("INITIALIZED" || "ATACHED") ? handleStart : handleStop}
+                                    onClick={["INITIALIZED", "ATACHED"].includes(janusState.status) ? handleStart : handleStop}
                                 >
-                                    {janusState.status === ("INITIALIZED" || "ATACHED") ? "Start" : "Stop"}
+                                    {["INITIALIZED", "ATACHED"].includes(janusState.status) ? "Start" : "Stop"}
                                 </button>
                             </h1>
                         </div>
@@ -152,7 +154,7 @@ export default function VideoRoomPage(props) {
                                 </div>
                             </div>
                         )}
-                        {(janusState.status === "RUNNING" || "CONNECTED" || "DISCONNECTED") && (
+                        {["RUNNING", "CONNECTED", "DISCONNECTED"].includes(janusState.status) && (
                             <div className="container" id="videos">
                                 <div className="row">
                                     {janusState.stream.local && (

@@ -63,7 +63,7 @@ export default function LocalCallVideo(props) {
             <div className="panel panel-default">
                 <div className="panel-heading">
                     <h3 className="panel-title">
-                        Local Stream
+                        Local Stream {JanusHelperVideoCall.getInstance().myusername}
                         <div className="btn-group btn-group-xs pull-right hide">
                             <button className="btn btn-danger" autoComplete="off" id="toggleaudio" onClick={handleToggleAudioMute}>
                                 Disable audio

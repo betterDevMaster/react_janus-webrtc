@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react"
 import JanusHelperVideoCall from "../janus/janusHelperVideoCall"
 
-export default function RemoteCallVideo({ session }) {
-    const [bitRate, setBitRate] = useState(0)
+export default function RemoteCallVideo(props) {
+    // const [bitRate, setBitRate] = useState(0)
     const [videoSizeText, setVideoSizeText] = useState("")
     const [toggleAudioMute, setToggleAudioMute] = useState(true)
     const [toggleVideoMute, setToggleVideoMute] = useState(true)
@@ -12,28 +12,28 @@ export default function RemoteCallVideo({ session }) {
     }, [])
 
     const update = () => {
-        let remoteVideoDom = document.getElementById(`remotevideo${session.rfindex}`)
-        if (session && remoteVideoDom) {
-            setBitRate(session.getBitrate())
+        let remoteVideoDom = document.getElementById("remotevideo")
+        if (props.session && remoteVideoDom) {
             setVideoSizeText(remoteVideoDom.videoWidth + "x" + remoteVideoDom.videoHeight)
         }
-        if (session.stream && remoteVideoDom) {
+        if (props.session && remoteVideoDom) {
             if (remoteVideoDom.srcObject == null) {
-                window.Janus.attachMediaStream(remoteVideoDom, session.stream)
+                // console.log("remoteVideo Attach: ------------ ", props.session, remoteVideoDom)
+                window.Janus.attachMediaStream(remoteVideoDom, props.session.stream)
             }
         }
         setTimeout(update, 1000)
     }
     const handleToggleAudioMute = () => {
-        const dom = document.getElementById(`remotevideo${session.rfindex}`)
+        const dom = document.getElementById("remotevideo")
         if (dom) {
             dom.muted = toggleAudioMute
-            // JanusHelperVideoRoom.getInstance().toggleAudioMute(session)
+            // JanusHelperVideoRoom.getInstance().toggleAudioMute(props.session)
         }
         setToggleAudioMute(!toggleAudioMute)
     }
     const handleToggleVideoMute = () => {
-        // JanusHelperVideoRoom.getInstance().toggleVideoMute(session)
+        // JanusHelperVideoRoom.getInstance().toggleVideoMute(props.session)
         setToggleVideoMute(!toggleVideoMute)
     }
     const NoVideo = () => (
@@ -43,83 +43,36 @@ export default function RemoteCallVideo({ session }) {
         </div>
     )
 
-    const VideoFooter = () => (
-        <>
-            <span
-                className="label label-primary"
-                id={`curres${session.rfindex}`}
-                style={{
-                    position: "absolute",
-                    bottom: "2px",
-                    left: "0px",
-                    margin: "15px 0",
-                }}
-            >
-                {videoSizeText}
-            </span>
-            <span
-                className="label label-info"
-                id={`curbitrate${session.rfindex}`}
-                style={{
-                    position: "absolute",
-                    bottom: "2px",
-                    right: "0px",
-                    margin: "15px 0",
-                }}
-            >
-                {bitRate}
-            </span>
-            <button
-                className="btn btn-warning btn-xs"
-                id="audioMute"
-                onClick={handleToggleAudioMute}
-                style={{ position: "absolute", bottom: "-20px", left: "0px", margin: "15px 0" }}
-            >
-                {!toggleAudioMute ? "Enable audio" : "Disable audio"}
-            </button>
-            <button
-                className="btn btn-warning btn-xs"
-                id="videoMute"
-                onClick={handleToggleVideoMute}
-                style={{ position: "absolute", bottom: "-20px", right: "0px", margin: "15px 0" }}
-            >
-                {!toggleVideoMute ? "Enable video" : "Disable video"}
-            </button>
-        </>
-    )
     return (
-        <div className="col-md-4" key={session.rfindex}>
+        <div className="col-md-6">
             <div className="panel panel-default">
                 <div className="panel-heading">
                     <h3 className="panel-title">
-                        Remote Video #{session.rfindex}
-                        <span className="label label-info" id={`remote${session.rfindex}`}>
-                            {session.rfdisplay}
+                        Remote Stream
+                        <span className="label label-info" id="callee">
+                            {props.session.rfdisplay}
+                        </span>
+                        <span className="label label-primary" id="curres">
+                            {videoSizeText}
+                        </span>
+                        <span className="label label-info" id="curbitrate">
+                            {props.session.getBitrate()}
                         </span>
                     </h3>
                 </div>
-                <div className="panel-body relative" id={`videoremote${session.rfindex}`}>
-                    {session.stream === undefined ? (
+                <div className="panel-body" id="videoright">
+                    {props.session === undefined ? (
                         <NoVideo />
-                    ) : !toggleVideoMute ? (
-                        <>
-                            <NoVideo />
-                            <VideoFooter />
-                        </>
                     ) : (
-                        <>
-                            <video
-                                className="rounded centered relative"
-                                id={`remotevideo${session.rfindex}`}
-                                width="100%"
-                                height="100%"
-                                autoPlay
-                                playsInline
-                            ></video>
-                            <VideoFooter />
-                        </>
+                        <video className="rounded centered" id="remotevideo" width="100%" height="100%" autoPlay playsInline />
                     )}
                 </div>
+            </div>
+            <div className="input-group margin-bottom-sm">
+                <span className="input-group-addon">
+                    <i className="fa fa-cloud-download fa-fw"></i>
+                </span>
+                <input className="form-control" type="text" id="datarecv" value={props.datarecv} disabled />
             </div>
         </div>
     )
