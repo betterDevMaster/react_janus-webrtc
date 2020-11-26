@@ -19,7 +19,7 @@ export default function VideoRoomPage(props) {
         JanusHelperVideoRoom.getInstance().init(dispatch, "videoRoom", "janus.plugin.videoroom")
     }, [])
     useEffect(() => {
-        console.log("janusstate: --------------- ", janusState, statusChange)
+        // console.log("janusstate: --------------- ", janusState, statusChange)
 
         status1.includes(janusState.status)
             ? // [("RUNNING", "CONNECTED", "DISCONNECTED")].includes(janusState.status)

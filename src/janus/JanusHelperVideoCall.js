@@ -25,7 +25,7 @@ export default class JanusHelperVideoCall extends JanusHelper {
     onMessage(msg, jsep) {
         // Video Call
         var result = msg["result"]
-        console.log("localFeed: onMessage: =============== ", result, msg, jsep)
+        // console.log("localFeed: onMessage: =============== ", result, msg, jsep)
         if (result) {
             var event = result["event"]
             switch (event) {

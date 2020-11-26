@@ -10,7 +10,7 @@ export default function LocalCallVideo(props) {
         const localVideoDom = document.getElementById("myvideo")
         if (props.stream && localVideoDom) {
             if (localVideoDom.srcObject === null) {
-                console.log("localVideo Attach: ------------ ", props.stream, props.state)
+                // console.log("localVideo Attach: ------------ ", props.stream, props.state)
 
                 window.Janus.attachMediaStream(localVideoDom, props.stream)
             }

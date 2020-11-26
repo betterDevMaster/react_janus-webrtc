@@ -88,12 +88,12 @@ export default class JanusHelper {
             onlocalstream: (stream) => this.onLocalStream(stream),
             onremotestream: (stream) => this.onRemoteStream(stream),
             ondataopen: (data) => {
-                console.log("ondataopen: ------------ ", data)
+                // console.log("ondataopen: ------------ ", data)
 
                 window.Janus.log("The DataChannel is available!")
             },
             ondata: (data) => {
-                console.log("ondata: ------------ ", data)
+                // console.log("ondata: ------------ ", data)
 
                 window.Janus.debug("We got data from the DataChannel!", data)
                 // $("#datarecv").val(data)
@@ -289,7 +289,7 @@ export default class JanusHelper {
             window.bootbox.alert("Insert a message to send on the DataChannel to your peer")
             return
         }
-        console.log("sendData ====================== ", data)
+        // console.log("sendData ====================== ", data)
         this.janusPlugin.data({
             text: data,
             error: function (reason) {
@@ -303,7 +303,7 @@ export default class JanusHelper {
 
     toggleAudioMute() {
         var muted = this.janusPlugin.isAudioMuted()
-        console.log("toggleAudioMute: ============ ", this.janusPlugin, muted)
+        // console.log("toggleAudioMute: ============ ", this.janusPlugin, muted)
         window.Janus.log((muted ? "Unmuting" : "Muting") + "in audio stream...")
         if (muted) this.janusPlugin.unmuteAudio()
         else this.janusPlugin.muteAudio()
@@ -312,7 +312,7 @@ export default class JanusHelper {
     toggleVideoMute() {
         var muted = this.janusPlugin.isVideoMuted()
 
-        console.log("toggleVideoMute: ============ ", this.janusPlugin, muted)
+        // console.log("toggleVideoMute: ============ ", this.janusPlugin, muted)
         window.Janus.log((muted ? "Unmuting" : "Muting") + " in video stream...")
         if (muted) this.janusPlugin.unmuteVideo()
         else this.janusPlugin.muteVideo()
@@ -440,7 +440,7 @@ export default class JanusHelper {
                 var event = msg["videoroom"]
                 window.Janus.debug("Event: " + event)
 
-                console.log("JanusHelper: remoteFeed: onMessage: ----------------- ", event, msg, jsep)
+                // console.log("JanusHelper: remoteFeed: onMessage: ----------------- ", event, msg, jsep)
 
                 if (msg["error"]) {
                     window.bootbox.alert(msg["error"])

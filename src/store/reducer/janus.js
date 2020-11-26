@@ -9,7 +9,7 @@ const janus = (
     },
     action
 ) => {
-    console.log("janus reducer: -------------- ", state, action)
+    // console.log("janus reducer: -------------- ", state, action)
     switch (action.type) {
         case "JANUS_STATE":
             return { ...state, status: action.value }

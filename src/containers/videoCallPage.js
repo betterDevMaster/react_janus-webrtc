@@ -18,7 +18,7 @@ export default function VideoCallPage(props) {
         JanusHelperVideoCall.getInstance().init(dispatch, "videoCall", "janus.plugin.videocall")
     }, [])
     useEffect(() => {
-        console.log("janusstate: --------------- ", janusState, userData)
+        // console.log("janusstate: --------------- ", janusState, userData)
         setStatusChange(!statusChange)
         if (janusState.status === "ATTACHED") setPeerData({ ...peerData, peerSet: false })
     }, [janusState])
