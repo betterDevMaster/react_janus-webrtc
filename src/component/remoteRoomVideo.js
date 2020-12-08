@@ -1,29 +1,46 @@
 import React, { useState, useEffect } from "react"
-import JanusHelperVideoRoom from "../janus/janusHelperVideoRoom"
+// import JanusHelperVideoRoom from "../janus/janusHelperVideoRoom"
 
-export default function RemoteRoomVideo({ session }) {
-    const [bitRate, setBitRate] = useState(0)
-    const [videoSizeText, setVideoSizeText] = useState("")
+export default function RemoteRoomVideo({ session, status }) {
     const [toggleAudioMute, setToggleAudioMute] = useState(true)
     const [toggleVideoMute, setToggleVideoMute] = useState(true)
 
     useEffect(() => {
-        update()
-    }, [])
+        const update = () => {
+            let remoteVideoDom = document.getElementById(`remotevideo${session.rfindex}`)
+            let curresDom = document.getElementById(`curres${session.rfindex}`)
+            let curbitrateDom = document.getElementById(`curbitrate${session.rfindex}`)
 
-    const update = () => {
-        let remoteVideoDom = document.getElementById(`remotevideo${session.rfindex}`)
-        if (session && remoteVideoDom) {
-            setBitRate(session.getBitrate())
-            setVideoSizeText(remoteVideoDom.videoWidth + "x" + remoteVideoDom.videoHeight)
-        }
-        if (session.stream && remoteVideoDom) {
-            if (remoteVideoDom.srcObject == null) {
-                window.Janus.attachMediaStream(remoteVideoDom, session.stream)
+            if (session && remoteVideoDom && curresDom && curbitrateDom) {
+                curresDom.innerHTML = remoteVideoDom.videoWidth + "x" + remoteVideoDom.videoHeight
+                curbitrateDom.innerHTML = session.getBitrate()
             }
+            setTimeout(() => update(), 1000)
         }
-        setTimeout(update, 1000)
-    }
+        update()
+    })
+
+    useEffect(() => {
+        let target = document.getElementById("videoremote" + session.rfindex)
+        let remoteVideoDom = document.getElementById(`remotevideo${session.rfindex}`)
+
+        if (session.stream && !remoteVideoDom.srcObject) {
+            window.Janus.attachMediaStream(remoteVideoDom, session.stream)
+        }
+
+        if (session.spinner) {
+            session.spinner.stop()
+            session.spinner = null
+        }
+
+        if (!session.videoTracks || session.videoTracks.length === 0) {
+            session.spinner = new window.Spinner({ top: "50%" }).spin(target)
+            remoteVideoDom.classList.add("hide")
+        } else {
+            remoteVideoDom.classList.remove("hide")
+        }
+    }, [session.videoTracks, status])
+
     const handleToggleAudioMute = () => {
         const dom = document.getElementById(`remotevideo${session.rfindex}`)
         if (dom) {
@@ -36,12 +53,6 @@ export default function RemoteRoomVideo({ session }) {
         // JanusHelperVideoRoom.getInstance().toggleVideoMute(session)
         setToggleVideoMute(!toggleVideoMute)
     }
-    const NoVideo = () => (
-        <div className="no-video-container">
-            <i className="fa fa-video-camera fa-5 no-video-icon"></i>
-            <span className="no-video-text">No remote video available</span>
-        </div>
-    )
 
     const VideoFooter = () => (
         <>
@@ -54,9 +65,7 @@ export default function RemoteRoomVideo({ session }) {
                     left: "0px",
                     margin: "15px 0",
                 }}
-            >
-                {videoSizeText}
-            </span>
+            ></span>
             <span
                 className="label label-info"
                 id={`curbitrate${session.rfindex}`}
@@ -66,9 +75,7 @@ export default function RemoteRoomVideo({ session }) {
                     right: "0px",
                     margin: "15px 0",
                 }}
-            >
-                {bitRate}
-            </span>
+            ></span>
             <button
                 className="btn btn-warning btn-xs"
                 id="audioMute"
@@ -87,6 +94,7 @@ export default function RemoteRoomVideo({ session }) {
             </button>
         </>
     )
+
     return (
         <div className="col-md-4" key={session.rfindex}>
             <div className="panel panel-default">
@@ -99,26 +107,15 @@ export default function RemoteRoomVideo({ session }) {
                     </h3>
                 </div>
                 <div className="panel-body relative" id={`videoremote${session.rfindex}`}>
-                    {session.stream === undefined ? (
-                        <NoVideo />
-                    ) : !toggleVideoMute ? (
-                        <>
-                            <NoVideo />
-                            <VideoFooter />
-                        </>
-                    ) : (
-                        <>
-                            <video
-                                className="rounded centered relative"
-                                id={`remotevideo${session.rfindex}`}
-                                width="100%"
-                                height="100%"
-                                autoPlay
-                                playsInline
-                            ></video>
-                            <VideoFooter />
-                        </>
-                    )}
+                    <video
+                        className="rounded centered relative"
+                        id={`remotevideo${session.rfindex}`}
+                        width="100%"
+                        height="100%"
+                        autoPlay
+                        playsInline
+                    ></video>
+                    <VideoFooter />
                 </div>
             </div>
         </div>

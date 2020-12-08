@@ -10,7 +10,7 @@ export default function LocalRoomVideo(props) {
                 window.Janus.attachMediaStream(localVideoDom, props.stream)
             }
         }
-        setTimeout(update, 1000)
+        setTimeout(() => update(), 1000)
     }
 
     useEffect(() => {
