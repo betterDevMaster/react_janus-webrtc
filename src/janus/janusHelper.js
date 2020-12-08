@@ -59,9 +59,10 @@ export default class JanusHelper {
         this.session = new window.Janus({
             server: JanusHelper.baseUrl,
             iceServers: [
+                { urls: "stun.voip.eutelia.it:3478" },
                 { urls: "turn:3.34.186.95:3478", username: "sonny", credential: "janus" },
-                // { urls: "turn:csturn.contactprocrm.com:3478", username: "bruno", credential: "crmsite" },
-                // { urls: "turn:india.contactprocrm.com:3478", username: "bruno", credential: "brunoedward" },
+                { urls: "turn:3.34.186.95:443?transport=tcp", username: "sonny", credential: "janus" },
+                { urls: "turn:3.34.186.95:443?transport=tcp", username: "sonny", credential: "janus" },
             ],
             success: () => this.onInit(),
             error: (error) => this.onError("Critical Error --", error),
