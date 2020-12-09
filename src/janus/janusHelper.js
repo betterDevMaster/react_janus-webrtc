@@ -205,7 +205,6 @@ export default class JanusHelper {
         window.Janus.debug(" ::: Got a remote stream :::", stream)
         this.feeds[0] = this.janusPlugin
         this.feeds[0].stream = stream
-        // console.log("onRemoteStream: ------------- ", this.myusername, this.yourusername)
         this.dispatch({ type: "JANUS_REMOTESTREAM", value: this.feeds })
     }
 
@@ -459,6 +458,7 @@ export default class JanusHelper {
 
                             remoteFeed.rfid = msg["id"]
                             remoteFeed.rfdisplay = msg["display"]
+
                             this.dispatch({ type: "JANUS_REMOTESTREAM", value: this.feeds })
                             window.Janus.log(
                                 "Successfully attached to feed " +
@@ -521,7 +521,8 @@ export default class JanusHelper {
             onremotestream: (stream) => {
                 // window.Janus.debug("Remote feed #" + remoteFeed.rfindex + ", stream:", stream)
                 this.feeds[remoteFeed.rfindex].stream = stream
-                // remoteFeed["stream"] = stream
+                this.feeds[remoteFeed.rfindex].videoTracks = stream.getVideoTracks()
+
                 this.dispatch({ type: "JANUS_REMOTESTREAM", value: this.feeds })
             },
             oncleanup: () => {

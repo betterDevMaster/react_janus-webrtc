@@ -167,7 +167,7 @@ export default function VideoRoomPage(props) {
                                     {janusState.stream.remote &&
                                         janusState.stream.remote.map((session, i) => {
                                             if (session) {
-                                                return <RemoteRoomVideo key={i} session={session} />
+                                                return <RemoteRoomVideo key={i} session={session} status={janusState.status} />
                                             }
                                         })}
                                 </div>

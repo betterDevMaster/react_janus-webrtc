@@ -66,6 +66,10 @@ export default class JanusHelperVideoRoom extends JanusHelper {
         super.onMessage(msg, jsep, result)
     }
     onWebrtcStateChange(on) {
-        this.dispatch({ type: "JANUS_STATE", value: on ? "CONNECTED" : "ATTACHED" })
+        console.log("onWebRTCStateChange: -------------- ", on)
+        // if (!on) return
+
+        // this.dispatch({ type: "JANUS_STATE", value: "CONNECTED" })
+        this.dispatch({ type: "JANUS_STATE", value: on ? "CONNECTED" : "DISCONNECTED" })
     }
 }
