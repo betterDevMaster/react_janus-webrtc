@@ -709,7 +709,7 @@
     box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 10px 0px;
 }
 .videoContent .videoSection {
-    position: absolute;
+    /* position: absolute;
     display: flex;
     flex-direction: column;
     flex-grow: 0;
@@ -720,7 +720,19 @@
     top: 0px;
     left: 0px;
     right: 0px;
+    bottom: 0px; */
+
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
     bottom: 0px;
+    transform: scaleX(-1);
+}
+.videoContent .videoSection video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 .videoContent .noneVideoSection {
     position: absolute;
@@ -836,8 +848,10 @@
     padding: 0px;
     cursor: pointer;
     border-style: solid;
+    user-select: none;
+    outline: none;
 }
-.bottomContent .bottomSection .video .videoWrap {
+.bottomContent .bottomSection button .videoWrap {
     position: relative;
     display: flex;
     flex-direction: row;
@@ -846,9 +860,9 @@
     overflow: hidden;
     align-items: center;
     justify-content: space-between;
-    margin-right: 20px;
+    margin: 0 10px;
 }
-.bottomContent .bottomSection .video .switchContent {
+.bottomContent .bottomSection button .switchContent {
     position: relative;
     display: flex;
     flex-direction: row;
@@ -879,7 +893,7 @@
     width: 40px;
     height: 18px;
 }
-.switchContent .switchSection .switchBack {
+.switchContent .switchSection .switchBackOff {
     position: absolute;
     display: flex;
     flex-direction: column;
@@ -895,7 +909,23 @@
     background-color: rgb(138, 141, 145);
     transition: none 0s ease 0s;
 }
-.switchContent .switchBar {
+.switchContent .switchSection .switchBackOn {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 0;
+    flex-shrink: 0;
+    overflow: hidden;
+    align-items: stretch;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    border-radius: 10px;
+    background-color: rgb(0, 120, 212);
+    transition: none 0s ease 0s;
+}
+.switchContent .switchBarOff {
     position: relative;
     display: flex;
     flex-direction: column;
@@ -912,7 +942,24 @@
     transform: scale(1) translateX(-11px) translateY(-2px);
     transition: none 0s ease 0s;
 }
-.bottomSection i {
+.switchContent .switchBarOn {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 0;
+    flex-shrink: 0;
+    overflow: hidden;
+    align-items: stretch;
+    top: 2px;
+    height: 10px;
+    width: 10px;
+    border-radius: 5px;
+    background-color: rgb(255, 255, 255);
+    opacity: 1;
+    transform: scale(1) translateX(11px) translateY(-2px);
+    transition: none 0s ease 0s;
+}
+.bottomSection img {
     position: relative;
     display: inline;
     flex-grow: 0;
@@ -928,6 +975,29 @@
     padding: 0px;
     margin-right: 5px;
     cursor: inherit;
+}
+
+.bottomContent .bottomSection .microphone {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 0;
+    flex-shrink: 0;
+    overflow: hidden;
+    align-items: stretch;
+    justify-content: center;
+    background-color: transparent;
+    border-color: transparent;
+    text-align: left;
+    border-width: 0px;
+    align-self: stretch;
+    margin: 2px;
+    padding: 0px;
+    opacity: 0.5;
+    cursor: default;
+    border-style: solid;
+    user-select: none;
+    outline: none;
 }
 /*------------------------------------------------------------------
 [ Responsive ]*/

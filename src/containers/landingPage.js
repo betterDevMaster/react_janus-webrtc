@@ -8,8 +8,8 @@ export default function LandingPage(props) {
     const [copy, setCopy] = useState(false)
     const [invite, setInvite] = useState(false)
     const [roomName, setRoomName] = useState("")
+    const [showVideo, setShowVidoe] = useState(false)
     const history = useHistory()
-
     useEffect(() => {
         setRoomName(makeRoom(7))
     }, [])
@@ -89,6 +89,24 @@ export default function LandingPage(props) {
             ? window.bootbox.alert("Please enter the meeting name.")
             : history.push(`/videoRoom?room=${roomName}&name=${meetingValue}`)
     }
+    const handleVideoClick = () => {
+        var video = document.querySelector("#videoEle")
+        if (!video) {
+            setTimeout(() => {
+                handleVideoClick()
+            }, 10)
+        }
+        //access webcam script
+        if (navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true }).then(function (stream) {
+                video.srcObject = stream
+            })
+            // .catch(function (error) {
+            //     console.log("Something went wrong!")
+            // })
+        }
+        setShowVidoe(!showVideo)
+    }
 
     return (
         <div className="landing-container">
@@ -166,45 +184,46 @@ export default function LandingPage(props) {
                     <div className="rightContent">
                         <div className="outerContent">
                             <div className="videoContent">
-                                <div className="videoSection"></div>
-                                <div className="noneVideoSection">
-                                    {/* <div style="position: relative; display: flex; flex-direction: column; flex-grow: 0; flex-shrink: 0; overflow: visible; align-items: stretch; width: 160px; height: 160px; justify-content: center;">
-                                        <div style="position: absolute; display: flex; flex-direction: column; flex-grow: 0; flex-shrink: 0; overflow: hidden; align-items: center; left: 0px; right: 0px; top: 0px; bottom: 0px; justify-content: center;"> */}
-                                    <div className="avatar">
-                                        <span>DN</span>
-                                        <div aria-hidden="true" data-text-as-pseudo-element="DN" dir="auto"></div>
+                                {showVideo ? (
+                                    <div className="videoSection">
+                                        <video id="videoEle" autoPlay={true}></video>
                                     </div>
-                                    {/* </div>
-                                    </div> */}
-                                </div>
+                                ) : (
+                                    <div className="noneVideoSection">
+                                        <div className="avatar">
+                                            <span>NICK</span>
+                                            <div aria-hidden="true" data-text-as-pseudo-element="DN" dir="auto"></div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                             <div className="topContent">
                                 <div className="topSection"></div>
                             </div>
                             <div className="bottomContent">
                                 <div className="bottomSection">
-                                    <button className="video" title="Video, Off" aria-label="Video, Off" aria-disabled="false">
+                                    <button className="video" title="Video, On/Off" onClick={handleVideoClick}>
                                         <div className="videoWrap">
-                                            <i className="fa fa-video-camera" aria-hidden="true"></i>
+                                            <img src={!showVideo ? "img/webcam-off.png" : "img/webcam-on.png"} alt="Video Icon" />
                                             <div className="switchContent">
                                                 <div className="switchSection">
-                                                    <div className="switchBack"></div>
+                                                    <div className={!showVideo ? "switchBackOff" : "switchBackOn"}></div>
+                                                </div>
+                                                <div className={!showVideo ? "switchBarOff" : "switchBarOn"}></div>
+                                            </div>
+                                        </div>
+                                    </button>
+                                    <button className="microphone" title="Microphone, On/Off">
+                                        <div className="videoWrap">
+                                            <img src="img/mic-off.png" alt="Video Icon" />
+                                            <div className="switchContent">
+                                                <div className="switchSection">
+                                                    <div className="switchBackOff"></div>
                                                 </div>
                                                 <div className="switchBar"></div>
                                             </div>
                                         </div>
                                     </button>
-                                    {/* <button title="Microphone, Off" aria-label="Microphone, Off" aria-disabled="true" disabled="" style="position: relative; display: flex; flex-direction: column; flex-grow: 0; flex-shrink: 0; overflow: hidden; align-items: stretch; justify-content: center; background-color: transparent; border-color: transparent; text-align: left; border-width: 0px; align-self: stretch; margin: 2px; padding: 0px; opacity: 0.5; cursor: default; border-style: solid;">
-                                        <div aria-hidden="true" style="position: relative; display: flex; flex-direction: row; flex-grow: 0; flex-shrink: 0; overflow: hidden; align-items: center; justify-content: space-between; margin-right: 20px;">
-                                            <div aria-hidden="true" data-text-as-pseudo-element="" dir="auto" style="position: relative; display: inline; flex-grow: 0; flex-shrink: 0; overflow: hidden; white-space: pre-wrap; overflow-wrap: break-word; height: 24px; font-size: 24px; color: rgb(255, 255, 255); background-color: rgba(0, 0, 0, 0); font-family: SkypeAssets-Light; padding: 0px; margin-right: 5px; cursor: inherit;"></div>
-                                            <div style="position: relative; display: flex; flex-direction: row; flex-grow: 0; flex-shrink: 0; overflow: hidden; align-items: center; border-radius: 0px; height: 30px; width: 50px; background-color: rgba(0, 0, 0, 0); margin-top: 8px; margin-bottom: 8px; justify-content: center; opacity: 1; transform: scale(1) translateX(0px) translateY(0px);">
-                                                <div style="position: absolute; display: flex; flex-direction: column; flex-grow: 0; flex-shrink: 0; overflow: hidden; align-items: stretch; top: 6px; left: 5px; width: 40px; height: 18px;">
-                                                    <div style="position: absolute; display: flex; flex-direction: column; flex-grow: 0; flex-shrink: 0; overflow: hidden; align-items: stretch; top: 0px; bottom: 0px; left: 0px; right: 0px; border-radius: 10px; background-color: rgb(138, 141, 145);"></div>
-                                                </div>
-                                                <div style="position: relative; display: flex; flex-direction: column; flex-grow: 0; flex-shrink: 0; overflow: hidden; align-items: stretch; top: 2px; height: 10px; width: 10px; border-radius: 5px; background-color: rgb(255, 255, 255); opacity: 1; transform: scale(1) translateX(-11px) translateY(-2px);"></div>
-                                            </div>
-                                        </div>
-                                    </button> */}
                                 </div>
                             </div>
                         </div>
