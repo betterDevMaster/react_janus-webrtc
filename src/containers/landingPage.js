@@ -42,14 +42,13 @@ export default function LandingPage(props) {
     const InviteModal = () => (
         <div className="inviteModal">
             <div className="outerContent">
-                <svg height="197" width="176" role="img">
-                    <title></title>
+                <svg height="197" width="150" role="img">
                     <path
                         fill="#FFFFFF"
-                        fill-opacity="1"
+                        fillOpacity="1"
                         stroke="#F1F1F4"
-                        stroke-opacity="1"
-                        stroke-width="1"
+                        strokeOpacity="1"
+                        strokeWidth="1"
                         d="M5.5,0 l82.5,0 l0,0 l0,0 l82.5,0 c3,0 3,3 3,3 l0,191 c0,3 -3,3 -3,3 l-165,0 c-3,0 -3,-3 -3,-3 l0,-191 c0,-3 3,-3 3,-3 z"
                     ></path>
                 </svg>
@@ -98,12 +97,14 @@ export default function LandingPage(props) {
         }
         //access webcam script
         if (navigator.mediaDevices.getUserMedia) {
-            navigator.mediaDevices.getUserMedia({ video: true }).then(function (stream) {
-                video.srcObject = stream
-            })
-            // .catch(function (error) {
-            //     console.log("Something went wrong!")
-            // })
+            navigator.mediaDevices
+                .getUserMedia({ video: true })
+                .then(function (stream) {
+                    video.srcObject = stream
+                })
+                .catch(function (error) {
+                    console.log("Something went wrong!")
+                })
         }
         setShowVidoe(!showVideo)
     }
@@ -213,14 +214,14 @@ export default function LandingPage(props) {
                                             </div>
                                         </div>
                                     </button>
-                                    <button className="microphone" title="Microphone, On/Off">
+                                    <button className="video" title="Microphone, On/Off">
                                         <div className="videoWrap">
                                             <img src="img/mic-off.png" alt="Video Icon" />
                                             <div className="switchContent">
                                                 <div className="switchSection">
                                                     <div className="switchBackOff"></div>
                                                 </div>
-                                                <div className="switchBar"></div>
+                                                <div className="switchBarOff"></div>
                                             </div>
                                         </div>
                                     </button>

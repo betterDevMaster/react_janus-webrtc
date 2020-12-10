@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react"
 import { useSelector, useDispatch } from "react-redux"
+import * as qs from "query-string"
+
 import Header from "../widget/header"
 import Footer from "../widget/footer"
 import JanusHelperVideoRoom from "../janus/janusHelperVideoRoom"
@@ -11,6 +13,7 @@ export default function VideoRoomPage(props) {
     const janusState = useSelector((state) => state.janus)
     const [userName, setUserName] = useState("")
     const [statusChange, setStatusChange] = useState(false)
+    const query = qs.parse(props.location.search)
 
     const status1 = ["RUNNING", "CONNECTED", "DISCONNECTED"]
     const status2 = ["INITIALIZED", "ATACHED"]
@@ -19,18 +22,15 @@ export default function VideoRoomPage(props) {
         JanusHelperVideoRoom.getInstance().init(dispatch, "videoRoom", "janus.plugin.videoroom")
     }, [])
     useEffect(() => {
-        // console.log("janusstate: --------------- ", janusState, statusChange)
-
-        status1.includes(janusState.status)
-            ? // [("RUNNING", "CONNECTED", "DISCONNECTED")].includes(janusState.status)
-              setStatusChange(false)
-            : setStatusChange(!statusChange)
+        // console.log("janusstate: --------------- ", janusState, statusChange, props, query)
+        status1.includes(janusState.status) ? setStatusChange(false) : setStatusChange(!statusChange)
     }, [janusState])
 
     const handleStart = () => {
-        // console.log("handleStart: ------------- ", statusChange)
         setStatusChange(!statusChange)
-        JanusHelperVideoRoom.getInstance().start(1234)
+        // JanusHelperVideoRoom.getInstance().start(1234) // string IDS = false in janus conf
+        // JanusHelperVideoRoom.getInstance().start("1234") // string IDS = true in janus conf
+        JanusHelperVideoRoom.getInstance().start(query.room)
     }
     const handleStop = () => {
         JanusHelperVideoRoom.getInstance().stop()
@@ -45,7 +45,6 @@ export default function VideoRoomPage(props) {
         }
     }
     const handleRegisterName = () => {
-        // console.log("handleStarthandleRegisterName: ------------- ", statusChange)
         setStatusChange(!statusChange)
         JanusHelperVideoRoom.getInstance().registerUsername(userName)
     }

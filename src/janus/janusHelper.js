@@ -90,12 +90,10 @@ export default class JanusHelper {
             onremotestream: (stream) => this.onRemoteStream(stream),
             ondataopen: (data) => {
                 // console.log("ondataopen: ------------ ", data)
-
                 window.Janus.log("The DataChannel is available!")
             },
             ondata: (data) => {
                 // console.log("ondata: ------------ ", data)
-
                 window.Janus.debug("We got data from the DataChannel!", data)
                 // $("#datarecv").val(data)
                 this.dispatch({ type: "JANUS_MESSAGE", value: data })
@@ -106,9 +104,37 @@ export default class JanusHelper {
 
     onAttach(pluginHandle) {
         this.janusPlugin = pluginHandle
-        // console.log("onAttach: ------------- ", this.janusPlugin)
+
+        // console.log("onAttach: ==============  ", this.janusPlugin, JanusHelper.MAX_VIDEOS)
+
+        // const checkRoom = {
+        //     request: "exists",
+        //     room: this.myroom,
+        // }
+        // let res = this.janusPlugin.send({ message: checkRoom })
+
+        // const listRoom = {
+        //     request: "list",
+        // }
+        // let res1 = this.janusPlugin.send({ message: listRoom })
+        // console.log("onAttach: checkRoom: ================ ", res, res1)
+
+        const createRoom = {
+            request: "create",
+            record: false,
+            publishers: JanusHelper.MAX_VIDEOS,
+            description: "New Room",
+            secret: "adminpwd",
+            room: this.myroom,
+            bitrate: 128000,
+            fir_freq: 10,
+        }
+        this.janusPlugin.send({ message: createRoom })
+
         window.Janus.log("Plugin attached! (" + this.janusPlugin.getPlugin() + ", id=" + this.janusPlugin.getId() + ")")
+        // setTimeout(() => {
         this.dispatch({ type: "JANUS_STATE", value: "ATTACHED" })
+        // }, 3000)
     }
 
     onWaitDialog(on) {
@@ -140,6 +166,7 @@ export default class JanusHelper {
     }
 
     onMessage(msg, jsep, result) {
+        console.log("onMessage; ================= ", msg, jsep, result)
         if (result) {
             // Video Room
             switch (result) {
@@ -289,7 +316,7 @@ export default class JanusHelper {
             window.bootbox.alert("Insert a message to send on the DataChannel to your peer")
             return
         }
-        // console.log("sendData ====================== ", data)
+
         this.janusPlugin.data({
             text: data,
             error: function (reason) {
@@ -360,7 +387,6 @@ export default class JanusHelper {
     }
 
     unpublishOwnFeed() {
-        // console.log("unplbishOwnFeed: --------------- ")
         // Unpublish our stream
         var unpublish = { request: "unpublish" }
         this.janusPlugin.send({ message: unpublish })
@@ -439,8 +465,6 @@ export default class JanusHelper {
 
                 var event = msg["videoroom"]
                 window.Janus.debug("Event: " + event)
-
-                // console.log("JanusHelper: remoteFeed: onMessage: ----------------- ", event, msg, jsep)
 
                 if (msg["error"]) {
                     window.bootbox.alert(msg["error"])
