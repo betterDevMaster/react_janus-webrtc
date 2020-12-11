@@ -73,7 +73,7 @@ export default function header(props) {
                                 <a href="multiopus.html">Multichannel Opus (surround)</a>
                             </li>
                             <li>
-                                <a href="canvas.html">Canvas Capture</a>
+                                <Link to="/lecture">Lecture</Link>
                             </li>
                             <li>
                                 <a href="vp9svctest.html">VP9-SVC Video Room</a>
