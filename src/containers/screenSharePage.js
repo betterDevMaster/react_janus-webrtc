@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux"
 import Header from "../widget/header"
 import Footer from "../widget/footer"
 
-export default function screenSharePage(props) {
+export default function ScreenSharePage(props) {
     return (
         <div>
             <a href="https://github.com/meetecho/janus-gateway">

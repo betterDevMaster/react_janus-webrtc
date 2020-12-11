@@ -3,7 +3,7 @@ import Header from "../widget/header"
 import Footer from "../widget/footer"
 import { Link } from "react-router-dom"
 
-export default function demosPage(props) {
+export default function DemosPage(props) {
     return (
         <div>
             <a href="https://github.com/meetecho/janus-gateway">
