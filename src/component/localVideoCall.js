@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"
 import JanusHelperVideoCall from "../janus/janusHelperVideoCall"
 
-export default function LocalCallVideo(props) {
+export default function LocalVideoCall(props) {
     const [toggleAudioMute, setToggleAudioMute] = useState(false)
     const [toggleVideoMute, setToggleVideoMute] = useState(false)
     const [datasendData, setDatasendData] = useState({ name: "", nameSet: false })

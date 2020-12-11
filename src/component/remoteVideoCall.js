@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"
 import JanusHelperVideoCall from "../janus/janusHelperVideoCall"
 
-export default function RemoteCallVideo(props) {
+export default function RemoteVideoCall(props) {
     // const [bitRate, setBitRate] = useState(0)
     const [videoSizeText, setVideoSizeText] = useState("")
     const [toggleAudioMute, setToggleAudioMute] = useState(true)
