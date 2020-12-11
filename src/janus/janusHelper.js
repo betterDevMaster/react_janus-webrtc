@@ -8,8 +8,8 @@
  */
 
 export default class JanusHelper {
-    // static baseUrl = "https://janusserver.simportal.net/janus"  // Current Janus Server
-    static baseUrl = "wss://janus.conf.meetecho.com/ws" // Dafault Janus server
+    static baseUrl = "https://janusserver.simportal.net/janus" // Current Janus Server
+    // static baseUrl = "wss://janus.conf.meetecho.com/ws" // Dafault Janus server
     static MAX_VIDEOS = 6
 
     static getInstance() {
@@ -60,10 +60,10 @@ export default class JanusHelper {
         this.session = new window.Janus({
             server: JanusHelper.baseUrl,
             iceServers: [
-                { urls: "stun:stun.voip.eutelia.it" },
-                { urls: "turn:3.34.186.95:3478", username: "sonny", credential: "janus" },
-                { urls: "turn:3.34.186.95:443?transport=tcp", username: "sonny", credential: "janus" },
-                { urls: "turn:3.34.186.95:443?transport=tcp", username: "sonny", credential: "janus" },
+                // { urls: "stun:stun.voip.eutelia.it" },
+                { urls: "turn:13.125.47.200:3478", username: "sonny", credential: "janus" },
+                { urls: "turn:13.125.47.200:443?transport=tcp", username: "sonny", credential: "janus" },
+                { urls: "turn:13.125.47.200:443?transport=tcp", username: "sonny", credential: "janus" },
             ],
             success: () => this.onInit(),
             error: (error) => this.onError("Critical Error --", error),
