@@ -8,7 +8,8 @@
  */
 
 export default class JanusHelper {
-    static baseUrl = "https://janusserver.simportal.net/janus"
+    // static baseUrl = "https://janusserver.simportal.net/janus"  // Current Janus Server
+    static baseUrl = "wss://janus.conf.meetecho.com/ws" // Dafault Janus server
     static MAX_VIDEOS = 6
 
     static getInstance() {
