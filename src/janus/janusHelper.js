@@ -8,8 +8,8 @@
  */
 
 export default class JanusHelper {
-    // static baseUrl = "https://janusserver.simportal.net/janus"  // Current Janus Server
-    static baseUrl = "wss://janus.conf.meetecho.com/ws" // Dafault Janus server
+    static baseUrl = "https://janusserver.simportal.net/janus" // Current Janus Server
+    // static baseUrl = "wss://janus.conf.meetecho.com/ws" // Dafault Janus server
     static MAX_VIDEOS = 6
 
     static getInstance() {
@@ -31,6 +31,8 @@ export default class JanusHelper {
         this.yourusername = ""
         this.feeds = []
         this.bitrateTimer = []
+        this.participants = {}
+        this.transactions = {}
         this.initJanus()
     }
 
@@ -60,10 +62,10 @@ export default class JanusHelper {
         this.session = new window.Janus({
             server: JanusHelper.baseUrl,
             iceServers: [
-                { urls: "stun:stun.voip.eutelia.it" },
-                { urls: "turn:3.34.186.95:3478", username: "sonny", credential: "janus" },
-                { urls: "turn:3.34.186.95:443?transport=tcp", username: "sonny", credential: "janus" },
-                { urls: "turn:3.34.186.95:443?transport=tcp", username: "sonny", credential: "janus" },
+                // { urls: "stun:stun.voip.eutelia.it" },
+                { urls: "turn:13.125.47.200:3478", username: "sonny", credential: "janus" },
+                { urls: "turn:13.125.47.200:443?transport=tcp", username: "sonny", credential: "janus" },
+                { urls: "turn:13.125.47.200:443?transport=tcp", username: "sonny", credential: "janus" },
             ],
             success: () => this.onInit(),
             error: (error) => this.onError("Critical Error --", error),
@@ -90,15 +92,10 @@ export default class JanusHelper {
             onlocalstream: (stream) => this.onLocalStream(stream),
             onremotestream: (stream) => this.onRemoteStream(stream),
             ondataopen: (data) => {
-                // console.log("ondataopen: ------------ ", data)
+                console.log("ondataopen: ------------ ", data)
                 window.Janus.log("The DataChannel is available!")
             },
-            ondata: (data) => {
-                // console.log("ondata: ------------ ", data)
-                window.Janus.debug("We got data from the DataChannel!", data)
-                // $("#datarecv").val(data)
-                this.dispatch({ type: "JANUS_MESSAGE", value: data })
-            },
+            ondata: (data) => this.onData(data),
             oncleanup: () => this.onCleanUp(),
         })
     }
@@ -132,10 +129,12 @@ export default class JanusHelper {
         }
         this.janusPlugin.send({ message: createRoom })
 
+        const body = { request: "setup" }
+        window.Janus.debug("Sending message:", body)
+        this.janusPlugin.send({ message: body })
+
         window.Janus.log("Plugin attached! (" + this.janusPlugin.getPlugin() + ", id=" + this.janusPlugin.getId() + ")")
-        // setTimeout(() => {
         this.dispatch({ type: "JANUS_STATE", value: "ATTACHED" })
-        // }, 3000)
     }
 
     onWaitDialog(on) {
@@ -236,6 +235,11 @@ export default class JanusHelper {
         this.dispatch({ type: "JANUS_REMOTESTREAM", value: this.feeds })
     }
 
+    onData(data) {
+        console.log("super: onData: -------------------- ", data)
+
+        window.Janus.debug("We got data from the DataChannel!", data)
+    }
     onCleanUp() {
         window.Janus.log(" ::: Got a cleanup notification: we are unpublished now :::")
         this.mystream = null
@@ -355,6 +359,7 @@ export default class JanusHelper {
                 videoRecv: false,
                 audioSend: useAudio,
                 videoSend: true,
+                data: true,
             }, // Publishers are sendonly
             // If you want to test simulcasting (Chrome and Firefox only), then
             // pass a ?simulcast=true when opening this demo page: it will turn
@@ -519,7 +524,7 @@ export default class JanusHelper {
                         jsep: jsep,
                         // Add data:true here if you want to subscribe to datachannels as well
                         // (obviously only works if the publisher offered them in the first place)
-                        media: { audioSend: false, videoSend: false }, // We want recvonly audio/video
+                        media: { audioSend: false, videoSend: false, data: true }, // We want recvonly audio/video
                         success: function (jsep) {
                             window.Janus.debug("Got SDP!", jsep)
                             var body = { request: "start", room: this.myroom }

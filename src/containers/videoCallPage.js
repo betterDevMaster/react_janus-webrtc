@@ -3,8 +3,8 @@ import { useSelector, useDispatch } from "react-redux"
 import Header from "../widget/header"
 import Footer from "../widget/footer"
 import JanusHelperVideoCall from "../janus/janusHelperVideoCall"
-import LocalCallVideo from "../component/localCallVideo"
-import RemoteCallVideo from "../component/remoteCallVideo"
+import LocalCallVideo from "../component/localVideoCall"
+import RemoteCallVideo from "../component/remoteVideoCall"
 
 export default function VideoCallPage(props) {
     const dispatch = useDispatch()

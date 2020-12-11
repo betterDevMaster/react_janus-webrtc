@@ -47,7 +47,7 @@ export default function header(props) {
                                 <a href="audiobridgetest.html">Audio Bridge</a>
                             </li>
                             <li>
-                                <a href="textroomtest.html">Text Room</a>
+                                <Link to="/textRoom">Text Room</Link>
                             </li>
                             <li>
                                 <a href="voicemailtest.html">Voice Mail</a>
