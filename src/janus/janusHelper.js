@@ -236,7 +236,7 @@ export default class JanusHelper {
     }
 
     onData(data) {
-        console.log("super: onData: -------------------- ", data)
+        console.log("JanusHelper: onData: -------------------- ", data)
 
         window.Janus.debug("We got data from the DataChannel!", data)
     }

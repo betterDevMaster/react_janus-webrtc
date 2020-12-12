@@ -22,12 +22,13 @@ export default function TextRoomPage(props) {
         JanusHelperTextRoom.getInstance().init(dispatch, "textRoom", "janus.plugin.textroom")
     }, [])
     useEffect(() => {
-        // console.log("janusstate: --------------- ", janusState, statusChange, props, query)
+        console.log("textRoom: janusstate: --------------- ", janusState, statusChange, props, query)
         status1.includes(janusState.status) ? setStatusChange(false) : setStatusChange(!statusChange)
     }, [janusState])
 
     const handleStart = () => {
         setStatusChange(!statusChange)
+        // JanusHelperTextRoom.getInstance().start('12345')
         // JanusHelperTextRoom.getInstance().start(1234) // string IDS = false in janus conf
         // JanusHelperTextRoom.getInstance().start("1234") // string IDS = true in janus conf
         JanusHelperTextRoom.getInstance().start(query.room)
