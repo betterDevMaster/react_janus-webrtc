@@ -56,6 +56,9 @@ export default class JanusHeloperTextRoom extends JanusHelper {
             return
         }
         var what = json["textroom"]
+        this.dispatch({ type: "JANUS_STATE", message: what })
+        // this.dispatch(({type: 'JANUS_STATE', message: {whisper: whisper}}))
+
         // if (what === "message") {
         //     // Incoming message: public or private?
         //     var msg = json["text"]
@@ -64,17 +67,17 @@ export default class JanusHeloperTextRoom extends JanusHelper {
         //     var from = json["from"]
         //     var dateString = getDateString(json["date"])
         //     var whisper = json["whisper"]
-        //     if (whisper === true) {
-        //         // Private message
-        //         $("#chatroom").append(
-        //             '<p style="color: purple;">[' + dateString + "] <b>[whisper from " + this.participants[from] + "]</b> " + msg
-        //         )
-        //         $("#chatroom").get(0).scrollTop = $("#chatroom").get(0).scrollHeight
-        //     } else {
-        //         // Public message
-        //         $("#chatroom").append("<p>[" + dateString + "] <b>" + this.this.participants[from] + ":</b> " + msg)
-        //         $("#chatroom").get(0).scrollTop = $("#chatroom").get(0).scrollHeight
-        //     }
+        //     // if (whisper === true) {
+        //     //     // Private message
+        //     //     $("#chatroom").append(
+        //     //         '<p style="color: purple;">[' + dateString + "] <b>[whisper from " + this.participants[from] + "]</b> " + msg
+        //     //     )
+        //     //     $("#chatroom").get(0).scrollTop = $("#chatroom").get(0).scrollHeight
+        //     // } else {
+        //     //     // Public message
+        //     //     $("#chatroom").append("<p>[" + dateString + "] <b>" + this.this.participants[from] + ":</b> " + msg)
+        //     //     $("#chatroom").get(0).scrollTop = $("#chatroom").get(0).scrollHeight
+        //     // }
         // } else if (what === "announcement") {
         //     // Room announcement
         //     var msg = json["text"]
@@ -83,6 +86,7 @@ export default class JanusHeloperTextRoom extends JanusHelper {
         //     var dateString = getDateString(json["date"])
         //     $("#chatroom").append('<p style="color: purple;">[' + dateString + "] <i>" + msg + "</i>")
         //     $("#chatroom").get(0).scrollTop = $("#chatroom").get(0).scrollHeight
+        // }
         // } else if (what === "join") {
         //     // Somebody joined
         //     var username = json["username"]
