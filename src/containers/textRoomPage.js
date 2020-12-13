@@ -22,13 +22,12 @@ export default function TextRoomPage(props) {
         JanusHelperTextRoom.getInstance().init(dispatch, "textRoom", "janus.plugin.textroom")
     }, [])
     useEffect(() => {
-        console.log("textRoom: janusstate: --------------- ", janusState, statusChange, props, query)
+        console.log("janusState: ------------------ ", janusState)
         status1.includes(janusState.status) ? setStatusChange(false) : setStatusChange(!statusChange)
     }, [janusState])
 
     const handleStart = () => {
         setStatusChange(!statusChange)
-        // JanusHelperTextRoom.getInstance().start('12345')
         // JanusHelperTextRoom.getInstance().start(1234) // string IDS = false in janus conf
         // JanusHelperTextRoom.getInstance().start("1234") // string IDS = true in janus conf
         JanusHelperTextRoom.getInstance().start(query.room)
@@ -45,7 +44,7 @@ export default function TextRoomPage(props) {
             return true
         }
     }
-    const handleRegisterName = () => {
+    const handleRegister = () => {
         setStatusChange(!statusChange)
         JanusHelperTextRoom.getInstance().registerUsername(userName)
     }
@@ -66,7 +65,7 @@ export default function TextRoomPage(props) {
                 />
             </a>
             <nav className="navbar navbar-default navbar-static-top">
-                <Header />
+                <Header room={query.room} name={query.name} />
             </nav>
             <div className="container">
                 <div className="row">
@@ -132,7 +131,13 @@ export default function TextRoomPage(props) {
                                                 onKeyPress={(e) => handleCheckEnter(e)}
                                             />
                                             <span className="input-group-btn">
-                                                <button className="btn btn-success" autoComplete="off" id="register">
+                                                <button
+                                                    className="btn btn-success"
+                                                    autoComplete="off"
+                                                    id="register"
+                                                    disabled={statusChange ? "disabled" : ""}
+                                                    onClick={handleRegister}
+                                                >
                                                     Join the room
                                                 </button>
                                             </span>
@@ -161,7 +166,7 @@ export default function TextRoomPage(props) {
                                             <div className="panel-heading">
                                                 <h3 className="panel-title">Public Chatroom</h3>
                                             </div>
-                                            <div className="panel-body relative" style="overflow-x: auto;" id="chatroom"></div>
+                                            <div className="panel-body relative" style={{ overflowX: "auto" }} id="chatroom"></div>
                                             <div className="panel-footer">
                                                 <div className="input-group margin-bottom-sm">
                                                     <span className="input-group-addon">

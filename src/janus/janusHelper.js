@@ -92,7 +92,6 @@ export default class JanusHelper {
             onlocalstream: (stream) => this.onLocalStream(stream),
             onremotestream: (stream) => this.onRemoteStream(stream),
             ondataopen: (data) => {
-                console.log("ondataopen: ------------ ", data)
                 window.Janus.log("The DataChannel is available!")
             },
             ondata: (data) => this.onData(data),
@@ -102,36 +101,6 @@ export default class JanusHelper {
 
     onAttach(pluginHandle) {
         this.janusPlugin = pluginHandle
-
-        // console.log("onAttach: ==============  ", this.janusPlugin, JanusHelper.MAX_VIDEOS)
-
-        // const checkRoom = {
-        //     request: "exists",
-        //     room: this.myroom,
-        // }
-        // let res = this.janusPlugin.send({ message: checkRoom })
-
-        // const listRoom = {
-        //     request: "list",
-        // }
-        // let res1 = this.janusPlugin.send({ message: listRoom })
-        // console.log("onAttach: checkRoom: ================ ", res, res1)
-
-        const createRoom = {
-            request: "create",
-            record: false,
-            publishers: JanusHelper.MAX_VIDEOS,
-            description: "New Room",
-            secret: "adminpwd",
-            room: this.myroom,
-            bitrate: 128000,
-            fir_freq: 10,
-        }
-        this.janusPlugin.send({ message: createRoom })
-
-        const body = { request: "setup" }
-        window.Janus.debug("Sending message:", body)
-        this.janusPlugin.send({ message: body })
 
         window.Janus.log("Plugin attached! (" + this.janusPlugin.getPlugin() + ", id=" + this.janusPlugin.getId() + ")")
         this.dispatch({ type: "JANUS_STATE", value: "ATTACHED" })
@@ -166,7 +135,6 @@ export default class JanusHelper {
     }
 
     onMessage(msg, jsep, result) {
-        console.log("onMessage; ================= ", msg, jsep, result)
         if (result) {
             // Video Room
             switch (result) {

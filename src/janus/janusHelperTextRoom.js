@@ -18,31 +18,108 @@ export default class JanusHeloperTextRoom extends JanusHelper {
         super.stop()
     }
     registerUsername(username) {
+        // Try a registration
+        const myid = window.Janus.randomString(12)
+        var transaction = window.Janus.randomString(12)
         var register = {
-            request: "join",
+            textroom: "join",
+            transaction: transaction,
             room: this.myroom,
-            ptype: "publisher",
+            username: myid,
             display: username,
         }
-        super.registerUsername(username, register)
-    }
-    onMessage(msg, jsep) {
-        var plugin = this.janusPlugin
-        console.log("textRoom: Message: -------------- ", msg, jsep)
-        this.janusPlugin.createAnswer({
-            jsep: jsep,
-            media: { audio: false, video: false, data: true }, // We only use datachannels
-            success: function (jsep) {
-                window.Janus.debug("Got SDP!", jsep)
-                var body = { request: "ack" }
-                plugin.send({ message: body, jsep: jsep })
-            },
-            error: function (error) {
-                window.Janus.error("WebRTC error:", error)
-                window.bootbox.alert("WebRTC error... " + error.message)
+        this.myusername = username
+        this.transactions[transaction] = function (response) {
+            if (response["textroom"] === "error") {
+                // Something went wrong
+                if (response["error_code"] === 417) {
+                    // This is a "no such room" error: give a more meaningful description
+                    window.bootbox.alert(
+                        "<p>Apparently room <code>" +
+                            this.myroom +
+                            "</code> (the one this demo uses as a test room) " +
+                            "does not exist...</p><p>Do you have an updated <code>janus.plugin.textroom.jcfg</code> " +
+                            "configuration file? If not, make sure you copy the details of room <code>" +
+                            this.myroom +
+                            "</code> " +
+                            "from that sample in your current configuration file, then restart Janus and try again."
+                    )
+                } else {
+                    window.bootbox.alert(response["error"])
+                }
+                return
+            }
+            // Any participants already in?
+            console.log("Participants: ---------------- ", response.participants)
+            if (response.participants && response.participants.length > 0) {
+                for (var i in response.participants) {
+                    var p = response.participants[i]
+                    this.participants[p.username] = p.display ? p.display : p.username
+                    // if (p.username !== myid && $("#rp" + p.username).length === 0) {
+                    //     // Add to the participants list
+                    //     $("#list").append('<li id="rp' + p.username + '" class="list-group-item">' + participants[p.username] + "</li>")
+                    //     $("#rp" + p.username)
+                    //         .css("cursor", "pointer")
+                    //         .click(function () {
+                    //             var username = $(this).attr("id").split("rp")[1]
+                    //             sendPrivateMsg(username)
+                    //         })
+                    // }
+                    // $("#chatroom").append(
+                    //     '<p style="color: green;">[' + getDateString() + "] <i>" + participants[p.username] + " joined</i></p>"
+                    // )
+                    // $("#chatroom").get(0).scrollTop = $("#chatroom").get(0).scrollHeight
+                }
+            }
+        }
+        this.janusPlugin.data({
+            text: JSON.stringify(register),
+            error: function (reason) {
+                window.bootbox.alert(reason)
             },
         })
-        super.onMessage(msg, jsep)
+
+        super.registerUsername(username, register)
+    }
+    onAttach(pluginHandle) {
+        const createTextRoom = {
+            textroom: "create",
+            room: this.myroom,
+            description: "New TextRoom",
+            secret: "adminpwd",
+        }
+
+        pluginHandle.send({ message: createTextRoom })
+
+        const body = { request: "setup" }
+        window.Janus.debug("Sending message:", body)
+        pluginHandle.send({ message: body })
+        super.onAttach(pluginHandle)
+    }
+    onMessage(msg, jsep) {
+        console.log("textRoom: Message: -------------- ", msg, jsep)
+        var plugin = this.janusPlugin
+
+        window.Janus.debug(" ::: Got a message :::", msg)
+        if (msg["error"]) {
+            window.bootbox.alert(msg["error"])
+        }
+        if (jsep) {
+            this.janusPlugin.createAnswer({
+                jsep: jsep,
+                media: { audio: false, video: false, data: true }, // We only use datachannels
+                success: function (jsep) {
+                    window.Janus.debug("Got SDP!", jsep)
+                    var body = { request: "ack" }
+                    plugin.send({ message: body, jsep: jsep })
+                },
+                error: function (error) {
+                    window.Janus.error("WebRTC error:", error)
+                    window.bootbox.alert("WebRTC error... " + error.message)
+                },
+            })
+        }
+        // super.onMessage(msg, jsep, null)
     }
     onData(data) {
         //~ $('#datarecv').val(data);
@@ -140,7 +217,18 @@ export default class JanusHeloperTextRoom extends JanusHelper {
         super.onData(data)
     }
     onWebrtcStateChange(on) {
+        console.log("textRoom: webrtcStateChange: ----------------- ", on)
         // this.dispatch({ type: "JANUS_STATE", value: "CONNECTED" })
-        this.dispatch({ type: "JANUS_STATE", value: on ? "CONNECTED" : "DISCONNECTED" })
+        // this.dispatch({ type: "JANUS_STATE", value: on ? "CONNECTED" : "DISCONNECTED" })
     }
+    // // Just an helper to generate random usernames
+    // randomString(len, charSet) {
+    //     charSet = charSet || "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+    //     var randomString = ""
+    //     for (var i = 0; i < len; i++) {
+    //         var randomPoz = Math.floor(Math.random() * charSet.length)
+    //         randomString += charSet.substring(randomPoz, randomPoz + 1)
+    //     }
+    //     return randomString
+    // }
 }

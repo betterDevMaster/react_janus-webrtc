@@ -26,6 +26,21 @@ export default class JanusHelperVideoRoom extends JanusHelper {
         }
         super.registerUsername(username, register)
     }
+    onAttach(pluginHandle) {
+        const createRoom = {
+            request: "create",
+            record: false,
+            publishers: JanusHelper.MAX_VIDEOS,
+            description: "New VideoRoom",
+            secret: "adminpwd",
+            room: this.myroom,
+            bitrate: 128000,
+            fir_freq: 10,
+        }
+        this.janusPlugin.send({ message: createRoom })
+
+        super.onAttach(pluginHandle)
+    }
     onMessage(msg, jsep) {
         var result = msg["videoroom"]
         switch (result) {
