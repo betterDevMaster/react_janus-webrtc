@@ -22,7 +22,7 @@ export default function VideoRoomPage(props) {
         JanusHelperVideoRoom.getInstance().init(dispatch, "videoRoom", "janus.plugin.videoroom")
     }, [])
     useEffect(() => {
-        // console.log("janusstate: --------------- ", janusState, statusChange, props, query)
+        // console.log("janusstate: --------------- ", janusState, statusChange, query)
         status1.includes(janusState.status) ? setStatusChange(false) : setStatusChange(!statusChange)
     }, [janusState])
 
@@ -66,7 +66,7 @@ export default function VideoRoomPage(props) {
             </a>
 
             <nav className="navbar navbar-default navbar-static-top">
-                <Header />
+                <Header room={query.room} name={query.name} />
             </nav>
 
             <div className="container">

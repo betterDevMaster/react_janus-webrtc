@@ -127,12 +127,12 @@ export default function TextRoomPage(props) {
                                                 className="form-control"
                                                 type="text"
                                                 placeholder="Choose a display name"
-                                                autocomplete="off"
+                                                autoComplete="off"
                                                 id="username"
-                                                onkeypress="return checkEnter(this, event);"
+                                                onKeyPress={(e) => handleCheckEnter(e)}
                                             />
                                             <span className="input-group-btn">
-                                                <button className="btn btn-success" autocomplete="off" id="register">
+                                                <button className="btn btn-success" autoComplete="off" id="register">
                                                     Join the room
                                                 </button>
                                             </span>
@@ -171,9 +171,9 @@ export default function TextRoomPage(props) {
                                                         className="form-control"
                                                         type="text"
                                                         placeholder="Write a chatroom message"
-                                                        autocomplete="off"
+                                                        autoComplete="off"
                                                         id="datasend"
-                                                        onkeypress="return checkEnter(this, event);"
+                                                        onKeyPress={(e) => handleCheckEnter(e)}
                                                         disabled
                                                     />
                                                 </div>

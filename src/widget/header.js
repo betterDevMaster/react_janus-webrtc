@@ -1,7 +1,7 @@
 import React from "react"
 import { Link } from "react-router-dom"
 
-export default function header(props) {
+export default function Header({ room, name }) {
     return (
         <div className="container">
             <div className="navbar-header">
@@ -35,19 +35,19 @@ export default function header(props) {
                                 <a href="streamingtest.html">Streaming</a>
                             </li>
                             <li>
-                                <Link to="/videoCall">Video Call</Link>
+                                <Link to={`/videoCall?room=${room}&name=${name}`}>Video Call</Link>
                             </li>
                             <li>
                                 <a href="siptest.html">SIP Gateway</a>
                             </li>
                             <li>
-                                <Link to="/videoRoom">Video Room</Link>
+                                <Link to={`/videoRoom?room=${room}&name=${name}`}>Video Room</Link>
                             </li>
                             <li>
                                 <a href="audiobridgetest.html">Audio Bridge</a>
                             </li>
                             <li>
-                                <Link to="/textRoom">Text Room</Link>
+                                <Link to={`/textRoom?room=${room}&name=${name}`}>Text Room</Link>
                             </li>
                             <li>
                                 <a href="voicemailtest.html">Voice Mail</a>
@@ -57,7 +57,7 @@ export default function header(props) {
                             </li>
                             <li className="divider"></li>
                             <li>
-                                <Link to="/screenShare">Screen Sharing</Link>
+                                <Link to="/screenShare?room=${room}&name=${name}">Screen Sharing</Link>
                             </li>
                             <li>
                                 <a href="nosiptest.html">NoSIP (SDP/RTP)</a>
@@ -73,7 +73,7 @@ export default function header(props) {
                                 <a href="multiopus.html">Multichannel Opus (surround)</a>
                             </li>
                             <li>
-                                <Link to="/lecture">Lecture</Link>
+                                <Link to={`/lecture?room=${room}&name=${name}`}>Lecture</Link>
                             </li>
                             <li>
                                 <a href="vp9svctest.html">VP9-SVC Video Room</a>

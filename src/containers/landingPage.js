@@ -4,15 +4,17 @@ import { useHistory } from "react-router-dom"
 export default function LandingPage(props) {
     const [meeting, setMeeting] = useState(false)
     const meetingInput = useRef(null)
-    const [meetingValue, setMeetingValue] = useState("")
     const [copy, setCopy] = useState(false)
     const [invite, setInvite] = useState(false)
     const [roomName, setRoomName] = useState("")
+    const [meetingValue, setMeetingValue] = useState("")
     const [showVideo, setShowVidoe] = useState(false)
     const history = useHistory()
+
     useEffect(() => {
         setRoomName(makeRoom(7))
     }, [])
+
     const handleChange = (e) => {
         setMeetingValue(e.target.value)
     }
