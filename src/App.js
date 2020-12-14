@@ -7,6 +7,7 @@ import textRoomPage from "./containers/textRoomPage"
 // import demosPage from "./containers/demosPage"
 import videoRoomPage from "./containers/videoRoomPage"
 import videoCallPage from "./containers/videoCallPage"
+import videoMeetingPage from "./containers/videoMeetingPage"
 // import screenSharePage from "./containers/screenSharePage"
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
                 {/* <Route path="/" exact component={demosPage} /> */}
                 <Route path="/videoRoom" exact component={videoRoomPage} />
                 <Route path="/videoCall" exact component={videoCallPage} />
+                <Route path="/videoMeeingPage" exact component={videoMeetingPage} />
                 {/* <Route path="/screenShare" exact component={screenSharePage} /> */}
             </Switch>
         </Router>
