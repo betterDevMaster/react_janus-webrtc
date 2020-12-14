@@ -136,7 +136,7 @@ export default class JanusHelperVideoCall extends JanusHelper {
     onData(data) {
         window.Janus.debug("We got data from the JanusHelper!", data)
         // $("#datarecv").val(data)
-        this.dispatch({ type: "JANUS_MESSAGE", value: data })
+        this.dispatch({ type: "JANUS_MESSAGE", message: data })
     }
     onWebrtcStateChange(on) {
         this.dispatch({ type: "JANUS_STATE", value: on ? "CONNECTED" : "ATTACHED" })

@@ -22,15 +22,15 @@ export default function TextRoomPage(props) {
         JanusHelperTextRoom.getInstance().init(dispatch, "textRoom", "janus.plugin.textroom")
     }, [])
     useEffect(() => {
-        console.log("janusState: ------------------ ", janusState)
+        // console.log("janusState: ------------------ ", janusState)
         status1.includes(janusState.status) ? setStatusChange(false) : setStatusChange(!statusChange)
     }, [janusState])
 
     const handleStart = () => {
         setStatusChange(!statusChange)
-        // JanusHelperTextRoom.getInstance().start(1234) // string IDS = false in janus conf
+        JanusHelperTextRoom.getInstance().start(1234) // string IDS = false in janus conf
         // JanusHelperTextRoom.getInstance().start("1234") // string IDS = true in janus conf
-        JanusHelperTextRoom.getInstance().start(query.room)
+        // JanusHelperTextRoom.getInstance().start(query.room)
     }
     const handleStop = () => {
         JanusHelperTextRoom.getInstance().stop()
@@ -39,6 +39,7 @@ export default function TextRoomPage(props) {
         var theCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode
         if (theCode === 13) {
             if (event.target.id === "username") JanusHelperTextRoom.getInstance().registerUsername(event.target.value)
+            else if (event.target.id == "datasend") JanusHelperTextRoom.getInstance().sendData()
             return false
         } else {
             return true
@@ -128,6 +129,9 @@ export default function TextRoomPage(props) {
                                                 placeholder="Choose a display name"
                                                 autoComplete="off"
                                                 id="username"
+                                                onChange={(e) => {
+                                                    setUserName(e.target.value)
+                                                }}
                                                 onKeyPress={(e) => handleCheckEnter(e)}
                                             />
                                             <span className="input-group-btn">
@@ -146,18 +150,76 @@ export default function TextRoomPage(props) {
                                 </div>
                             </div>
                         )}
-                        {status1.includes(janusState.status) && (
+                        <div className="container hide" id="room">
+                            <div className="row">
+                                <div className="col-md-4">
+                                    <div className="panel panel-default">
+                                        <div className="panel-heading">
+                                            <h3 className="panel-title">
+                                                Participants <span className="label label-info hide" id="participant"></span>
+                                            </h3>
+                                        </div>
+                                        <div className="panel-body">
+                                            <ul id="list" className="list-group"></ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="col-md-8">
+                                    <div className="panel panel-default">
+                                        <div className="panel-heading">
+                                            <h3 className="panel-title">Public Chatroom</h3>
+                                        </div>
+                                        <div className="panel-body relative" style={{ overflowX: "auto" }} id="chatroom"></div>
+                                        <div className="panel-footer">
+                                            <div className="input-group margin-bottom-sm">
+                                                <span className="input-group-addon">
+                                                    <i className="fa fa-cloud-upload fa-fw"></i>
+                                                </span>
+                                                <input
+                                                    className="form-control"
+                                                    type="text"
+                                                    placeholder="Write a chatroom message"
+                                                    autoComplete="off"
+                                                    id="datasend"
+                                                    onKeyPress={(e) => handleCheckEnter(e)}
+                                                    disabled
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {/* {status1.includes(janusState.status) && (
                             <div className="container " id="room">
                                 <div className="row">
                                     <div className="col-md-4">
                                         <div className="panel panel-default">
                                             <div className="panel-heading">
                                                 <h3 className="panel-title">
-                                                    Participants <span className="label label-info " id="participant"></span>
+                                                    Participants
+                                                    <span className="label label-info " id="participant">
+                                                        {janusState.message.participants[janusState.message.username]}
+                                                    </span>
                                                 </h3>
                                             </div>
                                             <div className="panel-body">
-                                                <ul id="list" className="list-group"></ul>
+                                                <ul id="list" className="list-group">
+                                                    {Object.keys(janusState.message.participants).map((val, k) => {
+                                                        if (val !== janusState.message.username) {
+                                                            return (
+                                                                <li
+                                                                    id={`rp${val}`}
+                                                                    key={k}
+                                                                    className="list-group-item"
+                                                                    style={{ cursor: "pointer" }}
+                                                                >
+                                                                    {janusState.message.participants[val]}
+                                                                </li>
+                                                            )
+                                                        }
+                                                    })}
+                                                </ul>
                                             </div>
                                         </div>
                                     </div>
@@ -166,7 +228,16 @@ export default function TextRoomPage(props) {
                                             <div className="panel-heading">
                                                 <h3 className="panel-title">Public Chatroom</h3>
                                             </div>
-                                            <div className="panel-body relative" style={{ overflowX: "auto" }} id="chatroom"></div>
+                                            <div
+                                                className="panel-body relative"
+                                                style={{ overflowX: "auto", height: "460px" }}
+                                                id="chatroom"
+                                            >
+                                                 <p style={{ color: janusState.message.color }}>
+                                                    [{janusState.message.dateString}]
+                                                    <i> {janusState.message.participants[janusState.message.username]} joined</i>
+                                                </p> }
+                                            </div>
                                             <div className="panel-footer">
                                                 <div className="input-group margin-bottom-sm">
                                                     <span className="input-group-addon">
@@ -187,7 +258,7 @@ export default function TextRoomPage(props) {
                                     </div>
                                 </div>
                             </div>
-                        )}
+                        )} */}
                     </div>
                 </div>
 

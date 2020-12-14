@@ -1,3 +1,5 @@
+import { act } from "react-dom/test-utils"
+
 const janus = (
     state = {
         message: {},
@@ -14,7 +16,7 @@ const janus = (
         case "JANUS_STATE":
             return { ...state, status: action.value }
         case "JANUS_MESSAGE":
-            return { ...state, message: action.value }
+            return { ...state, message: action.message, status: action.status }
         case "JANUS_LOCALSTREAM":
             return {
                 ...state,
@@ -30,6 +32,11 @@ const janus = (
                     local: state.stream.local,
                     remote: action.value,
                 },
+            }
+        case "JANUS_PATICIPAINTS":
+            return {
+                ...state,
+                participant: action.value,
             }
         case "JANUS_DESTROYED":
             return {

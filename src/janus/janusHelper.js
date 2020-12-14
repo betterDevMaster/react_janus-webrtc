@@ -8,6 +8,8 @@
  */
 
 export default class JanusHelper {
+    // static baseUrl = null
+
     static baseUrl = "https://janusserver.simportal.net/janus" // Current Janus Server
     // static baseUrl = "wss://janus.conf.meetecho.com/ws" // Dafault Janus server
     static MAX_VIDEOS = 6
@@ -34,6 +36,9 @@ export default class JanusHelper {
         this.participants = {}
         this.transactions = {}
         this.initJanus()
+
+        // if (window.location.protocol === "http:") baseUrl = "http://janusserver.simportal.net/janus"
+        // else baseUrl = "https://janusserver.simportal.net/janus"
     }
 
     initJanus(debug = "all") {
@@ -135,6 +140,7 @@ export default class JanusHelper {
     }
 
     onMessage(msg, jsep, result) {
+        console.log("helper: onMessag: --------------- ", msg, jsep, result)
         if (result) {
             // Video Room
             switch (result) {
@@ -204,8 +210,6 @@ export default class JanusHelper {
     }
 
     onData(data) {
-        console.log("JanusHelper: onData: -------------------- ", data)
-
         window.Janus.debug("We got data from the DataChannel!", data)
     }
     onCleanUp() {
