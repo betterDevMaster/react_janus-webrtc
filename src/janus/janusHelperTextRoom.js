@@ -19,18 +19,20 @@ export default class JanusHeloperTextRoom extends JanusHelper {
         super.stop()
     }
     onAttach(pluginHandle) {
-        // const createTextRoom = {
-        //     textroom: "create",
-        //     room: this.myroom,
-        //     description: "New TextRoom",
-        //     secret: "adminpwd",
-        // }
+        const createRoom = {
+            textroom: "createjoin",
+            // textroom: "create",
+            room: this.myroom,
+            description: "New TextRoom",
+            // secret: "adminpwd",
+        }
 
-        // pluginHandle.send({ message: createTextRoom })
+        pluginHandle.send({ message: createRoom })
 
         const body = { request: "setup" }
         window.Janus.debug("Sending message:", body)
         pluginHandle.send({ message: body })
+
         super.onAttach(pluginHandle)
     }
     registerUsername(username) {
@@ -49,6 +51,7 @@ export default class JanusHeloperTextRoom extends JanusHelper {
                 $("#register").removeAttr("disabled").click(this.registerUsername)
                 return
             }
+
             this.myid = window.Janus.randomString(12)
             var transaction = window.Janus.randomString(12)
             var register = {
@@ -92,7 +95,7 @@ export default class JanusHeloperTextRoom extends JanusHelper {
                     for (var i in response.participants) {
                         var p = response.participants[i]
                         this.participants[p.username] = p.display ? p.display : p.username
-                        console.log("Participants: ----------------------- ", this.participants, p, this.myid, $("#rp" + p.username).length)
+                        // console.log("Participants: ----------------------- ", this.participants, p, this.myid, $("#rp" + p.username).length)
                         var _this = this
                         if (p.username !== this.myid && $("#rp" + p.username).length === 0) {
                             // Add to the participants list
@@ -102,7 +105,7 @@ export default class JanusHeloperTextRoom extends JanusHelper {
                             $("#rp" + p.username)
                                 .css("cursor", "pointer")
                                 .click(function () {
-                                    console.log('$(this).attr("id"): ----------- ', $(this).attr("id"))
+                                    // console.log('$(this).attr("id"): ----------- ', $(this).attr("id"))
                                     var username = $(this).attr("id").split("rp")[1]
                                     _this.sendPrivateMsg(username)
                                 })
@@ -185,7 +188,7 @@ export default class JanusHeloperTextRoom extends JanusHelper {
         super.registerUsername(username, register)
     }
     onMessage(msg, jsep) {
-        console.log("textRoom: Message: -------------- ", msg, jsep)
+        // console.log("textRoom: Message: -------------- ", msg, jsep)
         var plugin = this.janusPlugin
 
         window.Janus.debug(" ::: Got a message :::", msg)
@@ -221,7 +224,7 @@ export default class JanusHeloperTextRoom extends JanusHelper {
             return
         }
         var what = json["textroom"]
-        console.log("join: ---------------- ", this.participants, json["display"], what)
+        // console.log("join: ---------------- ", this.participants, json["display"], what)
         var _this = this
         if (what === "message") {
             // Incoming message: public or private?
@@ -307,7 +310,7 @@ export default class JanusHeloperTextRoom extends JanusHelper {
                 window.location.reload()
             })
         }
-        console.log("textRoom: onData: -------------------- ", what, json)
+        // console.log("textRoom: onData: -------------------- ", what, json)
 
         // var json = JSON.parse(data)
         // var transaction = json["transaction"]
@@ -397,7 +400,7 @@ export default class JanusHeloperTextRoom extends JanusHelper {
         // super.onData(data)
     }
     onWebrtcStateChange(on) {
-        console.log("textRoom: webrtcStateChange: ----------------- ", on)
+        // console.log("textRoom: webrtcStateChange: ----------------- ", on)
         // this.dispatch({ type: "JANUS_STATE", value: on ? "CONNECTED" : "DISCONNECTED" })
     }
     getDateString(jsonDate) {

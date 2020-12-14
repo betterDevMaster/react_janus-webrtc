@@ -37,7 +37,7 @@ export default class JanusHelperVideoRoom extends JanusHelper {
             bitrate: 128000,
             fir_freq: 10,
         }
-        this.janusPlugin.send({ message: createRoom })
+        pluginHandle.send({ message: createRoom })
 
         super.onAttach(pluginHandle)
     }
