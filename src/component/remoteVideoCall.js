@@ -14,12 +14,14 @@ export default function RemoteVideoCall(props) {
             }
             if (props.session && remoteVideoDom) {
                 if (remoteVideoDom.srcObject == null) {
+                    // console.log("remoteVideo Attach: ------------ ", props.session, remoteVideoDom)
                     window.Janus.attachMediaStream(remoteVideoDom, props.session.stream)
                 }
             }
+            setTimeout(update, 1000)
         }
         update()
-    })
+    }, [props])
 
     // const handleToggleAudioMute = () => {
     //     const dom = document.getElementById("remotevideo")
