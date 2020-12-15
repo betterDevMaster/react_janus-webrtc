@@ -26,7 +26,7 @@ export default function LandingPage(props) {
         if (meetingValue === "") window.bootbox.alert("Please enter the meeting name.")
         else {
             // navigator.clipboard.writeText(`http://localhost:3000/videoRoom?room=${roomName}&name=${meetingValue}`)
-            navigator.clipboard.writeText(`http://localhost:3000/VideoMeeingPage?room=${roomName}&name=${meetingValue}`)
+            navigator.clipboard.writeText(`http://localhost:3000/videoMeeting?room=${roomName}&name=${meetingValue}`)
             setCopy(true)
             setTimeout(() => {
                 setCopy(false)
@@ -89,7 +89,7 @@ export default function LandingPage(props) {
     const handleStartMeeting = () => {
         meetingValue === ""
             ? window.bootbox.alert("Please enter the meeting name.")
-            : history.push(`/VideoMeeingPage?room=${roomName}&name=${meetingValue}`)
+            : history.push(`/videoMeeting?room=${roomName}&name=${meetingValue}`)
         // : history.push(`/videoRoom?room=${roomName}&name=${meetingValue}`)
     }
     const handleVideoClick = () => {

@@ -19,8 +19,12 @@ export default class JanusHeloperTextRoom extends JanusHelper {
         super.stop()
     }
     onAttach(pluginHandle) {
+        const body = { request: "setup" }
+        window.Janus.debug("Sending message:", body)
+        pluginHandle.send({ message: body })
+
         const createRoom = {
-            textroom: "createjoin",
+            request: "create",
             // textroom: "create",
             room: this.myroom,
             description: "New TextRoom",
@@ -28,10 +32,6 @@ export default class JanusHeloperTextRoom extends JanusHelper {
         }
 
         pluginHandle.send({ message: createRoom })
-
-        const body = { request: "setup" }
-        window.Janus.debug("Sending message:", body)
-        pluginHandle.send({ message: body })
 
         super.onAttach(pluginHandle)
     }

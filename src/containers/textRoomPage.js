@@ -29,8 +29,8 @@ export default function TextRoomPage(props) {
     const handleStart = () => {
         setStatusChange(!statusChange)
         // JanusHelperTextRoom.getInstance().start(1234) // string IDS = false in janus conf
-        JanusHelperTextRoom.getInstance().start("1234") // string IDS = true in janus conf
-        // JanusHelperTextRoom.getInstance().start(query.room)
+        // JanusHelperTextRoom.getInstance().start("1234") // string IDS = true in janus conf
+        JanusHelperTextRoom.getInstance().start(query.room)
     }
     const handleStop = () => {
         JanusHelperTextRoom.getInstance().stop()

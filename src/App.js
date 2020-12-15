@@ -21,7 +21,7 @@ function App() {
                 {/* <Route path="/" exact component={demosPage} /> */}
                 <Route path="/videoRoom" exact component={videoRoomPage} />
                 <Route path="/videoCall" exact component={videoCallPage} />
-                <Route path="/videoMeeingPage" exact component={videoMeetingPage} />
+                <Route path="/videoMeeting" exact component={videoMeetingPage} />
                 {/* <Route path="/screenShare" exact component={screenSharePage} /> */}
             </Switch>
         </Router>
