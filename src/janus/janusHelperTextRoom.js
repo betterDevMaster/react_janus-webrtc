@@ -44,7 +44,6 @@ export default class JanusHeloperTextRoom extends JanusHelper {
             // Try a registration
             $("#username").attr("disabled", true)
             $("#register").attr("disabled", true).unbind("click")
-            var username = $("#username").val()
             if (username === "") {
                 $("#you").removeClass().addClass("label label-warning").html("Insert your display name (e.g., pippo)")
                 $("#username").removeAttr("disabled")
@@ -91,12 +90,13 @@ export default class JanusHeloperTextRoom extends JanusHelper {
                 $("#chatroom").css("height", $(window).height() - 420 + "px")
                 $("#datasend").removeAttr("disabled")
                 // Any participants already in?
+                var _this = this
+
                 if (response.participants && response.participants.length > 0) {
                     for (var i in response.participants) {
                         var p = response.participants[i]
                         this.participants[p.username] = p.display ? p.display : p.username
                         // console.log("Participants: ----------------------- ", this.participants, p, this.myid, $("#rp" + p.username).length)
-                        var _this = this
                         if (p.username !== this.myid && $("#rp" + p.username).length === 0) {
                             // Add to the participants list
                             $("#list").append(
@@ -226,13 +226,15 @@ export default class JanusHeloperTextRoom extends JanusHelper {
         var what = json["textroom"]
         // console.log("join: ---------------- ", this.participants, json["display"], what)
         var _this = this
+        var msg = json["text"]
+        var dateString = this.getDateString(json["date"])
+        var username = json["username"]
+        // var when = new Date()
         if (what === "message") {
             // Incoming message: public or private?
-            var msg = json["text"]
             msg = msg.replace(new RegExp("<", "g"), "&lt")
             msg = msg.replace(new RegExp(">", "g"), "&gt")
             var from = json["from"]
-            var dateString = this.getDateString(json["date"])
             var whisper = json["whisper"]
             if (whisper === true) {
                 // Private message
@@ -247,15 +249,12 @@ export default class JanusHeloperTextRoom extends JanusHelper {
             }
         } else if (what === "announcement") {
             // Room announcement
-            var msg = json["text"]
             msg = msg.replace(new RegExp("<", "g"), "&lt")
             msg = msg.replace(new RegExp(">", "g"), "&gt")
-            var dateString = this.getDateString(json["date"])
             $("#chatroom").append('<p style="color: purple;">[' + dateString + "] <i>" + msg + "</i>")
             // $("#chatroom").get(0).scrollTop = $("#chatroom").get(0).scrollHeight
         } else if (what === "join") {
             // Somebody joined
-            var username = json["username"]
             var display = json["display"]
             this.participants[username] = display ? display : username
 
@@ -275,8 +274,6 @@ export default class JanusHeloperTextRoom extends JanusHelper {
             // $("#chatroom").get(0).scrollTop = $("#chatroom").get(0).scrollHeight
         } else if (what === "leave") {
             // Somebody left
-            var username = json["username"]
-            var when = new Date()
             $("#rp" + username).remove()
             $("#chatroom").append(
                 '<p style="color: green;">[' + this.getDateString() + "] <i>" + this.participants[username] + " left</i></p>"
@@ -285,8 +282,6 @@ export default class JanusHeloperTextRoom extends JanusHelper {
             delete this.participants[username]
         } else if (what === "kicked") {
             // Somebody was kicked
-            var username = json["username"]
-            var when = new Date()
             $("#rp" + username).remove()
             $("#chatroom").append(
                 '<p style="color: green;">[' +

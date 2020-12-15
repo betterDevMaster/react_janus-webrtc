@@ -1,8 +1,7 @@
-import React, { useRef, useState, useEffect } from "react"
-import { useHistory } from "react-router-dom"
+import React from "react"
 
 export default function VideoMeeingPage(props) {
-    return
+    return <></>
     // return <div role="none" class="reactxp-ignore-pointer-events" style="position: absolute; display: flex; flex-direction: column; flex-grow: 0; flex-shrink: 0; overflow: visible; align-items: stretch; top: 0px; left: 0px; right: 0px; height: 80px; opacity: 1; margin-top: 0px; transform: translateY(0px); pointer-events: none;">
     //     <div role="none" class="reactxp-ignore-pointer-events" style="position: relative; display: flex; flex-direction: row; flex-grow: 0; flex-shrink: 0; overflow: visible; align-items: center; align-self: stretch; height: 80px; -webkit-app-region: drag; background-color: rgba(0, 0, 0, 0); pointer-events: none;">
     //         <div role="none" style="position: relative; display: flex; flex-direction: column; flex-grow: 0; flex-shrink: 0; overflow: hidden; align-items: stretch; -webkit-app-region: no-drag;">

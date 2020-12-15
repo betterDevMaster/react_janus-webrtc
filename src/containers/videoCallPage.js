@@ -1,10 +1,11 @@
-import React, { useRef, useState, useEffect } from "react"
+import React, { useState, useEffect, useMemo } from "react"
 import { useSelector, useDispatch } from "react-redux"
 import Header from "../widget/header"
 import Footer from "../widget/footer"
 import JanusHelperVideoCall from "../janus/janusHelperVideoCall"
 import LocalCallVideo from "../component/localVideoCall"
 import RemoteCallVideo from "../component/remoteVideoCall"
+// import { data } from "jquery"
 
 export default function VideoCallPage(props) {
     const dispatch = useDispatch()
@@ -12,15 +13,17 @@ export default function VideoCallPage(props) {
     const [userData, setUserData] = useState({ name: "", nameSet: false })
     const [peerData, setPeerData] = useState({ name: "", peerSet: false })
     const [statusChange, setStatusChange] = useState(false)
-    const status = ["RUNNING", "CONNECTED", "DISCONNECTED"]
+    const status = useMemo(() => ["RUNNING", "CONNECTED", "DISCONNECTED"], [])
 
     useEffect(() => {
         JanusHelperVideoCall.getInstance().init(dispatch, "videoCall", "janus.plugin.videocall")
-    }, [])
+    }, [dispatch])
     useEffect(() => {
-        console.log("janusstate: --------------- ", janusState, userData)
-        setStatusChange(!statusChange)
-        if (janusState.status === "ATTACHED") setPeerData({ ...peerData, peerSet: false })
+        setStatusChange((sts) => !sts)
+        if (janusState.status === "ATTACHED")
+            setPeerData(({ name, peerSet }) => {
+                return { name, peerSet: false }
+            })
     }, [janusState])
 
     const handleStart = () => {
@@ -47,7 +50,7 @@ export default function VideoCallPage(props) {
 
                 setUserData({ name: event.target.value, nameSet: true })
                 JanusHelperVideoCall.getInstance().registerUsername(event.target.value)
-            } else if (event.target.id == "peer") handleCall()
+            } else if (event.target.id === "peer") handleCall()
             return false
         } else {
             return true

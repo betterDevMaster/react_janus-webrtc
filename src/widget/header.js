@@ -20,9 +20,12 @@ export default function Header({ room, name }) {
                         <a href="index.html">Home</a>
                     </li>
                     <li className="dropdown">
-                        <a href="#" className="dropdown-toggle" data-toggle="dropdown">
+                        {/* <a href="#" className="dropdown-toggle" data-toggle="dropdown">
                             Demos <b className="caret"></b>
-                        </a>
+                        </a> */}
+                        <Link to={`/demo?room=${room}&name=${name}`} className="dropdown-toggle" data-toggle="dropdown">
+                            Demos<b className="caret"></b>
+                        </Link>
                         <ul className="dropdown-menu">
                             <li>
                                 <a href="demos.html">Index</a>
@@ -57,7 +60,7 @@ export default function Header({ room, name }) {
                             </li>
                             <li className="divider"></li>
                             <li>
-                                <Link to="/screenShare?room=${room}&name=${name}">Screen Sharing</Link>
+                                <Link to={`/screenShare?room=${room}&name=${name}`}>Screen Sharing</Link>
                             </li>
                             <li>
                                 <a href="nosiptest.html">NoSIP (SDP/RTP)</a>
@@ -94,7 +97,7 @@ export default function Header({ room, name }) {
                         <a href="support.html">Need help?</a>
                     </li>
                     <li>
-                        <a className="januscon" target="_blank" href="https://januscon.it">
+                        <a className="januscon" target="_blank" rel="noreferrer" href="https://januscon.it">
                             JanusCon!
                         </a>
                     </li>
@@ -102,8 +105,8 @@ export default function Header({ room, name }) {
                 <div className="navbar-header navbar-right">
                     <ul className="nav navbar-nav">
                         <li>
-                            <a target="_blank" href="http://www.meetecho.com" className="navbar-link meetecho-logo">
-                                <img src="img/meetecho-logo.png" />
+                            <a target="_blank" rel="noreferrer" href="http://www.meetecho.com" className="navbar-link meetecho-logo">
+                                <img src="img/meetecho-logo.png" alt="logo" />
                             </a>
                         </li>
                     </ul>

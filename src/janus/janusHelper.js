@@ -59,8 +59,9 @@ export default class JanusHelper {
     }
 
     stop() {
-        this.dispatch({ type: "JANUS_DESTROYED" })
+        console.log("session: --------------- ", this.session)
         this.session && this.session.destroy()
+        this.dispatch({ type: "JANUS_DESTROYED" })
     }
 
     createSession() {
@@ -331,7 +332,7 @@ export default class JanusHelper {
                 videoRecv: false,
                 audioSend: useAudio,
                 videoSend: true,
-                data: true,
+                // data: true,
             }, // Publishers are sendonly
             // If you want to test simulcasting (Chrome and Firefox only), then
             // pass a ?simulcast=true when opening this demo page: it will turn
@@ -496,7 +497,7 @@ export default class JanusHelper {
                         jsep: jsep,
                         // Add data:true here if you want to subscribe to datachannels as well
                         // (obviously only works if the publisher offered them in the first place)
-                        media: { audioSend: false, videoSend: false, data: true }, // We want recvonly audio/video
+                        media: { audioSend: false, videoSend: false }, // We want recvonly audio/video
                         success: function (jsep) {
                             window.Janus.debug("Got SDP!", jsep)
                             var body = { request: "start", room: this.myroom }

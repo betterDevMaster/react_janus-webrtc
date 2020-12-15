@@ -77,6 +77,7 @@ export default class JanusHelperVideoRoom extends JanusHelper {
                     }
                 }
                 break
+            default:
         }
         super.onMessage(msg, jsep, result)
     }

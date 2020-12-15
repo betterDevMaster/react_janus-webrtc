@@ -266,3 +266,20 @@ pre {
     background-color: transparent;
     cursor: wait;
 }
+.dropdown-menu > li > button {
+    display: block;
+    padding: 3px 20px;
+    clear: both;
+    font-weight: 400;
+    line-height: 1.42857143;
+    color: #333333;
+    white-space: nowrap;
+    background: transparent;
+    border: none;
+}
+.dropdown-menu > li > button:hover,
+.dropdown-menu > li > button:focus {
+    color: #ffffff;
+    text-decoration: none;
+    background-color: #2fa4e7;
+}

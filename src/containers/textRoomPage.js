@@ -1,12 +1,10 @@
-import React, { useRef, useState, useEffect } from "react"
+import React, { useState, useEffect, useMemo } from "react"
 import { useSelector, useDispatch } from "react-redux"
 import * as qs from "query-string"
 
 import Header from "../widget/header"
 import Footer from "../widget/footer"
 import JanusHelperTextRoom from "../janus/janusHelperTextRoom"
-import LocalCallVideo from "../component/localVideoCall"
-import RemoteCallVideo from "../component/remoteVideoCall"
 
 export default function TextRoomPage(props) {
     const dispatch = useDispatch()
@@ -15,16 +13,15 @@ export default function TextRoomPage(props) {
     const [statusChange, setStatusChange] = useState(false)
     const query = qs.parse(props.location.search)
 
-    const status1 = ["RUNNING", "CONNECTED", "DISCONNECTED"]
-    const status2 = ["INITIALIZED", "ATACHED"]
+    const status1 = useMemo(() => ["RUNNING", "CONNECTED", "DISCONNECTED"], [])
+    const status2 = useMemo(() => ["INITIALIZED", "ATACHED"], [])
 
     useEffect(() => {
         JanusHelperTextRoom.getInstance().init(dispatch, "textRoom", "janus.plugin.textroom")
-    }, [])
+    }, [dispatch])
     useEffect(() => {
-        // console.log("janusState: ------------------ ", janusState)
-        status1.includes(janusState.status) ? setStatusChange(false) : setStatusChange(!statusChange)
-    }, [janusState])
+        status1.includes(janusState.status) ? setStatusChange(false) : setStatusChange((sts) => !sts)
+    }, [janusState, status1])
 
     const handleStart = () => {
         setStatusChange(!statusChange)
@@ -39,7 +36,7 @@ export default function TextRoomPage(props) {
         var theCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode
         if (theCode === 13) {
             if (event.target.id === "username") JanusHelperTextRoom.getInstance().registerUsername(event.target.value)
-            else if (event.target.id == "datasend") JanusHelperTextRoom.getInstance().sendData()
+            else if (event.target.id === "datasend") JanusHelperTextRoom.getInstance().sendData()
             return false
         } else {
             return true

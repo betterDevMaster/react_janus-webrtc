@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from "react"
-import { useSelector, useDispatch } from "react-redux"
+import React from "react"
 import Header from "../widget/header"
-import Footer from "../widget/footer"
 
 export default function ScreenSharePage(props) {
     return (

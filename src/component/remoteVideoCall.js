@@ -1,41 +1,38 @@
 import React, { useState, useEffect } from "react"
-import JanusHelperVideoCall from "../janus/janusHelperVideoCall"
 
 export default function RemoteVideoCall(props) {
     // const [bitRate, setBitRate] = useState(0)
     const [videoSizeText, setVideoSizeText] = useState("")
-    const [toggleAudioMute, setToggleAudioMute] = useState(true)
-    const [toggleVideoMute, setToggleVideoMute] = useState(true)
+    // const [toggleAudioMute, setToggleAudioMute] = useState(true)
+    // const [toggleVideoMute, setToggleVideoMute] = useState(true)
 
     useEffect(() => {
-        update()
-    }, [])
-
-    const update = () => {
-        let remoteVideoDom = document.getElementById("remotevideo")
-        if (props.session && remoteVideoDom) {
-            setVideoSizeText(remoteVideoDom.videoWidth + "x" + remoteVideoDom.videoHeight)
-        }
-        if (props.session && remoteVideoDom) {
-            if (remoteVideoDom.srcObject == null) {
-                // console.log("remoteVideo Attach: ------------ ", props.session, remoteVideoDom)
-                window.Janus.attachMediaStream(remoteVideoDom, props.session.stream)
+        const update = () => {
+            let remoteVideoDom = document.getElementById("remotevideo")
+            if (props.session && remoteVideoDom) {
+                setVideoSizeText(remoteVideoDom.videoWidth + "x" + remoteVideoDom.videoHeight)
+            }
+            if (props.session && remoteVideoDom) {
+                if (remoteVideoDom.srcObject == null) {
+                    window.Janus.attachMediaStream(remoteVideoDom, props.session.stream)
+                }
             }
         }
-        setTimeout(update, 1000)
-    }
-    const handleToggleAudioMute = () => {
-        const dom = document.getElementById("remotevideo")
-        if (dom) {
-            dom.muted = toggleAudioMute
-            // JanusHelperVideoRoom.getInstance().toggleAudioMute(props.session)
-        }
-        setToggleAudioMute(!toggleAudioMute)
-    }
-    const handleToggleVideoMute = () => {
-        // JanusHelperVideoRoom.getInstance().toggleVideoMute(props.session)
-        setToggleVideoMute(!toggleVideoMute)
-    }
+        update()
+    })
+
+    // const handleToggleAudioMute = () => {
+    //     const dom = document.getElementById("remotevideo")
+    //     if (dom) {
+    //         dom.muted = toggleAudioMute
+    //         // JanusHelperVideoRoom.getInstance().toggleAudioMute(props.session)
+    //     }
+    //     setToggleAudioMute(!toggleAudioMute)
+    // }
+    // const handleToggleVideoMute = () => {
+    //     // JanusHelperVideoRoom.getInstance().toggleVideoMute(props.session)
+    //     setToggleVideoMute(!toggleVideoMute)
+    // }
     const NoVideo = () => (
         <div className="no-video-container">
             <i className="fa fa-video-camera fa-5 no-video-icon"></i>

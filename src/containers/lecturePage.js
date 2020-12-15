@@ -1,7 +1,7 @@
-import React, { useRef, useState, useEffect } from "react"
-import { useHistory } from "react-router-dom"
+import React, { useState, useEffect, useMemo } from "react"
+// import { useHistory } from "react-router-dom"
 import { useSelector, useDispatch } from "react-redux"
-import * as qs from "query-string"
+// import * as qs from "query-string"
 
 import Header from "../widget/header"
 import Footer from "../widget/footer"
@@ -9,23 +9,22 @@ import JanusHelperLectureRoom from "../janus/janusHelperLectureRoom"
 import LocalLectureVideo from "../component/localLectureVideo"
 
 export default function LecturePage(props) {
-    const history = useHistory()
+    // const history = useHistory()
     const dispatch = useDispatch()
     const janusState = useSelector((state) => state.janus)
-    const [userName, setUserName] = useState("")
+    // const [userName, setUserName] = useState("")
     const [statusChange, setStatusChange] = useState(false)
-    const query = qs.parse(props.location.search)
+    // const query = qs.parse(props.location.search)
 
-    const status1 = ["RUNNING", "CONNECTED", "DISCONNECTED"]
-    const status2 = ["INITIALIZED", "ATACHED"]
+    const status1 = useMemo(() => ["RUNNING", "CONNECTED", "DISCONNECTED"], [])
+    const status2 = useMemo(() => ["INITIALIZED", "ATACHED"], [])
 
     useEffect(() => {
         JanusHelperLectureRoom.getInstance().init(dispatch, "echotest", "janus.plugin.echotest")
-    }, [])
+    }, [dispatch])
     useEffect(() => {
-        console.log("janusstate: --------------- ", janusState, statusChange, props, query)
-        status1.includes(janusState.status) ? setStatusChange(false) : setStatusChange(!statusChange)
-    }, [janusState])
+        status1.includes(janusState.status) ? setStatusChange(false) : setStatusChange((sts) => !sts)
+    }, [janusState, status1])
 
     const handleStart = () => {
         setStatusChange(!statusChange)

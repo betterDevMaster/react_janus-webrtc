@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useMemo } from "react"
 import { useSelector, useDispatch } from "react-redux"
 import * as qs from "query-string"
 
@@ -15,16 +15,15 @@ export default function VideoRoomPage(props) {
     const [statusChange, setStatusChange] = useState(false)
     const query = qs.parse(props.location.search)
 
-    const status1 = ["RUNNING", "CONNECTED", "DISCONNECTED"]
-    const status2 = ["INITIALIZED", "ATACHED"]
+    const status1 = useMemo(() => ["RUNNING", "CONNECTED", "DISCONNECTED"], [])
+    const status2 = useMemo(() => ["INITIALIZED", "ATACHED"], [])
 
     useEffect(() => {
         JanusHelperVideoRoom.getInstance().init(dispatch, "videoRoom", "janus.plugin.videoroom")
-    }, [])
+    }, [dispatch])
     useEffect(() => {
-        // console.log("janusstate: --------------- ", janusState, statusChange, query)
-        status1.includes(janusState.status) ? setStatusChange(false) : setStatusChange(!statusChange)
-    }, [janusState])
+        status1.includes(janusState.status) ? setStatusChange(false) : setStatusChange((sts) => !sts)
+    }, [janusState, status1])
 
     const handleStart = () => {
         setStatusChange(!statusChange)
@@ -165,9 +164,7 @@ export default function VideoRoomPage(props) {
 
                                     {janusState.stream.remote &&
                                         janusState.stream.remote.map((session, i) => {
-                                            if (session) {
-                                                return <RemoteRoomVideo key={i} session={session} status={janusState.status} />
-                                            }
+                                            return <RemoteRoomVideo key={i} session={session} status={janusState.status} />
                                         })}
                                 </div>
                             </div>

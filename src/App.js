@@ -4,11 +4,11 @@ import loadingPage from "./containers/loadingPage"
 import landingPage from "./containers/landingPage"
 import lecturePage from "./containers/lecturePage"
 import textRoomPage from "./containers/textRoomPage"
-// import demosPage from "./containers/demosPage"
+import demosPage from "./containers/demosPage"
 import videoRoomPage from "./containers/videoRoomPage"
 import videoCallPage from "./containers/videoCallPage"
 import videoMeetingPage from "./containers/videoMeetingPage"
-// import screenSharePage from "./containers/screenSharePage"
+import screenSharePage from "./containers/screenSharePage"
 
 function App() {
     return (
@@ -18,11 +18,11 @@ function App() {
                 <Route path="/landing" exact component={landingPage} />
                 <Route path="/lecture" exact component={lecturePage} />
                 <Route path="/textRoom" exact component={textRoomPage} />
-                {/* <Route path="/" exact component={demosPage} /> */}
+                <Route path="/demo" exact component={demosPage} />
                 <Route path="/videoRoom" exact component={videoRoomPage} />
                 <Route path="/videoCall" exact component={videoCallPage} />
                 <Route path="/videoMeeting" exact component={videoMeetingPage} />
-                {/* <Route path="/screenShare" exact component={screenSharePage} /> */}
+                <Route path="/screenShare" exact component={screenSharePage} />
             </Switch>
         </Router>
     )

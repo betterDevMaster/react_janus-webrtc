@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react"
+import React, { useEffect } from "react"
 import { useHistory } from "react-router-dom"
 
 export default function LoadingPage(props) {
     const history = useHistory()
 
-    useEffect(() => setTimeout(reDirectLandingPage, 5000), [])
+    useEffect(() => setTimeout(reDirectLandingPage, 5000))
 
     const reDirectLandingPage = () => {
         history.push("/landing")

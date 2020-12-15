@@ -7,13 +7,15 @@ export default function RemoteRoomVideo({ session, status }) {
 
     useEffect(() => {
         const update = () => {
-            let remoteVideoDom = document.getElementById(`remotevideo${session.rfindex}`)
-            let curresDom = document.getElementById(`curres${session.rfindex}`)
-            let curbitrateDom = document.getElementById(`curbitrate${session.rfindex}`)
+            if (session) {
+                let remoteVideoDom = document.getElementById(`remotevideo${session.rfindex}`)
+                let curresDom = document.getElementById(`curres${session.rfindex}`)
+                let curbitrateDom = document.getElementById(`curbitrate${session.rfindex}`)
 
-            if (session && remoteVideoDom && curresDom && curbitrateDom) {
-                curresDom.innerHTML = remoteVideoDom.videoWidth + "x" + remoteVideoDom.videoHeight
-                curbitrateDom.innerHTML = session.getBitrate()
+                if (remoteVideoDom && curresDom && curbitrateDom) {
+                    curresDom.innerHTML = remoteVideoDom.videoWidth + "x" + remoteVideoDom.videoHeight
+                    curbitrateDom.innerHTML = session.getBitrate()
+                }
             }
             setTimeout(() => update(), 1000)
         }
@@ -21,25 +23,27 @@ export default function RemoteRoomVideo({ session, status }) {
     })
 
     useEffect(() => {
-        let target = document.getElementById("videoremote" + session.rfindex)
-        let remoteVideoDom = document.getElementById(`remotevideo${session.rfindex}`)
+        if (session) {
+            let target = document.getElementById("videoremote" + session.rfindex)
+            let remoteVideoDom = document.getElementById(`remotevideo${session.rfindex}`)
 
-        if (session.stream && !remoteVideoDom.srcObject) {
-            window.Janus.attachMediaStream(remoteVideoDom, session.stream)
-        }
+            if (session.stream && !remoteVideoDom.srcObject) {
+                window.Janus.attachMediaStream(remoteVideoDom, session.stream)
+            }
 
-        if (session.spinner) {
-            session.spinner.stop()
-            session.spinner = null
-        }
+            if (session.spinner) {
+                session.spinner.stop()
+                session.spinner = null
+            }
 
-        if (!session.videoTracks || session.videoTracks.length === 0) {
-            session.spinner = new window.Spinner({ top: "50%" }).spin(target)
-            remoteVideoDom.classList.add("hide")
-        } else {
-            remoteVideoDom.classList.remove("hide")
+            if (!session.videoTracks || session.videoTracks.length === 0) {
+                session.spinner = new window.Spinner({ top: "50%" }).spin(target)
+                remoteVideoDom.classList.add("hide")
+            } else {
+                remoteVideoDom.classList.remove("hide")
+            }
         }
-    }, [session.videoTracks, status])
+    }, [session, status])
 
     const handleToggleAudioMute = () => {
         const dom = document.getElementById(`remotevideo${session.rfindex}`)
@@ -96,28 +100,30 @@ export default function RemoteRoomVideo({ session, status }) {
     )
 
     return (
-        <div className="col-md-4" key={session.rfindex}>
-            <div className="panel panel-default">
-                <div className="panel-heading">
-                    <h3 className="panel-title">
-                        Remote Video #{session.rfindex}
-                        <span className="label label-info" id={`remote${session.rfindex}`}>
-                            {session.rfdisplay}
-                        </span>
-                    </h3>
-                </div>
-                <div className="panel-body relative" id={`videoremote${session.rfindex}`}>
-                    <video
-                        className="rounded centered relative"
-                        id={`remotevideo${session.rfindex}`}
-                        width="100%"
-                        height="100%"
-                        autoPlay
-                        playsInline
-                    ></video>
-                    <VideoFooter />
+        session && (
+            <div className="col-md-4">
+                <div className="panel panel-default">
+                    <div className="panel-heading">
+                        <h3 className="panel-title">
+                            Remote Video #{session.rfindex}
+                            <span className="label label-info" id={`remote${session.rfindex}`}>
+                                {session.rfdisplay}
+                            </span>
+                        </h3>
+                    </div>
+                    <div className="panel-body relative" id={`videoremote${session.rfindex}`}>
+                        <video
+                            className="rounded centered relative"
+                            id={`remotevideo${session.rfindex}`}
+                            width="100%"
+                            height="100%"
+                            autoPlay
+                            playsInline
+                        ></video>
+                        <VideoFooter />
+                    </div>
                 </div>
             </div>
-        </div>
+        )
     )
 }

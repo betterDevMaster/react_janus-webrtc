@@ -1,9 +1,13 @@
-import React, { useState, useEffect } from "react"
+import React from "react"
 import Header from "../widget/header"
 import Footer from "../widget/footer"
 import { Link } from "react-router-dom"
+import * as qs from "query-string"
 
 export default function DemosPage(props) {
+    const query = qs.parse(props.location.search)
+    const [room, name] = [query.room, query.name]
+
     return (
         <div>
             <a href="https://github.com/meetecho/janus-gateway">
@@ -51,7 +55,7 @@ export default function DemosPage(props) {
                                 </tr>
                                 <tr>
                                     <td>
-                                        <Link to="/videoCall">Video Call</Link>
+                                        <Link to={`/videoCall?room=${room}&name=${name}`}>Video Call</Link>
                                     </td>
                                     <td>A Video Call demo, a bit like AppRTC but with media passing through Janus.</td>
                                 </tr>
@@ -63,7 +67,7 @@ export default function DemosPage(props) {
                                 </tr>
                                 <tr>
                                     <td>
-                                        <Link to="/videoRoom">Video Room</Link>
+                                        <Link to={`/videoRoom?room=${room}&name=${name}`}>Video Room</Link>
                                     </td>
                                     <td>A videoconferencing demo, allowing you to join a video room with up to six users.</td>
                                 </tr>
@@ -75,7 +79,7 @@ export default function DemosPage(props) {
                                 </tr>
                                 <tr>
                                     <td>
-                                        <a href="textroomtest.html">Text Room</a>
+                                        <Link to={`/textRoom?room=${room}&name=${name}`}>Text Room</Link>
                                     </td>
                                     <td>A text room demo, using DataChannels only.</td>
                                 </tr>
@@ -93,7 +97,7 @@ export default function DemosPage(props) {
                                 </tr>
                                 <tr>
                                     <td>
-                                        <a href="screensharingtest.html">Screen Sharing</a>
+                                        <Link to={`/screenShare?room=${room}&name=${name}`}>Screen Sharing</Link>
                                     </td>
                                     <td>A webinar-like screen sharing session, based on the Video Room plugin.</td>
                                 </tr>
@@ -144,7 +148,7 @@ export default function DemosPage(props) {
                                 </tr>
                                 <tr>
                                     <td>
-                                        <a href="canvas.html">Canvas Capture</a>
+                                        <Link to={`/lecture?room=${room}&name=${name}`}>Lecture</Link>
                                     </td>
                                     <td>
                                         A variant of the Echo Test demo, that shows how to use a canvas element as a WebRTC media source.

@@ -47,7 +47,8 @@ export default class JanusHelperLectureRoom extends JanusHelper {
                     // Notify user
                     window.bootbox.hideAll()
                     let plugin = this.janusPlugin
-                    let incoming = window.bootbox.dialog({
+                    // let incoming = window.bootbox.dialog({
+                    window.bootbox.dialog({
                         message: "Incoming call from " + this.yourusername + "!",
                         title: "Incoming call",
                         closeButton: false,
@@ -56,7 +57,7 @@ export default class JanusHelperLectureRoom extends JanusHelper {
                                 label: "Answer",
                                 className: "btn-success",
                                 callback: function () {
-                                    incoming = null
+                                    // incoming = null
                                     // $("#peer").val(result["username"]).attr("disabled", true)
                                     plugin.createAnswer({
                                         jsep: jsep,
@@ -129,6 +130,7 @@ export default class JanusHelperLectureRoom extends JanusHelper {
                     this.janusPlugin.hangup()
                     if (window.spinner) window.spinner.stop()
                     break
+                default:
             }
         }
         super.onMessage(msg, jsep, result)

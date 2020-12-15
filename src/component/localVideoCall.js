@@ -6,22 +6,20 @@ export default function LocalVideoCall(props) {
     const [toggleVideoMute, setToggleVideoMute] = useState(false)
     const [datasendData, setDatasendData] = useState({ name: "", nameSet: false })
 
-    const update = () => {
-        const localVideoDom = document.getElementById("myvideo")
-        if (props.stream && localVideoDom) {
-            if (localVideoDom.srcObject === null) {
-                // console.log("localVideo Attach: ------------ ", props.stream, props.state)
-
-                window.Janus.attachMediaStream(localVideoDom, props.stream)
-            }
-        }
-        setTimeout(update, 1000)
-    }
-
     useEffect(() => {
+        const update = () => {
+            const localVideoDom = document.getElementById("myvideo")
+            if (props.stream && localVideoDom) {
+                if (localVideoDom.srcObject === null) {
+                    // console.log("localVideo Attach: ------------ ", props.stream, props.state)
+
+                    window.Janus.attachMediaStream(localVideoDom, props.stream)
+                }
+            }
+            setTimeout(update, 1000)
+        }
         update()
     }, [props])
-
     const handleBitrate = (rate) => {
         var bitrate = rate * 1000
         if (bitrate === 0) {
@@ -82,39 +80,46 @@ export default function LocalVideoCall(props) {
                                 </button>
                                 <ul id="bitrate" className="dropdown-menu" role="menu">
                                     <li>
-                                        <a href="#" id="0" onClick={() => handleBitrate(0)}>
-                                            No limit
-                                        </a>
+                                        <button onClick={() => handleBitrate(0)}>No limit</button>
+                                        {/* <a href="#" id="0" onClick={() => handleBitrate(0)}>
+                                                No limit
+                                            </a> */}
                                     </li>
                                     <li>
-                                        <a href="#" id="128" onClick={() => handleBitrate(128)}>
-                                            Cap to 128kbit
-                                        </a>
+                                        <button onClick={() => handleBitrate(0)}>No limit</button>
+                                        {/* <a href="#" id="128" onClick={() => handleBitrate(128)}>
+                                                Cap to 128kbit
+                                            </a> */}
                                     </li>
                                     <li>
-                                        <a href="#" id="256" onClick={() => handleBitrate(256)}>
-                                            Cap to 256kbit
-                                        </a>
+                                        <button onClick={() => handleBitrate(256)}>Cap to 256kbit</button>
+                                        {/* <a href="#" id="256" onClick={() => handleBitrate(256)}>
+                                                Cap to 256kbit
+                                            </a> */}
                                     </li>
                                     <li>
-                                        <a href="#" id="512" onClick={() => handleBitrate(512)}>
-                                            Cap to 512kbit
-                                        </a>
+                                        <button onClick={() => handleBitrate(512)}>Cap to 512kbit</button>
+                                        {/* <a href="#" id="512" onClick={() => handleBitrate(512)}>
+                                                Cap to 512kbit
+                                            </a> */}
                                     </li>
                                     <li>
-                                        <a href="#" id="1024" onClick={() => handleBitrate(1024)}>
-                                            Cap to 1mbit
-                                        </a>
+                                        <button onClick={() => handleBitrate(1024)}>Cap to 1mbit</button>
+                                        {/* <a href="#" id="1024" onClick={() => handleBitrate(1024)}>
+                                                Cap to 1mbit
+                                            </a> */}
                                     </li>
                                     <li>
-                                        <a href="#" id="1500" onClick={() => handleBitrate(1500)}>
-                                            Cap to 1.5mbit
-                                        </a>
+                                        <button onClick={() => handleBitrate(1500)}>Cap to 1.5mbit</button>
+                                        {/* <a href="#" id="1500" onClick={() => handleBitrate(1500)}>
+                                                Cap to 1.5mbit
+                                            </a> */}
                                     </li>
                                     <li>
-                                        <a href="#" id="2000" onClick={() => handleBitrate(2000)}>
-                                            Cap to 2mbit
-                                        </a>
+                                        <button onClick={() => handleBitrate(2000)}>Cap to 2mbit</button>
+                                        {/* <a href="#" id="2000" onClick={() => handleBitrate(2000)}>
+                                                Cap to 2mbit
+                                            </a> */}
                                     </li>
                                 </ul>
                             </div>
