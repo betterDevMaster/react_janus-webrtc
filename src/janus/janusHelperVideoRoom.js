@@ -43,6 +43,7 @@ export default class JanusHelperVideoRoom extends JanusHelper {
     }
     onMessage(msg, jsep) {
         var result = msg["videoroom"]
+        console.log("RoomHelper: onMessage: ------------- ", msg, jsep, result)
         switch (result) {
             case "event":
                 if (msg["publishers"]) {

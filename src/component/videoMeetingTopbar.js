@@ -1,13 +1,18 @@
 import React, { useState } from "react"
+import * as qs from "query-string"
 
 export default function VideoMeetingTopbar(props) {
     const [showFullscreen, setShowFullscreen] = useState(false)
-
+    const query = qs.parse(window.location.search)
+    const handleFullscreen = () => {
+        props.fullscreen.enter()
+        setShowFullscreen(!showFullscreen)
+    }
     return (
         <div className="meeting_top_container">
             <div className="meeting_top_left_content">
                 <i className="fa fa-align-justify" aria-hidden="true"></i>
-                <span>Meet Now</span>
+                <span>'{query.name}' Meet</span>
             </div>
             <div className="meeting_top_right_content">
                 <button
@@ -38,7 +43,7 @@ export default function VideoMeetingTopbar(props) {
                         d="M5.5,0 l76,0 l0,0 l0,0 l76,0 c3,0 3,3 3,3 l0,41 c0,3 -3,3 -3,3 l-152,0 c-3,0 -3,-3 -3,-3 l0,-41 c0,-3 3,-3 3,-3 z"
                     ></path>
                 </svg>
-                <button tabIndex="0" aria-label="Enter full-screen" onClick={props.fullscreen.enter}>
+                <button tabIndex="0" aria-label="Enter full-screen" onClick={handleFullscreen}>
                     Enter full-screen
                 </button>
             </div>

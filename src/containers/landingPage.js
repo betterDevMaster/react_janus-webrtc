@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from "react"
 import { useHistory } from "react-router-dom"
+import * as qs from "query-string"
 import "../assets/landing.css"
 
 export default function LandingPage(props) {
@@ -11,10 +12,11 @@ export default function LandingPage(props) {
     const [meetingValue, setMeetingValue] = useState("")
     const [showVideo, setShowVidoe] = useState(false)
     const history = useHistory()
+    const query = qs.parse(window.location.search)
 
     useEffect(() => {
-        setRoomName(makeRoom(7))
-    }, [])
+        query.room ? setRoomName(query.room) : setRoomName(makeRoom(7))
+    }, [query.room])
 
     const handleChange = (e) => {
         setMeetingValue(e.target.value)
@@ -27,9 +29,12 @@ export default function LandingPage(props) {
         if (meetingValue === "") window.bootbox.alert("Please enter the meeting name.")
         else {
             // navigator.clipboard.writeText(`http://localhost:3000/videoRoom?room=${roomName}&name=${meetingValue}`)
-            navigator.clipboard.writeText(`http://localhost:3000/videoMeeting?room=${roomName}&name=${meetingValue}`)
+            navigator.clipboard.writeText(`http://localhost:3000/landing?room=${roomName}`)
             setCopy(true)
-            setTimeout(() => {
+            // setTimeout(() => {
+            //     setCopy(false)
+            // }, 2000)
+            setTimeout(function () {
                 setCopy(false)
             }, 2000)
         }
