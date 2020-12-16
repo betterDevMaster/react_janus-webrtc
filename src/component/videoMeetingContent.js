@@ -12,7 +12,6 @@ export default function VideoMeetingContent(props) {
     const query = qs.parse(window.location.search)
 
     const status1 = useMemo(() => ["RUNNING", "CONNECTED", "DISCONNECTED"], [])
-    const status2 = useMemo(() => ["INITIALIZED", "ATACHED"], [])
 
     useEffect(() => {
         JanusHelperVideoRoom.getInstance().init(dispatch, "videoRoom", "janus.plugin.videoroom")
@@ -20,7 +19,6 @@ export default function VideoMeetingContent(props) {
     }, [dispatch])
 
     useEffect(() => {
-        console.log("janusState : ------------ ", janusState)
         if (janusState.status === "ATTACHED") JanusHelperVideoRoom.getInstance().registerUsername(query.name)
     }, [janusState])
 

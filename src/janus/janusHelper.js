@@ -475,6 +475,7 @@ export default class JanusHelper {
                         case "event":
                             var substream = msg["substream"]
                             var temporal = msg["temporal"]
+                            console.log("substream: ================== ", substream, temporal)
                             if ((substream !== null && substream !== undefined) || (temporal !== null && temporal !== undefined)) {
                                 if (!remoteFeed.simulcastStarted) {
                                     remoteFeed.simulcastStarted = true
@@ -523,10 +524,12 @@ export default class JanusHelper {
             },
             onremotestream: (stream) => {
                 // window.Janus.debug("Remote feed #" + remoteFeed.rfindex + ", stream:", stream)
-                this.feeds[remoteFeed.rfindex].stream = stream
-                this.feeds[remoteFeed.rfindex].videoTracks = stream.getVideoTracks()
+                if (stream) {
+                    this.feeds[remoteFeed.rfindex].stream = stream
+                    this.feeds[remoteFeed.rfindex].videoTracks = stream.getVideoTracks()
 
-                this.dispatch({ type: "JANUS_REMOTESTREAM", value: this.feeds })
+                    this.dispatch({ type: "JANUS_REMOTESTREAM", value: this.feeds })
+                }
             },
             oncleanup: () => {
                 this.removeRemoteStream(remoteFeed.rfindex)

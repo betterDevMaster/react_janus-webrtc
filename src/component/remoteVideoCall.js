@@ -18,7 +18,9 @@ export default function RemoteVideoCall(props) {
                     window.Janus.attachMediaStream(remoteVideoDom, props.session.stream)
                 }
             }
-            setTimeout(update, 1000)
+            setTimeout(function () {
+                update()
+            }, 1000)
         }
         update()
     }, [props])

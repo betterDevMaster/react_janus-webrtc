@@ -16,7 +16,9 @@ export default function LocalVideoCall(props) {
                     window.Janus.attachMediaStream(localVideoDom, props.stream)
                 }
             }
-            setTimeout(update, 1000)
+            setTimeout(function () {
+                update()
+            }, 1000)
         }
         update()
     }, [props])

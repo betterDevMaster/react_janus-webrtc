@@ -15,7 +15,9 @@ export default function RemoteRoomVideo({ session, status }) {
                 curresDom.innerHTML = remoteVideoDom.videoWidth + "x" + remoteVideoDom.videoHeight
                 curbitrateDom.innerHTML = session.getBitrate()
             }
-            setTimeout(() => update(), 1000)
+            setTimeout(function () {
+                update()
+            }, 1000)
         }
         update()
     })
