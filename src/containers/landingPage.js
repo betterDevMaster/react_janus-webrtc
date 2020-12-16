@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from "react"
 import { useHistory } from "react-router-dom"
+import "../assets/landing.css"
 
 export default function LandingPage(props) {
     const [meeting, setMeeting] = useState(false)
