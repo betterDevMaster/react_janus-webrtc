@@ -1,52 +1,17 @@
 import React from "react"
 import "../assets/videoMeeting.css"
+import TopBar from "../component/videoMeetingTopbar"
+import FooterBar from "../component/videoMeetingFooterbar"
+import { FullScreen, useFullScreenHandle } from "react-full-screen"
 
 export default function VideoMeeingPage(props) {
+    const handle = useFullScreenHandle()
     return (
-        <div className="meeting_footer_container">
-            <div className="meeting_footer_left_content">
-                <button className="meeting_footer_left_button" aria-label="Share call link">
-                    <i className="fa fa-share-alt" aria-hidden="true"></i>
-                    <span dir="auto">Share</span>
-                </button>
-                <button className="meeting_footer_left_button" aria-label="Start recording">
-                    <i class="fa fa-play-circle" aria-hidden="true"></i>
-                    <span dir="auto">Record</span>
-                </button>
+        <FullScreen handle={handle}>
+            <div className="meeting_container">
+                <TopBar fullscreen={handle} />
+                <FooterBar />
             </div>
-            <div class="meeting_footer_middle_content">
-                <button className="meeting_footer_unmute" title="Unmute (Ctrl+M)" aria-label="Unmute">
-                    <i className="fa fa-microphone" aria-hidden="true"></i>
-                </button>
-                <button className="meeting_footer_unmute" title="Unmute (Ctrl+M)" aria-label="Unmute">
-                    <i class="fa fa-video-camera" aria-hidden="true"></i>
-                </button>
-                <button className="meeting_footer_unmute" title="Unmute (Ctrl+M)" aria-label="Unmute">
-                    <i class="fa fa-stop-circle" aria-hidden="true"></i>
-                </button>
-            </div>
-            <div className="meeting_footer_right_content">
-                <button className="meeting_footer_right_button" aria-label="Open Conversation">
-                    <i className="fa fa-share-alt" aria-hidden="true"></i>
-                    <span dir="auto">Chat</span>
-                </button>
-                <button className="meeting_footer_right_button" aria-label="Share screen">
-                    <i class="fa fa-play-circle" aria-hidden="true"></i>
-                    <span dir="auto">Share screen</span>
-                </button>
-                <button className="meeting_footer_right_button" aria-label="Raise your hand">
-                    <i class="fa fa-play-circle" aria-hidden="true"></i>
-                    <span dir="auto">Raise Hand</span>
-                </button>
-                <button className="meeting_footer_right_button" aria-label="Show reactions">
-                    <i class="fa fa-play-circle" aria-hidden="true"></i>
-                    <span dir="auto">React</span>
-                </button>
-                <button className="meeting_footer_right_button" aria-label="More Options">
-                    <i class="fa fa-play-circle" aria-hidden="true"></i>
-                    <span dir="auto">More</span>
-                </button>
-            </div>
-        </div>
+        </FullScreen>
     )
 }
