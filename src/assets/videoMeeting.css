@@ -204,17 +204,11 @@ body {
     background-color: rgba(0, 0, 0, 0);
 }
 .meeting_top_right_call {
-    position: absolute;
-    flex-grow: 0;
-    flex-shrink: 0;
-    align-items: center;
-    justify-content: center;
     background-color: rgba(0, 0, 0, 0);
     border-color: transparent;
     width: 60px;
     height: 60px;
-    top: 10px;
-    right: 168px;
+    margin-right: 10px;
     outline: none;
 }
 .meeting_top_right_addpeople {
@@ -235,11 +229,7 @@ body {
     outline: none;
 }
 .meeting_top_right_me {
-    position: absolute;
     display: flex;
-    flex-grow: 0;
-    flex-shrink: 0;
-    overflow: visible;
     align-items: center;
     justify-content: center;
     background-color: rgba(255, 255, 255, 0.8);
@@ -247,8 +237,6 @@ body {
     border-radius: 30px;
     width: 60px;
     height: 60px;
-    top: 10px;
-    right: 16px;
     outline: none;
 }
 .meeting_top_right_me p {
@@ -259,6 +247,8 @@ body {
     font-weight: bold;
     margin: 0;
     color: rgb(0 8 255);
+    width: 20px;
+    overflow: hidden;
 }
 .meeting_top_right_me i {
     position: absolute;
@@ -284,8 +274,8 @@ body {
     height: 47px;
     position: fixed;
     z-index: 100001;
-    top: 55px;
-    left: calc(100% - 290px);
+    /* top: 55px;
+    left: calc(100% - 290px); */
     border: 10px;
 }
 .meeting_top_right_fullscreen svg {
@@ -310,14 +300,19 @@ body {
 .meeting_top_right_contextmenu {
     display: flex;
     position: fixed;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 216px;
-    height: 118px;
     z-index: 100001;
-    top: 37px;
-    left: 1006px;
+    /* top: 55px;
+    left: calc(100% - 250px); */
+}
+.meeting_top_right_contextmenu_content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 0;
+    flex-shrink: 0;
+    overflow: visible;
+    align-items: stretch;
+    background-color: rgba(0, 0, 0, 0);
 }
 .meeting_top_right_contextmenu svg {
     position: absolute;
@@ -330,18 +325,64 @@ body {
     flex: 0 0 auto;
     filter: drop-shadow(rgba(0, 0, 0, 0.1) 0px 6px 16px);
 }
-.meeting_top_right_contextmenu_camera {
+.meeting_top_right_contextmenu_content_dialog {
+    /* position: relative;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 0;
+    flex-shrink: 1;
+    overflow: visible;
+    align-items: stretch; */
+    padding: 6px 3.5px 1px;
+}
+.meeting_top_right_contextmenu_content_dialog span {
+    margin: 0;
+}
+/* .meeting_top_right_contextmenu_camera {
     position: relative;
     display: flex;
     flex-direction: column;
     flex-grow: 0;
     flex-shrink: 0;
     overflow: hidden;
-    align-items: flex-start;
-    width: 100%;
-    /* padding: 3px 25px; */
+    align-items: stretch;
+} */
+.meeting_top_right_contextmenu_camera_menu {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 0;
+    flex-shrink: 0;
+    overflow: hidden;
+    align-items: stretch;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
-.meeting_top_right_contextmenu_camera .video_on {
+.meeting_top_right_contextmenu_camera_menu .video_on {
+    background-color: transparent;
+    border-color: rgba(0, 0, 0, 0);
+    text-align: left;
+    border-width: 0px 0px 0px 2px;
+    min-height: 30px;
+    border-style: solid;
+    padding: 0px;
+    cursor: pointer;
+    outline: none;
+}
+.meeting_top_right_contextmenu_camera_menu .video_on:hover {
+    background-color: rgba(241, 241, 244, 0.5);
+}
+.meeting_top_right_contextmenu_camera_menu .video_on span {
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    font-size: 15px;
+    font-family: "SF Regular", "Segoe System UI Regular", "Segoe UI Regular", sans-serif;
+    font-weight: 400;
+    color: rgb(37, 36, 35);
+    padding-left: 13px;
+    padding-right: 35px;
+}
+.meeting_top_right_contextmenu_camera_menu .video_off {
     position: relative;
     display: flex;
     flex-direction: row;
@@ -357,9 +398,13 @@ body {
     min-height: 30px;
     border-style: solid;
     padding: 0px;
+    outline: none;
     cursor: pointer;
 }
-.meeting_top_right_contextmenu_camera .video_off {
+.meeting_top_right_contextmenu_camera_menu .video_off:hover {
+    background-color: rgba(241, 241, 244, 0.5);
+}
+.meeting_top_right_contextmenu_camera_menu .video_off span {
     position: relative;
     display: inline;
     flex-grow: 1;
@@ -375,23 +420,7 @@ body {
     padding-right: 35px;
     cursor: inherit;
 }
-.meeting_top_right_contextmenu_camera .video_off span {
-    position: relative;
-    display: inline;
-    flex-grow: 1;
-    flex-shrink: 1;
-    overflow: hidden;
-    white-space: pre-wrap;
-    overflow-wrap: break-word;
-    font-size: 15px;
-    font-family: "SF Regular", "Segoe System UI Regular", "Segoe UI Regular", sans-serif;
-    font-weight: 400;
-    color: rgb(37, 36, 35);
-    padding-left: 13px;
-    padding-right: 35px;
-    cursor: inherit;
-}
-.meeting_top_right_contextmenu_camera .video_off i {
+.meeting_top_right_contextmenu_camera_menu .video_off i {
     position: relative;
     display: inline;
     flex-grow: 0;
@@ -408,19 +437,17 @@ body {
     cursor: inherit;
 }
 .meeting_top_right_contextmenu_mic {
-    position: relative;
+    /* position: relative;
     display: flex;
     flex-direction: column;
     flex-grow: 0;
     flex-shrink: 0;
     overflow: hidden;
-    align-items: stretch;
+    align-items: stretch; */
     padding-top: 5px;
     padding-bottom: 5px;
-    width: 100%;
-    padding: 3px 25px;
 }
-.meeting_top_right_contextmenu_mic .microphone {
+.meeting_top_right_contextmenu_mic button {
     position: relative;
     display: flex;
     flex-direction: row;
@@ -437,4 +464,24 @@ body {
     border-style: solid;
     padding: 0px;
     cursor: pointer;
+    outline: none;
+}
+.meeting_top_right_contextmenu_mic button:hover {
+    background-color: rgba(241, 241, 244, 0.5);
+}
+.meeting_top_right_contextmenu_mic span {
+    position: relative;
+    display: inline;
+    flex-grow: 1;
+    flex-shrink: 1;
+    overflow: hidden;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    font-size: 15px;
+    font-family: "SF Regular", "Segoe System UI Regular", "Segoe UI Regular", sans-serif;
+    font-weight: 400;
+    color: rgb(37, 36, 35);
+    padding-left: 13px;
+    padding-right: 35px;
+    cursor: inherit;
 }
