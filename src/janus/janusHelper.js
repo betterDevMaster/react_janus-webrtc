@@ -199,6 +199,7 @@ export default class JanusHelper {
         window.Janus.debug(" ::: Got a local stream :::", stream)
 
         this.mystream = stream
+        console.log("onLocalStream: ================== ", stream, this.janusPlugin.getLocalVolume(), this.janusPlugin.data)
         this.dispatch({ type: "JANUS_STATE", value: "RUNNING" })
         this.dispatch({ type: "JANUS_LOCALSTREAM", value: stream })
     }

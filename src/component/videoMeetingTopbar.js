@@ -11,6 +11,16 @@ export default function VideoMeetingTopbar(props) {
     const [contextMenuPos, setContextMenuPos] = useState({ top: 0, left: 0 })
     const [contextMenuOpen, setContextMenuOpen] = useState(false)
     const _contextMenu = useRef(null)
+    const [cameraInfo, setCameraInfo] = useState(null)
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const data = await fetchDevice()
+            setCameraInfo(data[0].label)
+        }
+
+        fetchData()
+    }, [])
 
     useEffect(() => {
         if (contextMenuOpen || showFullscreenOpen) {
@@ -20,6 +30,22 @@ export default function VideoMeetingTopbar(props) {
             })
         }
     }, [contextMenuOpen, showFullscreenOpen])
+
+    async function fetchDevice() {
+        const data = await navigator.mediaDevices
+            .enumerateDevices()
+            .then(function (devices) {
+                var audio = devices.filter((device) => device.kind === "audioinput")
+                var video = devices.filter((device) => device.kind === "videoinput")
+                return video
+            })
+            .catch(function (error) {
+                // pluginHandle.consentDialog(false)
+                return error
+            })
+        return data
+    }
+
     const handleFullscreen = (e) => {
         setShowFullscreenPos({ left: e.clientX - 80, top: e.clientY })
         e.preventDefault()
@@ -140,8 +166,8 @@ export default function VideoMeetingTopbar(props) {
                 </svg>
                 <div className="meeting_top_right_contextmenu_content_dialog" tabIndex="-1" aria-label="More options">
                     <div className="meeting_top_right_contextmenu_camera_menu">
-                        <button className="video_on" tabIndex="0" aria-label="USB Camera (0c45:62c0)">
-                            <span>USB Camera (0c45:62c0)</span>
+                        <button className="video_on" tabIndex="0" aria-label={cameraInfo}>
+                            <span>{cameraInfo}</span>
                         </button>
                         <button className="video_off" tabIndex="-1" aria-label="Turn video off, selected">
                             <span>Turn video off</span>
