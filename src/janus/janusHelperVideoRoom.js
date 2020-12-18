@@ -86,4 +86,10 @@ export default class JanusHelperVideoRoom extends JanusHelper {
         // this.dispatch({ type: "JANUS_STATE", value: "CONNECTED" })
         this.dispatch({ type: "JANUS_STATE", value: on ? "CONNECTED" : "DISCONNECTED" })
     }
+    togglVideoMute() {
+        super.toggleVideoMute()
+    }
+    togglAudioMute() {
+        super.toggleAudioMute()
+    }
 }

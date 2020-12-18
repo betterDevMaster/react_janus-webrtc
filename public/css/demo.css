@@ -118,6 +118,22 @@
     background-color: rgb(0, 0, 0);
 }
 
+.panel-default > .panel-heading {
+    background-color: transparent;
+    border-color: transparent;
+}
+.panel-default {
+    border: none;
+}
+.panel {
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    position: relative;
+}
+.panel-body {
+    position: relative;
+}
 .rounded {
     border-radius: 5px;
 }

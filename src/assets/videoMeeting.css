@@ -357,6 +357,7 @@ body {
     align-items: stretch;
     padding-top: 5px;
     padding-bottom: 5px;
+    background-color: rgb(184 184 190 / 50%);
 }
 .meeting_top_right_contextmenu_camera_menu .video_on {
     background-color: transparent;
@@ -372,18 +373,19 @@ body {
 .meeting_top_right_contextmenu_camera_menu .video_on:hover {
     background-color: rgba(241, 241, 244, 0.5);
 }
-.meeting_top_right_contextmenu_camera_menu .video_on span {
+.meeting_top_right_contextmenu_camera_menu span {
     white-space: pre-wrap;
     overflow-wrap: break-word;
     font-size: 15px;
     font-family: "SF Regular", "Segoe System UI Regular", "Segoe UI Regular", sans-serif;
     font-weight: 400;
     color: rgb(37, 36, 35);
+    /* background-color: rgba(241, 241, 244, 0.5); */
     padding-left: 13px;
     padding-right: 35px;
 }
 .meeting_top_right_contextmenu_camera_menu .video_off {
-    position: relative;
+    /* position: relative;
     display: flex;
     flex-direction: row;
     flex-grow: 0;
@@ -399,12 +401,44 @@ body {
     border-style: solid;
     padding: 0px;
     outline: none;
+    cursor: pointer; */
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    flex-grow: 0;
+    flex-shrink: 0;
+    overflow: hidden;
+    align-items: center;
+    justify-content: flex-start;
+    background-color: transparent;
+    border-color: rgba(0, 0, 0, 0);
+    text-align: left;
+    border-width: 0px 0px 0px 2px;
+    min-height: 30px;
+    border-style: solid;
+    padding: 0px;
     cursor: pointer;
+    outline: none;
 }
 .meeting_top_right_contextmenu_camera_menu .video_off:hover {
     background-color: rgba(241, 241, 244, 0.5);
 }
 .meeting_top_right_contextmenu_camera_menu .video_off span {
+    /* position: relative;
+    display: inline;
+    flex-grow: 1;
+    flex-shrink: 1;
+    overflow: hidden;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    font-size: 15px;
+    font-family: "SF Regular", "Segoe System UI Regular", "Segoe UI Regular", sans-serif;
+    font-weight: 400;
+    color: rgb(37, 36, 35);
+    padding-left: 13px;
+    padding-right: 35px;
+    cursor: inherit; */
+
     position: relative;
     display: inline;
     flex-grow: 1;
@@ -463,6 +497,7 @@ body {
     min-height: 30px;
     border-style: solid;
     padding: 0px;
+    width: 100%;
     cursor: pointer;
     outline: none;
 }

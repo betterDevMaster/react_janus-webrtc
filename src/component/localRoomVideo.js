@@ -3,7 +3,7 @@ import JanusHelperVideoRoom from "../janus/janusHelperVideoRoom"
 
 export default function LocalRoomVideo(props) {
     const [toggleAudioMute, setToggleAudioMute] = useState(false)
-
+    const [hover, setHover] = useState(false)
     useEffect(() => {
         const update = () => {
             const localVideoDom = document.getElementById("myvideo")
@@ -42,9 +42,20 @@ export default function LocalRoomVideo(props) {
     }
 
     return (
-        <div className="col-md-4">
+        <div className="col-md-4" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
             <div className="panel panel-default">
-                <div className="panel-heading">
+                <div
+                    className="panel-heading"
+                    style={{
+                        display: !hover ? "none" : "block",
+                        position: "absolute",
+                        width: "100%",
+                        padding: "10px 17px",
+                        top: "8px",
+                        zIndex: 1,
+                        color: "burlywood",
+                    }}
+                >
                     <h3 className="panel-title">
                         Local Video
                         <span className="label label-primary" id="publisher">
@@ -141,27 +152,23 @@ export default function LocalRoomVideo(props) {
                                 playsInline
                                 muted="muted"
                             />
-                            <button
-                                className="btn btn-warning btn-xs"
-                                id="mute"
-                                onClick={handleToggleAudioMute}
-                                style={{ position: "absolute", bottom: "0px", left: "0px", margin: "15px" }}
-                            >
-                                {!toggleAudioMute ? "Mute" : "Unmute"}
-                            </button>
-                            <button
-                                className="btn btn-warning btn-xs"
-                                id="unpublish"
-                                onClick={handleUnpublish}
+                            <div
                                 style={{
+                                    display: !hover ? "none" : "flex",
                                     position: "absolute",
-                                    bottom: "0px",
-                                    right: "0px",
-                                    margin: "15px",
+                                    width: "100%",
+                                    padding: "0 31px 0 1px",
+                                    bottom: "17px",
+                                    justifyContent: "space-between",
                                 }}
                             >
-                                Unpublish
-                            </button>
+                                <button className="btn btn-warning btn-xs" id="mute" onClick={handleToggleAudioMute}>
+                                    {!toggleAudioMute ? "Mute" : "Unmute"}
+                                </button>
+                                <button className="btn btn-warning btn-xs" id="unpublish" onClick={handleUnpublish}>
+                                    Unpublish
+                                </button>
+                            </div>
                         </>
                     ) : null}
                 </div>

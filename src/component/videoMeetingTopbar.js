@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react"
 import { useSelector } from "react-redux"
 import * as qs from "query-string"
+import JanusHelperVideoRoom from "../janus/janusHelperVideoRoom"
 
 export default function VideoMeetingTopbar(props) {
     const janusState = useSelector((state) => state.janus)
@@ -12,13 +13,15 @@ export default function VideoMeetingTopbar(props) {
     const [contextMenuOpen, setContextMenuOpen] = useState(false)
     const _contextMenu = useRef(null)
     const [cameraInfo, setCameraInfo] = useState(null)
+    const [toggleAudioMute, setToggleAudioMute] = useState(false)
+    const [toggleVideoMute, setToggleVideoMute] = useState(false)
+    const [contextMenuInfo, setContextMenuInfo] = useState({ type: "", display: "" })
 
     useEffect(() => {
         const fetchData = async () => {
             const data = await fetchDevice()
             setCameraInfo(data[0].label)
         }
-
         fetchData()
     }, [])
 
@@ -56,11 +59,12 @@ export default function VideoMeetingTopbar(props) {
         setShowFullscreenOpen(false)
         props.fullscreen.enter()
     }
-    const handleContextMenu = (e) => {
+    const handleContextMenu = (e, type = "local", display = "You") => {
         setContextMenuPos({ left: e.clientX - 216, top: e.clientY })
 
         e.preventDefault()
         e.stopPropagation()
+        setContextMenuInfo({ ...contextMenuInfo, type: type, display: display })
         contextMenuOpen ? closePicker("ContextMenu") : openPicker("ContextMenu")
     }
     const isAnOutsideClick = (e) => {
@@ -95,7 +99,20 @@ export default function VideoMeetingTopbar(props) {
         window.addEventListener("click", isAnOutsideClick)
         window.addEventListener("keyup", onPickerkeypress)
     }
-
+    const handleUserVideo = (display) => {
+        if (display !== "You") props.onContextMenuInfo("video", display, !toggleVideoMute)
+        else {
+            JanusHelperVideoRoom.getInstance().togglVideoMute()
+            setToggleVideoMute(!toggleVideoMute)
+        }
+    }
+    const handleUserAudio = (display) => {
+        if (display !== "You") props.onContextMenuInfo("audio", display, !toggleAudioMute)
+        else {
+            JanusHelperVideoRoom.getInstance().toggleAudioMute()
+            setToggleAudioMute(!toggleAudioMute)
+        }
+    }
     console.log("janusState: ============== ", janusState)
     return (
         <div className="meeting_top_container">
@@ -111,23 +128,24 @@ export default function VideoMeetingTopbar(props) {
                 {/* <button className="meeting_top_right_addpeople" title="Add people to the call" aria-label="Add people">
                     <i className="fa fa-user-plus" aria-hidden="true"></i>
                 </button> */}
-                <button className="meeting_top_right_me" title="You" aria-label="You" onContextMenu={handleContextMenu}>
+                <button className="meeting_top_right_me" title="You" aria-label="You" onContextMenu={(e) => handleContextMenu(e)}>
                     <p>{query.name}</p>
                     <i className="fa fa-microphone-slash" aria-hidden="true"></i>
                 </button>
                 {janusState.stream.remote &&
                     janusState.stream.remote.map((session, i) => {
-                        return (
-                            <button
-                                className="meeting_top_right_me"
-                                title={session.rfdisplay}
-                                aria-label={session.rfdisplay}
-                                onContextMenu={handleContextMenu}
-                            >
-                                <p>{session.rfdisplay}</p>
-                                <i className="fa fa-microphone-slash" aria-hidden="true"></i>
-                            </button>
-                        )
+                        if (session)
+                            return (
+                                <button
+                                    className="meeting_top_right_me"
+                                    title={session.rfdisplay}
+                                    aria-label={session.rfdisplay}
+                                    onContextMenu={(e) => handleContextMenu(e, "remote", session.rfdisplay)}
+                                >
+                                    <p>{session.rfdisplay}</p>
+                                    <i className="fa fa-microphone-slash" aria-hidden="true"></i>
+                                </button>
+                            )
                     })}
             </div>
             <div
@@ -166,17 +184,24 @@ export default function VideoMeetingTopbar(props) {
                 </svg>
                 <div className="meeting_top_right_contextmenu_content_dialog" tabIndex="-1" aria-label="More options">
                     <div className="meeting_top_right_contextmenu_camera_menu">
-                        <button className="video_on" tabIndex="0" aria-label={cameraInfo}>
-                            <span>{cameraInfo}</span>
-                        </button>
-                        <button className="video_off" tabIndex="-1" aria-label="Turn video off, selected">
-                            <span>Turn video off</span>
+                        {/* <button className="video_on" tabIndex="0" aria-label={cameraInfo}> */}
+                        <span>{cameraInfo}</span>
+                        {/* </button> */}
+                        {/* <button className="video_off" onClick={() => handleUserVideo(contextMenuInfo.display)}>
+                            <span>
+                                {toggleVideoMute ? `Turn ${contextMenuInfo.type} video off` : `Turn ${contextMenuInfo.type} video on`}
+                            </span>
                             <i className="fa fa-angle-down" aria-hidden="true"></i>
-                        </button>
+                        </button> */}
                     </div>
                     <div className="meeting_top_right_contextmenu_mic">
-                        <button tabIndex="-1" aria-label="Unmute microphone">
-                            <span>Unmute microphone</span>
+                        <button onClick={() => handleUserVideo(contextMenuInfo.display)}>
+                            <span>
+                                {toggleVideoMute ? `Turn ${contextMenuInfo.type} video off` : `Turn ${contextMenuInfo.type} video on`}
+                            </span>
+                        </button>
+                        <button onClick={() => handleUserAudio(contextMenuInfo.display)}>
+                            <span>{toggleAudioMute ? `Unmute ${contextMenuInfo.type} mic` : `Mute ${contextMenuInfo.type} mic`}</span>
                         </button>
                     </div>
                 </div>
