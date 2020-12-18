@@ -113,7 +113,7 @@ export default function VideoMeetingTopbar(props) {
             setToggleAudioMute(!toggleAudioMute)
         }
     }
-    console.log("janusState: ============== ", janusState)
+    // console.log("janusState: ============== ", janusState)
     return (
         <div className="meeting_top_container">
             <div className="meeting_top_left_content">

@@ -13,10 +13,20 @@ export default function LandingPage(props) {
     const [showVideo, setShowVidoe] = useState(false)
     const history = useHistory()
     const query = qs.parse(window.location.search)
+    const _invite = useRef(null)
+    const [inviteModalPos, setInviteModalPos] = useState({ top: 0, left: 0 })
 
     useEffect(() => {
         query.room ? setRoomName(query.room) : setRoomName(makeRoom(7))
     }, [query.room])
+    useEffect(() => {
+        if (invite) {
+            setTimeout(function () {
+                window.addEventListener("click", isAnOutsideClick)
+                window.addEventListener("keyup", onPickerkeypress)
+            })
+        }
+    }, [invite])
 
     const handleChange = (e) => {
         setMeetingValue(e.target.value)
@@ -46,7 +56,7 @@ export default function LandingPage(props) {
         return result
     }
     const InviteModal = () => (
-        <div className="inviteModal">
+        <div className="inviteModal" ref={_invite} style={{ left: inviteModalPos.left, top: inviteModalPos.top }}>
             <div className="outerContent">
                 <svg height="197" width="150" role="img">
                     <path
@@ -90,9 +100,9 @@ export default function LandingPage(props) {
         </div>
     )
     const handleStartMeeting = () => {
-        // meetingValue === ""
-        //     ? window.bootbox.alert("Please enter the meeting name.")
-        //     : history.push(`/videoMeeting?room=${roomName}&name=${meetingValue}`)
+        meetingValue === ""
+            ? window.bootbox.alert("Please enter the meeting name.")
+            : history.push(`/videoMeeting?room=${roomName}&name=${meetingValue}`)
         // : history.push(`/videoRoom?room=${roomName}&name=${meetingValue}`)
     }
     const handleVideoClick = () => {
@@ -114,6 +124,33 @@ export default function LandingPage(props) {
                 })
         }
         setShowVidoe(!showVideo)
+    }
+    const isAnOutsideClick = (e) => {
+        let shouldClose
+        if (invite) shouldClose = !_invite || !_invite.current.contains(e.target)
+        if (shouldClose) closePicker("ContextMenu")
+    }
+    const onPickerkeypress = (e) => {
+        if (e.keyCode === 27 || e.which === 27 || e.key === "Escape" || e.code === "Escape") {
+            closePicker()
+        }
+    }
+    const closePicker = () => {
+        setInvite(false)
+        window.removeEventListener("click", isAnOutsideClick)
+        window.removeEventListener("keyup", onPickerkeypress)
+    }
+    const openPicker = () => {
+        setInvite(true)
+        window.addEventListener("click", isAnOutsideClick)
+        window.addEventListener("keyup", onPickerkeypress)
+    }
+    const handleShareInvite = (e) => {
+        setInviteModalPos({ left: e.clientX - 80, top: e.clientY })
+
+        e.preventDefault()
+        e.stopPropagation()
+        invite ? closePicker() : openPicker()
     }
 
     return (
@@ -167,7 +204,7 @@ export default function LandingPage(props) {
                                 <span>{copy ? "Link copied!" : null}</span>
                             </div>
                             <div className="shareLink">
-                                <button title="Share invite" onClick={() => setInvite(!invite)}>
+                                <button title="Share invite" onClick={handleShareInvite}>
                                     <div className="outerContent">
                                         <div className="innerContent">
                                             <span>Share invite</span>
