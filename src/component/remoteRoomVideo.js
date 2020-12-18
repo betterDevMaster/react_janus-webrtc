@@ -110,6 +110,7 @@ export default function RemoteRoomVideo({ session, status, muteInfo }) {
         <div className="no-video-container" style={{ display: !toggleVideoMute ? "none" : "block" }}>
             <i className="fa fa-video-camera fa-5 no-video-icon"></i>
             <span className="no-video-text">No remote video available</span>
+            <VideoFooter />
         </div>
     )
 
