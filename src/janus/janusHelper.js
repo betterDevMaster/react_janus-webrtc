@@ -59,8 +59,10 @@ export default class JanusHelper {
     }
 
     stop() {
-        console.log("session: --------------- ", this.session)
+        // console.log("session: --------------- ", this.session)
         this.session && this.session.destroy()
+        this.session = null
+        this.janusPlugin = null
         this.dispatch({ type: "JANUS_DESTROYED" })
     }
 
@@ -141,7 +143,7 @@ export default class JanusHelper {
     }
 
     onMessage(msg, jsep, result) {
-        console.log("helper: onMessag: --------------- ", msg, jsep, result)
+        // console.log("helper: onMessag: --------------- ", msg, jsep, result)
         if (result) {
             // Video Room
             switch (result) {
@@ -199,7 +201,7 @@ export default class JanusHelper {
         window.Janus.debug(" ::: Got a local stream :::", stream)
 
         this.mystream = stream
-        console.log("onLocalStream: ================== ", stream, this.janusPlugin.getLocalVolume(), this.janusPlugin.data)
+        // console.log("onLocalStream: ================== ", stream, this.janusPlugin.getLocalVolume(), this.janusPlugin.data)
         this.dispatch({ type: "JANUS_STATE", value: "RUNNING" })
         this.dispatch({ type: "JANUS_LOCALSTREAM", value: stream })
     }
@@ -225,9 +227,9 @@ export default class JanusHelper {
 
     onDestroyed() {
         // this.dispatch({ type: "JANUS_DESTROYED" })
-        // this.session && this.session.destroy()
-        // this.session = null
-        // this.janusPlugin = null
+        this.session && this.session.destroy()
+        this.session = null
+        this.janusPlugin = null
         window.location.reload()
     }
 
@@ -476,7 +478,7 @@ export default class JanusHelper {
                         case "event":
                             var substream = msg["substream"]
                             var temporal = msg["temporal"]
-                            console.log("substream: ================== ", substream, temporal)
+                            // console.log("substream: ================== ", substream, temporal)
                             if ((substream !== null && substream !== undefined) || (temporal !== null && temporal !== undefined)) {
                                 if (!remoteFeed.simulcastStarted) {
                                     remoteFeed.simulcastStarted = true
@@ -524,8 +526,8 @@ export default class JanusHelper {
                 // The subscriber stream is recvonly, we don't expect anything here
             },
             onremotestream: (stream) => {
-                // window.Janus.debug("Remote feed #" + remoteFeed.rfindex + ", stream:", stream)
-                if (stream) {
+                window.Janus.debug("Remote feed #" + remoteFeed.rfindex + ", stream:", stream)
+                if (stream && stream !== undefined) {
                     this.feeds[remoteFeed.rfindex].stream = stream
                     this.feeds[remoteFeed.rfindex].videoTracks = stream.getVideoTracks()
 

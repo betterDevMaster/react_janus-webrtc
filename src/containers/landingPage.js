@@ -28,7 +28,8 @@ export default function LandingPage(props) {
     const handleCopy = () => {
         if (meetingValue === "") window.bootbox.alert("Please enter the meeting name.")
         else {
-            navigator.clipboard.writeText(`http://localhost:3000/landing?room=${roomName}`)
+            // navigator.clipboard.writeText(`http://localhost:3000/landing?room=${roomName}`)
+            navigator.clipboard.writeText(`${window.location.protocol}://${window.location.hostname}/landing?room=${roomName}`)
             setCopy(true)
             setTimeout(function () {
                 setCopy(false)
@@ -89,9 +90,9 @@ export default function LandingPage(props) {
         </div>
     )
     const handleStartMeeting = () => {
-        meetingValue === ""
-            ? window.bootbox.alert("Please enter the meeting name.")
-            : history.push(`/videoMeeting?room=${roomName}&name=${meetingValue}`)
+        // meetingValue === ""
+        //     ? window.bootbox.alert("Please enter the meeting name.")
+        //     : history.push(`/videoMeeting?room=${roomName}&name=${meetingValue}`)
         // : history.push(`/videoRoom?room=${roomName}&name=${meetingValue}`)
     }
     const handleVideoClick = () => {
@@ -154,7 +155,9 @@ export default function LandingPage(props) {
                             <div className="copyLink">
                                 <button onClick={handleCopy}>
                                     <i className="fa fa-gg" aria-hidden="true"></i>
-                                    <span>{roomName}</span>
+                                    <span>
+                                        {window.location.hostname}/{roomName}
+                                    </span>
                                     <i
                                         className={!copy ? "fa fa-files-o" : "fa fa-check"}
                                         aria-hidden="true"

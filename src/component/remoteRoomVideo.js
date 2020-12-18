@@ -6,22 +6,22 @@ export default function RemoteRoomVideo({ session, status, muteInfo }) {
     const [toggleVideoMute, setToggleVideoMute] = useState(false)
     const [hover, setHover] = useState(false)
 
-    useEffect(() => {
-        const update = () => {
-            let remoteVideoDom = document.getElementById(`remotevideo${session.rfindex}`)
-            let curresDom = document.getElementById(`curres${session.rfindex}`)
-            let curbitrateDom = document.getElementById(`curbitrate${session.rfindex}`)
+    // useEffect(() => {
+    //     const update = () => {
+    //         let remoteVideoDom = document.getElementById(`remotevideo${session.rfindex}`)
+    //         let curresDom = document.getElementById(`curres${session.rfindex}`)
+    //         let curbitrateDom = document.getElementById(`curbitrate${session.rfindex}`)
 
-            if (session && remoteVideoDom && curresDom && curbitrateDom) {
-                curresDom.innerHTML = remoteVideoDom.videoWidth + "x" + remoteVideoDom.videoHeight
-                curbitrateDom.innerHTML = session.getBitrate()
-            }
-            setTimeout(function () {
-                update()
-            }, 1000)
-        }
-        update()
-    })
+    //         if (session && remoteVideoDom && curresDom && curbitrateDom) {
+    //             curresDom.innerHTML = remoteVideoDom.videoWidth + "x" + remoteVideoDom.videoHeight
+    //             curbitrateDom.innerHTML = session.getBitrate()
+    //         }
+    //         setTimeout(function () {
+    //             update()
+    //         }, 1000)
+    //     }
+    //     update()
+    // })
     useEffect(() => {
         let target = document.getElementById("videoremote" + session.rfindex)
         let remoteVideoDom = document.getElementById(`remotevideo${session.rfindex}`)
