@@ -11,6 +11,7 @@ export default function LandingPage(props) {
     const [roomName, setRoomName] = useState("")
     const [meetingValue, setMeetingValue] = useState("")
     const [showVideo, setShowVidoe] = useState(false)
+    const [enableMic, setEnableMic] = useState(false)
     const history = useHistory()
     const query = qs.parse(window.location.search)
     const _invite = useRef(null)
@@ -102,8 +103,7 @@ export default function LandingPage(props) {
     const handleStartMeeting = () => {
         meetingValue === ""
             ? window.bootbox.alert("Please enter the meeting name.")
-            : history.push(`/videoMeeting?room=${roomName}&name=${meetingValue}`)
-        // : history.push(`/videoRoom?room=${roomName}&name=${meetingValue}`)
+            : history.push(`/videoMeeting?room=${roomName}&name=${meetingValue}&video=${showVideo}&mic=${enableMic}`)
     }
     const handleVideoClick = () => {
         var video = document.querySelector("#videoEle")
@@ -115,7 +115,7 @@ export default function LandingPage(props) {
         //access webcam script
         if (navigator.mediaDevices.getUserMedia) {
             navigator.mediaDevices
-                .getUserMedia({ video: true })
+                .getUserMedia({ audio: true, video: true })
                 .then(function (stream) {
                     video.srcObject = stream
                 })
@@ -124,6 +124,9 @@ export default function LandingPage(props) {
                 })
         }
         setShowVidoe(!showVideo)
+    }
+    const handleAudioClick = () => {
+        setEnableMic(!enableMic)
     }
     const isAnOutsideClick = (e) => {
         let shouldClose
@@ -260,14 +263,19 @@ export default function LandingPage(props) {
                                             </div>
                                         </div>
                                     </button>
-                                    <button className="video" title="Microphone, On/Off">
+                                    <button className="video" title="Microphone, On/Off" onClick={handleAudioClick}>
                                         <div className="videoWrap">
                                             <img src="img/mic-off.png" alt="Video Icon" />
                                             <div className="switchContent">
                                                 <div className="switchSection">
-                                                    <div className="switchBackOff"></div>
+                                                    {/* <div className="switchBackOff"></div> */}
+                                                    <div className={!enableMic ? "switchBackOff" : "switchBackOn"}></div>
                                                 </div>
-                                                <div className="switchBarOff"></div>
+                                                <div className={!enableMic ? "switchBarOff" : "switchBarOn"}></div>
+
+                                                {/* <div className="switchSection">
+                                                    <div className={!enableMic ? "switchBackOff" : "switchBackOn"}></div>
+                                                </div> */}
                                             </div>
                                         </div>
                                     </button>
