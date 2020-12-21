@@ -15379,6 +15379,7 @@ input::-ms-clear {
     float: left;
     background-color: transparent;
     max-width: 160px;
+    padding: 3px 0 0;
 }
 .footer-button__button:active {
     opacity: 0.5;
