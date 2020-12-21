@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from "react"
 import { useHistory } from "react-router-dom"
 import * as qs from "query-string"
 import "../assets/landing.css"
+import { useDispatch } from "react-redux"
 
 export default function LandingPage(props) {
     const [meeting, setMeeting] = useState(false)
@@ -11,10 +12,11 @@ export default function LandingPage(props) {
     const [roomName, setRoomName] = useState("")
     const [meetingValue, setMeetingValue] = useState("")
     const [showVideo, setShowVidoe] = useState(false)
-    const [enableMic, setEnableMic] = useState(false)
+    const [enableMic, setEnableMic] = useState(true)
     const history = useHistory()
     const query = qs.parse(window.location.search)
     const _invite = useRef(null)
+    const dispatch = useDispatch()
     const [inviteModalPos, setInviteModalPos] = useState({ top: 0, left: 0 })
 
     useEffect(() => {
@@ -101,9 +103,9 @@ export default function LandingPage(props) {
         </div>
     )
     const handleStartMeeting = () => {
-        meetingValue === ""
-            ? window.bootbox.alert("Please enter the meeting name.")
-            : history.push(`/videoMeeting?room=${roomName}&name=${meetingValue}&video=${showVideo}&mic=${enableMic}`)
+        meetingValue === "" ? window.bootbox.alert("Please enter the meeting name.") : history.push(`/videoMeeting?room=${roomName}`)
+        // : history.push(`/videoMeeting?room=${roomName}&name=${meetingValue}&video=${showVideo}&mic=${enableMic}`)
+        dispatch({ type: "VIDEO_INIT", video: showVideo, audio: enableMic, name: meetingValue })
     }
     const handleVideoClick = () => {
         var video = document.querySelector("#videoEle")

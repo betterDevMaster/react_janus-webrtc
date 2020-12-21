@@ -6,11 +6,13 @@ import FooterBar from "../component/videoMeetingFooterbar"
 import MeetingVideos from "../component/videoMeetingContent"
 
 import "../assets/videoMeeting2.css"
+import { useSelector } from "react-redux"
 
 export default function VideoMeeingPage(props) {
     const handle = useFullScreenHandle()
     const [showFooterBar, setShowFooterBar] = useState(false)
     const [contextInfo, setContextInfo] = useState({ type: "", display: "", mute: false })
+    const videoState = useSelector((state) => state.video)
 
     return (
         <FullScreen handle={handle}>
@@ -18,8 +20,8 @@ export default function VideoMeeingPage(props) {
                 <div
                     role="presentation"
                     className="meeting-client"
-                    onMouseEnter={() => setShowFooterBar(!showFooterBar)}
-                    onMouseLeave={() => setShowFooterBar(!showFooterBar)}
+                    onMouseEnter={() => setShowFooterBar(true)}
+                    onMouseLeave={() => setShowFooterBar(false)}
                 >
                     <div className="meeting-client-inner">
                         <div id="wc-content">
@@ -125,20 +127,13 @@ export default function VideoMeeingPage(props) {
                                 <div className="main-layout" style={{ display: "block", width: "100%", height: "100%" }}>
                                     <div className="active-video-container">
                                         <div className="active-video-container__wrap" style={{ width: "100%", height: "100%" }}>
-                                            {/* <canvas
-                                                id="main-video"
-                                                className="active-video-container__canvas"
-                                                style={{ display: "none" }}
-                                            ></canvas>
-                                            <canvas
-                                                id="my-video"
-                                                className="active-video-container__canvas"
-                                                style={{ display: "block" }}
-                                            ></canvas> */}
                                             <MeetingVideos contextInfo={contextInfo} />
                                             <div className="active-video-container__avatar">
-                                                <div className="active-video-container__avatar-footer" style={{ bottom: "0px" }}>
-                                                    Senior Dev
+                                                <div
+                                                    className="active-video-container__avatar-footer"
+                                                    style={{ left: "10px", bottom: "30px" }}
+                                                >
+                                                    {videoState.name}
                                                 </div>
                                             </div>
                                         </div>

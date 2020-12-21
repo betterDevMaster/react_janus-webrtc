@@ -21,22 +21,18 @@ export default function VideoMeetingContent(props) {
     useEffect(() => {
         if (janusState.status === "ATTACHED") JanusHelperVideoRoom.getInstance().registerUsername(query.name)
     }, [janusState])
-
+    console.log("janusState: -------------- ", janusState)
     return (
         status1.includes(janusState.status) && (
-            // <div className="container" id="videos">
-            <div id="videos">
-                {/* <div className="row"> */}
+            <div id="videos" style={{ width: "100%", height: "100%" }}>
                 {janusState.stream.local && (
                     <LocalRoomVideo stream={janusState.stream.local} userName={userName} state={janusState.status} />
                 )}
-
                 {janusState.stream.remote &&
                     janusState.stream.remote.map((session, i) => {
                         if (session)
                             return <RemoteRoomVideo key={i} session={session} status={janusState.status} muteInfo={props.contextInfo} />
                     })}
-                {/* </div> */}
             </div>
         )
     )
