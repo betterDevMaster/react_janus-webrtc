@@ -1,34 +1,36 @@
 import React, { useEffect } from "react"
-import { useSelector } from "react-redux"
-// import JanusHelperVideoRoom from "../janus/janusHelperVideoRoom"
 
 export default function LocalRoomVideo(props) {
-    const localVideoDom = document.getElementById("myvideo")
-    const videoState = useSelector((state) => state.video)
     useEffect(() => {
+        localStorage.setItem("publisher", props.name)
         const update = () => {
-            if (props.stream && localVideoDom) {
-                if (localVideoDom.srcObject === null) {
-                    window.Janus.attachMediaStream(localVideoDom, props.stream)
-                }
-            }
+            const localVideoDom = document.getElementById("myvideo")
+            if (props.stream && localVideoDom)
+                if (localVideoDom.srcObject === null) window.Janus.attachMediaStream(localVideoDom, props.stream)
+
             setTimeout(function () {
                 update()
             }, 1000)
         }
         update()
-    }, [props])
+    }, [])
 
     // const handlePublish = () => {
     //     JanusHelperVideoRoom.getInstance().publishOwnFeed(true)
     // }
 
     return (
-        <div id="videolocal" className="videolocal">
-            {props.state === "DISCONNECTED" || !videoState.video ? (
+        <div
+            className={props.select ? "videoremote" : "videolocal"}
+            id="videolocal"
+            style={{ top: props.select ? 20 : 0, right: props.select ? 50 : 0 }}
+        >
+            {props.state === "DISCONNECTED" || !props.video ? (
                 <div className="no-video-container">
-                    <i className="fa fa-video-camera fa-5 no-video-icon"></i>
-                    <span className="no-video-text">No video available</span>
+                    <i className={props.select ? "fa fa-video-camera fa-4" : "fa fa-video-camera fa-5 no-video-icon"}></i>
+                    <span className="no-video-text" style={{ fontSize: props.select ? 18 : 25 }}>
+                        No video available
+                    </span>
                 </div>
             ) : props.state === "RUNNING" ? (
                 <div className="blockingUI">
@@ -37,7 +39,10 @@ export default function LocalRoomVideo(props) {
                     </div>
                 </div>
             ) : props.state === "CONNECTED" ? (
-                <video className="rounded centered" id="myvideo" width="100%" height="100%" autoPlay playsInline />
+                <div className="full">
+                    <video className="rounded centered relative full" id="myvideo" autoPlay playsInline />
+                    {props.select ? <span style={{ position: "absolute", left: "20px", bottom: "15px" }}>Me</span> : null}
+                </div>
             ) : null}
         </div>
     )

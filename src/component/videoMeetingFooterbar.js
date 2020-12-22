@@ -1,21 +1,17 @@
-import React, { useState } from "react"
+import React from "react"
 import { useDispatch, useSelector } from "react-redux"
 
 import "../assets/videoMeeting2.css"
 
 export default function VideoMeetingFooterbar(props) {
-    const [showVideo, setShowVideo] = useState(false)
-    const [enableAudio, setEnableAudio] = useState(false)
     const videoState = useSelector((state) => state.video)
     const dispatch = useDispatch()
 
     const handleToggleAudio = () => {
         dispatch({ type: "VIDEO_ASTATE", audio: !videoState.audio })
-        setEnableAudio(!videoState.audio)
     }
     const handleToggleVideo = () => {
         dispatch({ type: "VIDEO_VSTATE", video: !videoState.video })
-        setShowVideo(!videoState.video)
     }
 
     return (
@@ -35,8 +31,8 @@ export default function VideoMeetingFooterbar(props) {
                             aria-label="mute my microphone"
                             onClick={handleToggleAudio}
                         >
-                            <i className={enableAudio ? "zm-icon zm-icon-voip-unmuted" : "zm-icon zm-icon-voip-muted"}></i>
-                            {enableAudio ? "Mute" : "Unmute"}
+                            <i className={videoState.audio ? "zm-icon zm-icon-voip-unmuted" : "zm-icon zm-icon-voip-muted"}></i>
+                            {videoState.audio ? "Mute" : "Unmute"}
                         </button>
                     </div>
                     <div className="send-video-container">
@@ -47,8 +43,8 @@ export default function VideoMeetingFooterbar(props) {
                             aria-label="stop sending my video"
                             onClick={handleToggleVideo}
                         >
-                            <i className={showVideo ? "zm-icon zm-icon-stop-video" : "zm-icon zm-icon-start-video"}></i>
-                            {showVideo ? "Stop Video" : "Start Video"}
+                            <i className={videoState.video ? "zm-icon zm-icon-stop-video" : "zm-icon zm-icon-start-video"}></i>
+                            {videoState.video ? "Stop Video" : "Start Video"}
                         </button>
                     </div>
                 </div>
@@ -77,7 +73,7 @@ export default function VideoMeetingFooterbar(props) {
                             className="zmu-btn footer__leave-btn ax-outline ellipsis zmu-btn--danger zmu-btn__outline--blue"
                             aria-label=""
                         >
-                            Leave<span className="loading" style={{ display: "none" }}></span>
+                            Leave
                         </button>
                     </div>
                 </div>

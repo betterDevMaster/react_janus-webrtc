@@ -3,6 +3,8 @@ const video = (
         name: "",
         audio: false,
         video: false,
+        select: false,
+        index: 0,
     },
     action
 ) => {
@@ -13,6 +15,8 @@ const video = (
             return { ...state, audio: action.audio }
         case "VIDEO_VSTATE":
             return { ...state, video: action.video }
+        case "VIDEO_SELECT":
+            return { ...state, name: action.name, select: action.select, index: action.index }
         default:
             return state
     }

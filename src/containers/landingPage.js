@@ -44,9 +44,6 @@ export default function LandingPage(props) {
             // navigator.clipboard.writeText(`http://localhost:3000/landing?room=${roomName}`)
             navigator.clipboard.writeText(`${window.location.protocol}://${window.location.hostname}/landing?room=${roomName}`)
             setCopy(true)
-            setTimeout(function () {
-                setCopy(false)
-            }, 2000)
         }
     }
     const makeRoom = (length) => {
@@ -103,9 +100,14 @@ export default function LandingPage(props) {
         </div>
     )
     const handleStartMeeting = () => {
-        meetingValue === "" ? window.bootbox.alert("Please enter the meeting name.") : history.push(`/videoMeeting?room=${roomName}`)
+        if (meetingValue === "") window.bootbox.alert("Please enter the meeting name.")
+        else {
+            dispatch({ type: "VIDEO_INIT", video: showVideo, audio: enableMic, name: meetingValue })
+            history.push(`/videoMeeting?room=${roomName}`)
+            // return <Redirect to={`/videoMeeting?room=${roomName}`} />
+            // return <Redirect push to="/" />
+        }
         // : history.push(`/videoMeeting?room=${roomName}&name=${meetingValue}&video=${showVideo}&mic=${enableMic}`)
-        dispatch({ type: "VIDEO_INIT", video: showVideo, audio: enableMic, name: meetingValue })
     }
     const handleVideoClick = () => {
         var video = document.querySelector("#videoEle")

@@ -59,7 +59,6 @@ export default class JanusHelper {
     }
 
     stop() {
-        // console.log("session: --------------- ", this.session)
         this.session && this.session.destroy()
         this.session = null
         this.janusPlugin = null
@@ -116,23 +115,23 @@ export default class JanusHelper {
 
     onWaitDialog(on) {
         window.Janus.debug("Consent dialog should be " + (on ? "on" : "off") + " now")
-        if (on) {
-            // Darken screen and show hint
-            window.$.blockUI({
-                message: '<div><img src="./img/up_arrow.png"/></div>',
-                css: {
-                    border: "none",
-                    padding: "15px",
-                    backgroundColor: "transparent",
-                    color: "#aaa",
-                    top: "10px",
-                    left: navigator.mozGetUserMedia ? "-100px" : "300px",
-                },
-            })
-        } else {
-            // Restore screen
-            window.$.unblockUI()
-        }
+        // if (on) {
+        //     // Darken screen and show hint
+        //     window.$.blockUI({
+        //         message: '<div><img src="./img/up_arrow.png"/></div>',
+        //         css: {
+        //             border: "none",
+        //             padding: "15px",
+        //             backgroundColor: "transparent",
+        //             color: "#aaa",
+        //             top: "10px",
+        //             left: navigator.mozGetUserMedia ? "-100px" : "300px",
+        //         },
+        //     })
+        // } else {
+        //     // Restore screen
+        //     window.$.unblockUI()
+        // }
     }
 
     onWebrtcStateChange(on) {
@@ -143,7 +142,6 @@ export default class JanusHelper {
     }
 
     onMessage(msg, jsep, result) {
-        // console.log("helper: onMessag: --------------- ", msg, jsep, result)
         if (result) {
             // Video Room
             switch (result) {
@@ -169,6 +167,7 @@ export default class JanusHelper {
             // FIXME Error?
             var error = msg["error"]
             window.bootbox.alert(error)
+
             if (error.indexOf("already taken") > 0) {
                 // FIXME Use status codes...
                 this.dispatch({ type: "JANUS_STATE", value: "ATTACHED" })
@@ -527,12 +526,13 @@ export default class JanusHelper {
             },
             onremotestream: (stream) => {
                 window.Janus.debug("Remote feed #" + remoteFeed.rfindex + ", stream:", stream)
-                if (stream && stream !== undefined) {
+                if (stream && stream !== undefined && this.feeds[remoteFeed.rfindex]) {
                     this.feeds[remoteFeed.rfindex].stream = stream
                     this.feeds[remoteFeed.rfindex].videoTracks = stream.getVideoTracks()
 
                     this.dispatch({ type: "JANUS_REMOTESTREAM", value: this.feeds })
                 }
+                if (!this.feeds[remoteFeed.rfindex]) window.location.href = "/"
             },
             oncleanup: () => {
                 this.removeRemoteStream(remoteFeed.rfindex)

@@ -11,7 +11,6 @@ import { useSelector } from "react-redux"
 export default function VideoMeeingPage(props) {
     const handle = useFullScreenHandle()
     const [showFooterBar, setShowFooterBar] = useState(false)
-    const [contextInfo, setContextInfo] = useState({ type: "", display: "", mute: false })
     const videoState = useSelector((state) => state.video)
 
     return (
@@ -127,13 +126,14 @@ export default function VideoMeeingPage(props) {
                                 <div className="main-layout" style={{ display: "block", width: "100%", height: "100%" }}>
                                     <div className="active-video-container">
                                         <div className="active-video-container__wrap" style={{ width: "100%", height: "100%" }}>
-                                            <MeetingVideos contextInfo={contextInfo} />
+                                            <MeetingVideos />
                                             <div className="active-video-container__avatar">
                                                 <div
                                                     className="active-video-container__avatar-footer"
-                                                    style={{ left: "10px", bottom: "30px" }}
+                                                    style={{ left: "10px", bottom: "20px" }}
                                                 >
                                                     {videoState.name}
+                                                    {/* test */}
                                                 </div>
                                             </div>
                                         </div>

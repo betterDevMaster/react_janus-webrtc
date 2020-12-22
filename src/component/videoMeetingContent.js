@@ -8,7 +8,7 @@ import RemoteRoomVideo from "../component/remoteRoomVideo"
 export default function VideoMeetingContent(props) {
     const dispatch = useDispatch()
     const janusState = useSelector((state) => state.janus)
-    const [userName, setUserName] = useState("")
+    const videoState = useSelector((state) => state.video)
     const query = qs.parse(window.location.search)
 
     const status1 = useMemo(() => ["RUNNING", "CONNECTED", "DISCONNECTED"], [])
@@ -19,20 +19,38 @@ export default function VideoMeetingContent(props) {
     }, [dispatch])
 
     useEffect(() => {
-        if (janusState.status === "ATTACHED") JanusHelperVideoRoom.getInstance().registerUsername(query.name)
+        // if (janusState.status === "ATTACHED") JanusHelperVideoRoom.getInstance().registerUsername(videoState.name)
+        if (janusState.status === "ATTACHED") JanusHelperVideoRoom.getInstance().registerUsername("test")
     }, [janusState])
-    console.log("janusState: -------------- ", janusState)
+
+    // console.log("state: ------------- ", janusState, videoState)
     return (
         status1.includes(janusState.status) && (
-            <div id="videos" style={{ width: "100%", height: "100%" }}>
+            <div id="videos" style={{ width: "100%", height: "100%", position: "relative" }}>
                 {janusState.stream.local && (
-                    <LocalRoomVideo stream={janusState.stream.local} userName={userName} state={janusState.status} />
+                    <LocalRoomVideo
+                        index={videoState.index}
+                        select={videoState.select}
+                        state={janusState.status}
+                        stream={janusState.stream.local}
+                        video={videoState.video}
+                    />
                 )}
+                {/* <div className="remoteContainer"> */}
                 {janusState.stream.remote &&
                     janusState.stream.remote.map((session, i) => {
                         if (session)
-                            return <RemoteRoomVideo key={i} session={session} status={janusState.status} muteInfo={props.contextInfo} />
+                            return (
+                                <RemoteRoomVideo
+                                    key={i}
+                                    index={videoState.index}
+                                    session={session}
+                                    status={janusState.status}
+                                    videoLength={janusState.stream.remote.length}
+                                />
+                            )
                     })}
+                {/* </div> */}
             </div>
         )
     )
