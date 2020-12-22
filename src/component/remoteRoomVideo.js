@@ -25,6 +25,7 @@ export default function RemoteRoomVideo({ session, status, muteInfo, videoLength
     useEffect(() => {
         if (index !== session.rfindex) setVideoSelect(false)
     }, [index])
+
     const NoVideo = () => (
         <div className="no-video-container" style={{ display: !session.videoTracks ? "none" : "flex" }}>
             <i className="fa fa-video-camera fa-4"></i>
@@ -37,7 +38,7 @@ export default function RemoteRoomVideo({ session, status, muteInfo, videoLength
             dispatch({ type: "VIDEO_SELECT", name: session.rfdisplay, select: true, index: session.rfindex })
         }
     }
-    console.log("session.videoTracks: ------------- ", session.videoTracks)
+
     return (
         <div
             className={!videoSelect ? "videoremote" : "videolocal"}

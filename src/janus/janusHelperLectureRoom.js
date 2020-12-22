@@ -1,12 +1,12 @@
 import JanusHelper from "./janusHelper"
 
 export default class JanusHelperLectureRoom extends JanusHelper {
-    static getInstance() {
-        if (!JanusHelperLectureRoom._inst) {
-            JanusHelperLectureRoom._inst = new JanusHelperLectureRoom()
-        }
-        return JanusHelperLectureRoom._inst
-    }
+    // static getInstance() {
+    //     if (!JanusHelperLectureRoom._inst) {
+    //         JanusHelperLectureRoom._inst = new JanusHelperLectureRoom()
+    //     }
+    //     return JanusHelperLectureRoom._inst
+    // }
     init(dispatch, roomType, pluginName) {
         super.init(dispatch, roomType, pluginName)
     }

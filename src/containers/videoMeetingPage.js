@@ -1,5 +1,6 @@
-import React, { useState } from "react"
+import React, { useState, useContext } from "react"
 import { FullScreen, useFullScreenHandle } from "react-full-screen"
+import * as qs from "query-string"
 
 import TopBar from "../component/videoMeetingTopbar"
 import FooterBar from "../component/videoMeetingFooterbar"
@@ -12,6 +13,7 @@ export default function VideoMeeingPage(props) {
     const handle = useFullScreenHandle()
     const [showFooterBar, setShowFooterBar] = useState(false)
     const videoState = useSelector((state) => state.video)
+    const query = qs.parse(window.location.search)
 
     return (
         <FullScreen handle={handle}>
@@ -126,7 +128,7 @@ export default function VideoMeeingPage(props) {
                                 <div className="main-layout" style={{ display: "block", width: "100%", height: "100%" }}>
                                     <div className="active-video-container">
                                         <div className="active-video-container__wrap" style={{ width: "100%", height: "100%" }}>
-                                            <MeetingVideos />
+                                            <MeetingVideos room={query.room} />
                                             <div className="active-video-container__avatar">
                                                 <div
                                                     className="active-video-container__avatar-footer"
@@ -140,7 +142,7 @@ export default function VideoMeeingPage(props) {
                                     </div>
                                 </div>
 
-                                <FooterBar showFooterBar={showFooterBar} />
+                                <FooterBar showFooterBar={showFooterBar} room={query.room} />
                             </div>
                         </div>
                     </div>

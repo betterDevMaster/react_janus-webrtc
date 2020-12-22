@@ -62,15 +62,7 @@
 }
 .loading-Footer h1 span {
     color: #666;
-
-    -webkit-mask-image: -webkit-gradient(
-        linear,
-        left top,
-        left bottom,
-        from(rgba(0, 0, 0, 1)),
-        color-stop(50%, rgba(0, 0, 0, 0.5)),
-        to(rgba(0, 0, 0, 1))
-    );
+    -webkit-mask-image: "-webkit-gradient(linear, left top, left bottom, from(rgba(0, 0, 0, 1)), color-stop(50%, rgba(0, 0, 0, 0.5)), to(rgba(0, 0, 0, 1)))";
 }
 .loading-Footer h1:after {
     color: #d6d6d6;
@@ -149,17 +141,17 @@
 .relative {
     position: relative;
 }
-
+.absolution {
+    position: absolute;
+}
 .navbar-brand {
     margin-left: 0px !important;
 }
-
 .navbar-default {
     -webkit-box-shadow: 0px 3px 5px rgba(100, 100, 100, 0.49);
     -moz-box-shadow: 0px 3px 5px rgba(100, 100, 100, 0.49);
     box-shadow: 0px 3px 5px rgba(100, 100, 100, 0.49);
 }
-
 .navbar-header {
     padding-left: 40px;
 }
@@ -187,7 +179,6 @@
     width: 100%;
     text-align: center;
 }
-
 .divider hr {
     margin-left: auto;
     margin-right: auto;
@@ -245,7 +236,6 @@ div.no-video-container {
     height: 246px;
     text-align: center;
 }
-
 .no-video-text {
     text-align: center;
 }
@@ -291,7 +281,6 @@ pre {
     cursor: wait;
     position: absolute;
 }
-
 .blockingElement {
     z-index: 1011;
     position: relative;
@@ -322,4 +311,10 @@ pre {
     color: #ffffff;
     text-decoration: none;
     background-color: #2fa4e7;
+}
+
+.screenshare {
+    bottom: 100px;
+    left: 100px;
+    width: 50%;
 }

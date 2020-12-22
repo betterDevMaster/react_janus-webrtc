@@ -2,12 +2,12 @@ import JanusHelper from "./janusHelper"
 import $ from "jquery"
 
 export default class JanusHeloperTextRoom extends JanusHelper {
-    static getInstance() {
-        if (!JanusHeloperTextRoom._inst) {
-            JanusHeloperTextRoom._inst = new JanusHeloperTextRoom()
-        }
-        return JanusHeloperTextRoom._inst
-    }
+    // static getInstance() {
+    //     if (!JanusHeloperTextRoom._inst) {
+    //         JanusHeloperTextRoom._inst = new JanusHeloperTextRoom()
+    //     }
+    //     return JanusHeloperTextRoom._inst
+    // }
     init(dispatch, roomType, pluginName) {
         super.init(dispatch, roomType, pluginName)
     }

@@ -1,0 +1,339 @@
+import JanusHelper from "./janusHelper"
+
+export default class JanusHelperScreenShare extends JanusHelper {
+    init(dispatch, roomType, pluginName) {
+        super.init(dispatch, roomType, pluginName)
+    }
+    start(roomName) {
+        this.myroom = roomName
+        this.capture = null
+        this.role = null
+        this.source = null
+
+        super.start()
+    }
+    stop() {
+        super.stop()
+    }
+    onAttach(pluginHandle) {
+        const createRoom = {
+            request: "create",
+            record: false,
+            publishers: JanusHelper.MAX_VIDEOS,
+            description: "New VideoRoom",
+            secret: "adminpwd",
+            room: this.myroom,
+            bitrate: 128000,
+            fir_freq: 10,
+        }
+        pluginHandle.send({ message: createRoom })
+        super.onAttach(pluginHandle, this.pluginName)
+    }
+    registerUsername(username) {
+        var register = {
+            request: "join",
+            room: this.myroom,
+            ptype: "publisher",
+            display: username,
+        }
+        super.registerUsername(username, register)
+    }
+    onMessage(msg, jsep, result) {
+        window.Janus.debug(" ::: Got a message (publisher) :::", msg)
+        var event = msg["videoroom"]
+        window.Janus.debug("Event: " + event)
+        // console.log("ScreenShareHelper: onMessage: ------------- ", msg, jsep, result)
+
+        if (event) {
+            if (event === "joined") {
+                this.myid = msg["id"]
+                // $("#session").html(room)
+                // $("#title").html(msg["description"])
+                window.Janus.log("Successfully joined room " + msg["room"] + " with ID " + this.myid)
+                if (this.role === "publisher") {
+                    // This is our session, publish our stream
+                    window.Janus.debug("Negotiating WebRTC stream for our screen (capture " + this.capture + ")")
+                    this.janusPlugin.createOffer({
+                        media: {
+                            video: this.capture,
+                            audioSend: true,
+                            videoRecv: false,
+                        }, // Screen sharing Publishers are sendonly
+                        success: (jsep) => {
+                            window.Janus.debug("Got publisher SDP!", jsep)
+                            var publish = {
+                                request: "configure",
+                                audio: true,
+                                video: true,
+                            }
+                            this.janusPlugin.send({ message: publish, jsep: jsep })
+                        },
+                        error: (error) => {
+                            window.Janus.error("WebRTC error:", error)
+                            window.bootbox.alert("WebRTC error... " + error.message)
+                        },
+                    })
+                } else {
+                    // We're just watching a session, any feed to attach to?
+                    if (msg["publishers"]) {
+                        window.Janus.debug("Got a list of available publishers/feeds:", msg["publishers"])
+                        this.addRemoteStreams(msg["publishers"])
+                    }
+                }
+            } else if (event === "event") {
+                // Any feed to attach to?
+                if (this.role === "listener" && msg["publishers"]) {
+                    window.Janus.debug("Got a list of available publishers/feeds:", msg["publishers"])
+                    this.addRemoteStreams(msg["publishers"])
+                } else if (msg["leaving"]) {
+                    // One of the publishers has gone away?
+                    var leaving = msg["leaving"]
+                    window.Janus.log("Publisher left: " + leaving)
+                    if (this.role === "listener" && msg["leaving"] === this.source) {
+                        window.bootbox.alert("The screen sharing session is over, the publisher left", function () {
+                            window.location.reload()
+                        })
+                    }
+                } else if (msg["error"]) {
+                    window.bootbox.alert(msg["error"])
+                }
+            }
+        }
+        if (jsep) {
+            window.Janus.debug("Handling SDP as well...", jsep)
+            this.janusPlugin.handleRemoteJsep({ jsep: jsep })
+        }
+    }
+    onWebrtcStateChange(on) {
+        // this.dispatch({ type: "JANUS_STATE", value: "CONNECTED" })
+        this.dispatch({ type: "JANUS_STATE", value: on ? "CONNECTED" : "DISCONNECTED", pluginType: this.pluginType })
+    }
+    onLocalStream(stream) {
+        this.mystream = stream
+        this.dispatch({ type: "JANUS_STATE", value: "RUNNING", pluginType: this.pluginType })
+        this.dispatch({ type: "JANUS_SHAREDLOCALSTREAM", sharedLocal: stream })
+    }
+    onRemoteStream(stream) {
+        window.Janus.debug(" ::: Got a remote stream :::", stream)
+        console.log("screenShare: remoteStream: ================= ", stream, this.mystream)
+        // this.dispatch({ type: "JANUS_SHAREDREMOTESTREAM", sharedRemote: stream })
+    }
+    preShareScreen(username) {
+        if (!window.Janus.isExtensionEnabled()) {
+            window.bootbox.alert(
+                "You're using Chrome but don't have the screensharing extension installed: click <b><a href='https://chrome.google.com/webstore/detail/janus-webrtc-screensharin/hapfgfdkleiggjjpfpenajgdnfckjpaj' target='_blank'>here</a></b> to do so",
+                function () {
+                    window.location.reload()
+                }
+            )
+            return
+        }
+        // Create a new room
+        if (username === "") {
+            window.bootbox.alert("Please insert a description for the room")
+            return
+        }
+        this.capture = "screen"
+        if (navigator.mozGetUserMedia) {
+            // Firefox needs a different constraint for screen and window sharing
+            window.bootbox.dialog({
+                title: "Share whole screen or a window?",
+                message:
+                    "Firefox handles screensharing in a different way: are you going to share the whole screen, or would you rather pick a single window/application to share instead?",
+                buttons: {
+                    screen: {
+                        label: "Share screen",
+                        className: "btn-primary",
+                        callback: () => {
+                            this.capture = "screen"
+                            this.shareScreen(username)
+                        },
+                    },
+                    window: {
+                        label: "Pick a window",
+                        className: "btn-success",
+                        callback: () => {
+                            this.capture = "window"
+                            this.shareScreen(username)
+                        },
+                    },
+                },
+                onEscape: function () {
+                    console.log("ScreenShare: onEscape: ---------- ")
+                },
+            })
+        } else {
+            this.shareScreen(username)
+        }
+    }
+
+    shareScreen(username) {
+        // Create a new room
+        this.role = "publisher"
+        var create = {
+            request: "create",
+            description: username,
+            bitrate: 500000,
+            publishers: 1,
+        }
+        this.janusPlugin.send({
+            message: create,
+            success: (result) => {
+                var event = result["videoroom"]
+                window.Janus.debug("Event: " + event)
+                if (event) {
+                    // Our own screen sharing session has been created, join it
+                    var room = result["room"]
+                    console.log("shareScreen: ================== ", room)
+                    window.Janus.log("Screen sharing session created: " + room)
+                    this.myusername = window.Janus.randomString(12)
+                    var register = {
+                        request: "join",
+                        room: room,
+                        ptype: "publisher",
+                        display: this.myusername,
+                    }
+                    this.janusPlugin.send({ message: register })
+                }
+            },
+        })
+    }
+
+    checkEnterJoin(field, event) {
+        var theCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode
+        if (theCode === 13) {
+            this.joinScreen()
+            return false
+        } else {
+            return true
+        }
+    }
+
+    joinScreen(roomid) {
+        // Join an existing screen sharing session
+        if (isNaN(roomid)) {
+            window.bootbox.alert("Session identifiers are numeric only")
+            return
+        }
+        this.role = "listener"
+        this.myusername = window.Janus.randomString(12)
+        var register = {
+            request: "join",
+            room: roomid,
+            ptype: "publisher",
+            display: this.myusername,
+        }
+        this.janusPlugin.send({ message: register })
+    }
+
+    addRemoteStreams(list) {
+        if (list) {
+            list.forEach((rec) => {
+                this.newRemoteFeed(rec["id"], rec["display"], rec["audio_codec"], rec["video_codec"])
+            })
+        }
+    }
+    removeRemoteStream(remoteId) {
+        var remoteFeed = this.getRemoteFeedById(remoteId)
+        if (remoteFeed != null) {
+            window.Janus.debug("Feed " + remoteFeed.rfid + " (" + remoteFeed.rfdisplay + ") has left the room, detaching")
+            this.feeds[remoteFeed.rfindex] = null
+            remoteFeed.detach()
+            this.dispatch({ type: "JANUS_REMOTESTREAM", remote: this.feeds })
+        }
+    }
+    getRemoteFeedById(remoteId) {
+        var remoteFeed = null
+        for (var i = 1; i < JanusHelper.MAX_VIDEOS; i++) {
+            if (this.feeds[i] && this.feeds[i].rfid === remoteId) {
+                remoteFeed = this.feeds[i]
+                break
+            }
+        }
+        return remoteFeed
+    }
+    newRemoteFeed(id, display, audio, video) {
+        // A new feed has been published, create a new plugin handle and attach to it as a subscriber
+        var remoteFeed = null
+        this.source = id
+        this.session.attach({
+            plugin: this.pluginName,
+            opaqueId: this.opaqueId,
+            success: (pluginHandle) => {
+                remoteFeed = pluginHandle
+                window.Janus.log("Plugin attached! (" + remoteFeed.getPlugin() + ", id=" + remoteFeed.getId() + ")")
+                window.Janus.log("  -- This is a subscriber")
+                // We wait for the plugin to send us an offer
+                var listen = {
+                    request: "join",
+                    room: this.myroom,
+                    ptype: "listener",
+                    feed: id,
+                }
+                remoteFeed.send({ message: listen })
+            },
+            error: (error) => {
+                window.Janus.error("Error attaching plugin in RemoteStream...", error)
+                window.bootbox.alert("Error attaching plugin in RemoteStream... " + error)
+            },
+            onmessage: (msg, jsep) => {
+                window.Janus.debug(" ::: Got a message (listener) :::", msg)
+
+                var event = msg["videoroom"]
+                window.Janus.debug("Event: " + event)
+
+                if (event) {
+                    if (event === "attached") {
+                        // Subscriber created and attached
+                        // this.dispatch({ type: "JANUS_SHAREDREMOTESTREAM", remote: this.feeds })
+                        window.Janus.log("Successfully attached to feed " + id + " (" + display + ") in room " + msg["room"])
+                    } else {
+                        // What has just happened?
+                    }
+                }
+                if (jsep) {
+                    window.Janus.debug("Handling SDP as well...", jsep)
+                    // Answer and attach
+                    remoteFeed.createAnswer({
+                        jsep: jsep,
+                        media: { audioSend: false, videoSend: false }, // We want recvonly audio/video
+                        success: (jsep) => {
+                            window.Janus.debug("Got SDP!", jsep)
+                            var body = { request: "start", room: this.myroom }
+                            remoteFeed.send({ message: body, jsep: jsep })
+                        },
+                        error: (error) => {
+                            window.Janus.error("WebRTC error:", error)
+                            window.bootbox.alert("WebRTC error... " + error.message)
+                        },
+                    })
+                }
+            },
+            iceState: (state) => {
+                window.Janus.log("ICE state of this WebRTC PeerConnection (feed #" + remoteFeed.rfindex + ") changed to " + state)
+            },
+            webrtcState: (on) => {
+                window.Janus.log(
+                    "Janus says this WebRTC PeerConnection (feed #" + remoteFeed.rfindex + ") is " + (on ? "up" : "down") + " now"
+                )
+            },
+            onlocalstream: (stream) => {
+                // The subscriber stream is recvonly, we don't expect anything here
+            },
+            onremotestream: (stream) => {
+                window.Janus.debug("Remote feed #" + remoteFeed.rfindex + ", stream:", stream)
+                if (stream && stream !== undefined && this.feeds[remoteFeed.rfindex]) {
+                    this.feeds[remoteFeed.rfindex].stream = stream
+                    this.feeds[remoteFeed.rfindex].videoTracks = stream.getVideoTracks()
+
+                    // this.dispatch({ type: "JANUS_SHAREDREMOTESTREAM", remote: this.feeds })
+                    this.dispatch({ type: "JANUS_SHAREDREMOTESTREAM", remote: stream })
+                }
+                if (!this.feeds[remoteFeed.rfindex]) window.location.href = "/"
+            },
+            oncleanup: () => {
+                this.removeRemoteStream(remoteFeed.rfindex)
+            },
+        })
+    }
+}

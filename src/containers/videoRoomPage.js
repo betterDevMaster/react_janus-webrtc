@@ -17,9 +17,10 @@ export default function VideoRoomPage(props) {
 
     const status1 = useMemo(() => ["RUNNING", "CONNECTED", "DISCONNECTED"], [])
     const status2 = useMemo(() => ["INITIALIZED", "ATACHED"], [])
-
     useEffect(() => {
-        JanusHelperVideoRoom.getInstance().init(dispatch, "videoRoom", "janus.plugin.videoroom")
+        // JanusHelperVideoRoom.getInstance().init(dispatch, "videoRoom", "janus.plugin.videoroom")
+        window.videoRoomHelper = new JanusHelperVideoRoom()
+        window.videoRoomHelper.init(dispatch, "videoRoom", "janus.plugin.videoroom")
     }, [dispatch])
     useEffect(() => {
         status1.includes(janusState.status) ? setStatusChange(false) : setStatusChange((sts) => !sts)
@@ -29,15 +30,15 @@ export default function VideoRoomPage(props) {
         setStatusChange(!statusChange)
         // JanusHelperVideoRoom.getInstance().start(1234) // string IDS = false in janus conf
         // JanusHelperVideoRoom.getInstance().start("1234") // string IDS = true in janus conf
-        JanusHelperVideoRoom.getInstance().start(query.room)
+        window.videoRoomHelper.start(query.room)
     }
     const handleStop = () => {
-        JanusHelperVideoRoom.getInstance().stop()
+        window.videoRoomHelper.stop()
     }
     const handleCheckEnter = (event) => {
         var theCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode
         if (theCode === 13) {
-            if (event.target.id === "username") JanusHelperVideoRoom.getInstance().registerUsername(event.target.value)
+            if (event.target.id === "username") window.videoRoomHelper.registerUsername(event.target.value)
             return false
         } else {
             return true
@@ -45,7 +46,7 @@ export default function VideoRoomPage(props) {
     }
     const handleRegisterName = () => {
         setStatusChange(!statusChange)
-        JanusHelperVideoRoom.getInstance().registerUsername(userName)
+        window.videoRoomHelper.registerUsername(userName)
     }
 
     return (

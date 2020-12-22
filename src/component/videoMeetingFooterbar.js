@@ -1,27 +1,29 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 
+import JanusHelperScreenShare from "../janus/janusHelperScreenShare"
+
 import "../assets/videoMeeting2.css"
-import JanusHelperVideoRoom from "../janus/janusHelperVideoRoom"
 
 export default function VideoMeetingFooterbar(props) {
     const videoState = useSelector((state) => state.video)
     const dispatch = useDispatch()
 
+    useEffect(() => {
+        window.screenShareHelper = new JanusHelperScreenShare()
+        window.screenShareHelper.init(dispatch, "screenShare", "janus.plugin.videoroom")
+        window.screenShareHelper.start(props.room)
+    }, [])
     const handleToggleAudio = () => {
         dispatch({ type: "VIDEO_ASTATE", audio: !videoState.audio })
     }
     const handleToggleVideo = () => {
         dispatch({ type: "VIDEO_VSTATE", video: !videoState.video })
     }
-    const handleChat = () => {
-        JanusHelperVideoRoom.getInstance().sendData("testfffffffffff")
-        // JanusHelperVideoRoom.getInstance().ondata("testfffffffffff")
-    }
     const handleScreenShare = () => {
-        JanusHelperVideoRoom.getInstance().preShareScreen(videoState.name)
+        // window.screenShareHelper.preShareScreen(videoState.name)
+        window.screenShareHelper.preShareScreen("tester")
     }
-
     return (
         <footer
             role="presentation"
@@ -72,13 +74,7 @@ export default function VideoMeetingFooterbar(props) {
                     <div style={{ display: "inline-block" }}>
                         <aside className="sharing-entry-button-container__mask"></aside>
                     </div>
-                    <button
-                        tabIndex="0"
-                        className="footer-button__button ax-outline"
-                        type="button"
-                        aria-label="open the chat pane"
-                        onClick={handleChat}
-                    >
+                    <button tabIndex="0" className="footer-button__button ax-outline" type="button" aria-label="open the chat pane">
                         <div className="footer-button__img-layer">
                             <div className="footer-button__chat-icon"></div>
                         </div>
