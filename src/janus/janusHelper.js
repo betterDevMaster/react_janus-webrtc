@@ -23,14 +23,18 @@ export default class JanusHelper {
 
     init(dispatch, roomType, pluginName) {
         this.dispatch = dispatch
-        this.pluginName = pluginName
+        this.roomPluginName = pluginName
         this.opaqueId = roomType + "-" + window.Janus.randomString(12)
         this.session = null
         this.mystream = null
+        this.capture = null
+        this.source = null
+        this.screenShareId = ""
         this.myid = ""
         this.mypvtid = ""
         this.myusername = ""
         this.yourusername = ""
+        this.role = ""
         this.feeds = []
         this.bitrateTimer = []
         this.participants = {}
@@ -83,7 +87,7 @@ export default class JanusHelper {
     onInit() {
         // Attach to VideoRoom plugin
         this.session.attach({
-            plugin: this.pluginName, // "janus.plugin.videoroom",
+            plugin: this.roomPluginName, // "janus.plugin.videoroom",
             opaqueId: this.opaqueId,
             success: (pluginHandle) => this.onAttach(pluginHandle),
             error: (error) => this.onError("Error attaching plugin in LocalStream... ", error),
@@ -99,6 +103,7 @@ export default class JanusHelper {
             onlocalstream: (stream) => this.onLocalStream(stream),
             onremotestream: (stream) => this.onRemoteStream(stream),
             ondataopen: (data) => {
+                console.log("onDataOpen: ==================== ", data)
                 window.Janus.log("The DataChannel is available!")
             },
             ondata: (data) => this.onData(data),
@@ -142,14 +147,16 @@ export default class JanusHelper {
     }
 
     onMessage(msg, jsep, result) {
+        console.log("helper: onMessage: =================== ", msg, jsep)
         if (result) {
             // Video Room
             switch (result) {
                 case "joined":
                     this.myid = msg["id"]
                     this.mypvtid = msg["private_id"]
+
                     // set local stream
-                    this.publishOwnFeed(true)
+                    this.publishOwnFeed(true, this.capture)
                     // add remote stream which are already in room
                     this.addRemoteStreams(msg["publishers"])
                     break
@@ -177,7 +184,7 @@ export default class JanusHelper {
         }
 
         if (jsep) {
-            // window.Janus.debug("Handling SDP as well...", jsep)
+            window.Janus.debug("Handling SDP as well...", jsep)
             this.janusPlugin.handleRemoteJsep({ jsep: jsep })
             // Check if any of the media we wanted to publish has
             // been rejected (e.g., wrong or unsupported codec)
@@ -214,6 +221,7 @@ export default class JanusHelper {
 
     onData(data) {
         window.Janus.debug("We got data from the DataChannel!", data)
+        console.log("onData: ========================== ", data)
     }
     onCleanUp() {
         window.Janus.log(" ::: Got a cleanup notification: we are unpublished now :::")
@@ -297,8 +305,33 @@ export default class JanusHelper {
             return
         }
 
-        this.janusPlugin.data({
+        var message = {
+            textroom: "message",
+            transaction: window.Janus.randomString(12),
+            room: this.myroom,
             text: data,
+        }
+        // Note: messages are always acknowledged by default. This means that you'll
+        // always receive a confirmation back that the message has been received by the
+        // server and forwarded to the recipients. If you do not want this to happen,
+        // just add an ack:false property to the message above, and server won't send
+        // you a response (meaning you just have to hope it succeeded).
+        // this.janusPlugin.data({
+        //     text: JSON.stringify(message),
+        //     error: function (reason) {
+        //         window.bootbox.alert(reason)
+        //     },
+        //     success: function () {
+        //         console.log("sendData: success: ================= ", data)
+        //     },
+        // })
+        // videoRoomPlugin.data({
+        //         data: JSON.stringify(`Messaggio n. ${counter}`),
+        //         error: (e) => { console.log(`Errore ${e}`)},
+        //         success: () => { console.log(`Messaggio ${counter} spedito`)}
+        //     });
+        this.janusPlugin.data({
+            data: JSON.stringify(message),
             error: function (reason) {
                 window.bootbox.alert(reason)
             },
@@ -325,17 +358,16 @@ export default class JanusHelper {
         else this.janusPlugin.muteVideo()
     }
 
-    publishOwnFeed(useAudio) {
+    publishOwnFeed(useAudio, capture) {
         // Publish our stream
+        var media =
+            !capture || capture === undefined
+                ? { audioRecv: false, videoRecv: false, audioSend: useAudio, videoSend: true, data: true }
+                : { video: capture, audioSend: true, videoRecv: false }
+        console.log("publishOwnFeed: ---------------- ", capture, media)
         this.janusPlugin.createOffer({
             // Add data:true here if you want to publish datachannels as well
-            media: {
-                audioRecv: false,
-                videoRecv: false,
-                audioSend: useAudio,
-                videoSend: true,
-                // data: true,
-            }, // Publishers are sendonly
+            media: media, // Publishers are sendonly
             // If you want to test simulcasting (Chrome and Firefox only), then
             // pass a ?simulcast=true when opening this demo page: it will turn
             // the following 'simulcast' property to pass to janus.js to true
@@ -355,6 +387,9 @@ export default class JanusHelper {
                 // allowed codecs in a room. With respect to the point (2) above,
                 // refer to the text in janus.plugin.videoroom.jcfg for more details
                 this.janusPlugin.send({ message: publish, jsep: jsep })
+
+                // var body = { request: "ack" }
+                // this.janusPlugin.send({ message: body, jsep: jsep })
             },
             error: (error) => {
                 window.Janus.error("WebRTC error:", error)
@@ -414,7 +449,7 @@ export default class JanusHelper {
         // A new feed has been published, create a new plugin handle and attach to it as a subscriber
         var remoteFeed = null
         this.session.attach({
-            plugin: this.pluginName,
+            plugin: this.roomPluginName,
             opaqueId: this.opaqueId,
             success: (pluginHandle) => {
                 remoteFeed = pluginHandle
@@ -498,6 +533,7 @@ export default class JanusHelper {
                     // Answer and attach
                     remoteFeed.createAnswer({
                         jsep: jsep,
+                        media: { data: true },
                         // Add data:true here if you want to subscribe to datachannels as well
                         // (obviously only works if the publisher offered them in the first place)
                         media: { audioSend: false, videoSend: false }, // We want recvonly audio/video

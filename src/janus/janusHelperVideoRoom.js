@@ -43,7 +43,7 @@ export default class JanusHelperVideoRoom extends JanusHelper {
     }
     onMessage(msg, jsep) {
         var result = msg["videoroom"]
-        // console.log("RoomHelper: onMessage: ------------- ", msg, jsep, result)
+        console.log("RoomHelper: onMessage: ------------- ", msg, jsep, result)
         switch (result) {
             case "event":
                 if (msg["publishers"]) {
@@ -82,8 +82,37 @@ export default class JanusHelperVideoRoom extends JanusHelper {
         }
         super.onMessage(msg, jsep, result)
     }
+    onData(data) {
+        window.Janus.debug("We got data from the DataChannel!", data)
+        //~ $('#datarecv').val(data);
+        console.log("Room: onData: =============== ", data)
+        var json = JSON.parse(data)
+        var transaction = json["transaction"]
+        if (this.transactions[transaction]) {
+            // Someone was waiting for this
+            this.transactions[transaction](json)
+            delete this.transactions[transaction]
+            return
+        }
+        var what = json["textroom"]
+        super.onData()
+    }
     onWebrtcStateChange(on) {
         // this.dispatch({ type: "JANUS_STATE", value: "CONNECTED" })
+        window.Janus.log("Janus says our WebRTC PeerConnection is " + (on ? "up" : "down") + " now")
+        if (on) {
+            window.bootbox.alert(
+                "Your screen sharing session just started: pass the <b>" +
+                    this.screenShareId +
+                    "</b> session identifier to those who want to attend."
+            )
+        } else {
+            window.bootbox.alert("Your screen sharing session just stopped.", function () {
+                window.janus.destroy()
+                window.location.reload()
+            })
+        }
+
         this.dispatch({ type: "JANUS_STATE", value: on ? "CONNECTED" : "DISCONNECTED" })
     }
     togglVideoMute() {
@@ -91,5 +120,93 @@ export default class JanusHelperVideoRoom extends JanusHelper {
     }
     togglAudioMute() {
         super.toggleAudioMute()
+    }
+    preShareScreen(username) {
+        if (!window.Janus.isExtensionEnabled()) {
+            window.bootbox.alert(
+                "You're using Chrome but don't have the screensharing extension installed: click <b><a href='https://chrome.google.com/webstore/detail/janus-webrtc-screensharin/hapfgfdkleiggjjpfpenajgdnfckjpaj' target='_blank'>here</a></b> to do so",
+                function () {
+                    window.location.reload()
+                }
+            )
+            return
+        }
+
+        this.capture = "screen"
+        if (navigator.mozGetUserMedia) {
+            // Firefox needs a different constraint for screen and window sharing
+            window.bootbox.dialog({
+                title: "Share whole screen or a window?",
+                message:
+                    "Firefox handles screensharing in a different way: are you going to share the whole screen, or would you rather pick a single window/application to share instead?",
+                buttons: {
+                    screen: {
+                        label: "Share screen",
+                        className: "btn-primary",
+                        callback: () => {
+                            this.capture = "screen"
+                            this.shareScreen(username)
+                        },
+                    },
+                    window: {
+                        label: "Pick a window",
+                        className: "btn-success",
+                        callback: () => {
+                            this.capture = "window"
+                            this.shareScreen(username)
+                        },
+                    },
+                },
+                onEscape: function () {
+                    console.log("screenShare: onEscape: =============== ")
+                },
+            })
+        } else {
+            this.shareScreen(username)
+        }
+    }
+    shareScreen(username) {
+        // Create a new room
+        this.role = "publisher"
+        var create = {
+            request: "create",
+            description: username,
+            bitrate: 500000,
+            publishers: 1,
+        }
+        this.janusPlugin.send({
+            message: create,
+            success: (result) => {
+                var event = result["videoroom"]
+                window.Janus.debug("Event: " + event)
+                console.log("shareScreen: ----------------- ", result)
+                if (event) {
+                    // Our own screen sharing session has been created, join it
+                    // var room = result["room"]
+                    this.screenShareId = result["room"]
+                    window.Janus.log("Screen sharing session created: " + this.screenShareId)
+                    // this.myusername = randomString(12)
+                    var register = {
+                        request: "join",
+                        room: this.screenShareId,
+                        ptype: "publisher",
+                        display: this.myusername,
+                    }
+                    this.janusPlugin.send({ message: register })
+                }
+            },
+        })
+    }
+    joinScreen() {
+        // Join an existing screen sharing session
+        this.role = "listener"
+        // myusername = randomString(12)
+        var register = {
+            request: "join",
+            room: this.screenShareId,
+            ptype: "publisher",
+            display: this.myusername,
+        }
+        this.janusPlugin.send({ message: register })
     }
 }

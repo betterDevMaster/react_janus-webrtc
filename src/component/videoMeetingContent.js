@@ -20,7 +20,9 @@ export default function VideoMeetingContent(props) {
 
     useEffect(() => {
         // if (janusState.status === "ATTACHED") JanusHelperVideoRoom.getInstance().registerUsername(videoState.name)
-        if (janusState.status === "ATTACHED") JanusHelperVideoRoom.getInstance().registerUsername("test")
+        if (janusState.status === "ATTACHED") {
+            JanusHelperVideoRoom.getInstance().registerUsername("test")
+        }
     }, [janusState])
 
     // console.log("state: ------------- ", janusState, videoState)
