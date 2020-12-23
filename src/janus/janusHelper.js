@@ -87,7 +87,6 @@ export default class JanusHelper {
             onremotestream: (stream) => this.onRemoteStream(stream),
             ondataopen: (data) => {
                 window.Janus.log("The DataChannel is available!")
-                console.log("Helper: onDataOpen: ============= ", data)
             },
             ondata: (data) => this.onData(data),
             oncleanup: () => this.onCleanUp(),
@@ -95,7 +94,6 @@ export default class JanusHelper {
     }
     onAttach(pluginHandle, pluginName) {
         this.janusPlugin = pluginHandle
-        // console.log("onAttach: ================= ", pluginHandle, this.pluginName)
         window.Janus.log("Plugin attached! (" + this.janusPlugin.getPlugin() + ", id=" + this.janusPlugin.getId() + ")")
         this.dispatch({ type: "JANUS_STATE", value: "ATTACHED", pluginType: this.pluginType })
     }
@@ -126,7 +124,6 @@ export default class JanusHelper {
         // this.dispatch({ type: "JANUS_STATE", value: on ? "CONNECTED" : "DISCONNECTED" })
     }
     onMessage(msg, jsep, result) {
-        console.log("Helper: onMessage: ------------- ", msg, jsep, result)
         if (result) {
             // Video Room
             switch (result) {
@@ -265,22 +262,7 @@ export default class JanusHelper {
             },
         })
     }
-    sendData(data) {
-        if (data === "") {
-            window.bootbox.alert("Insert a message to send on the DataChannel to your peer")
-            return
-        }
 
-        this.janusPlugin.data({
-            text: data,
-            error: function (reason) {
-                window.bootbox.alert(reason)
-            },
-            success: function () {
-                window.Janus.log("Data send Success.")
-            },
-        })
-    }
     doHangup() {
         // Hangup a call
         var hangup = { request: "hangup" }

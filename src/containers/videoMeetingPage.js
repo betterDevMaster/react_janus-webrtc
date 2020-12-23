@@ -24,17 +24,17 @@ export default function VideoMeeingPage(props) {
         if (!window.screenShareHelper) {
             window.screenShareHelper = new JanusHelperScreenShare()
             window.screenShareHelper.init(dispatch, "screenShare", "janus.plugin.videoroom")
-            window.screenShareHelper.start(videoState.name + "_screenShare")
+            window.screenShareHelper.start(query.room + "_screenShare", query.name)
         }
         if (!window.textRoomHelper) {
             window.textRoomHelper = new JanusHelperTextRoom()
             window.textRoomHelper.init(dispatch, "textRoom", "janus.plugin.textroom")
-            window.textRoomHelper.start(videoState.name + "_textRoom")
+            window.textRoomHelper.start(query.room + "_textRoom", query.name)
         }
         if (!window.roomHelper) {
             window.roomHelper = new JanusHelperVideoRoom()
             window.roomHelper.init(dispatch, "videoRoom", "janus.plugin.videoroom")
-            window.roomHelper.start(videoState.name)
+            window.roomHelper.start(query.room + "_videoRoom", query.name)
         }
     }, [])
 

@@ -27,7 +27,7 @@ export default function RemoteRoomVideo({ session, status, muteInfo, videoLength
     }, [index])
 
     const NoVideo = () => (
-        <div className="no-video-container" style={{ display: !session.videoTracks ? "none" : "flex" }}>
+        <div className="no-video-container" style={{ display: session.videoTracks && session.videoTracks.length !== 0 ? "none" : "flex" }}>
             <i className="fa fa-video-camera fa-4"></i>
             <span className="no-video-text">No remote video available</span>
         </div>
@@ -38,7 +38,8 @@ export default function RemoteRoomVideo({ session, status, muteInfo, videoLength
             dispatch({ type: "VIDEO_SELECT", name: session.rfdisplay, select: true, index: session.rfindex })
         }
     }
-
+    // console.log("videoTrack: ------------- ", session)
+    // console.log("videoTrack: ------------- ", session.videoTracks, session.videoTracks.length)
     return (
         <div
             className={!videoSelect ? "videoremote" : "videolocal"}
@@ -46,9 +47,26 @@ export default function RemoteRoomVideo({ session, status, muteInfo, videoLength
             style={{ top: session.rfindex < index ? session.rfindex * 165 + 20 : (session.rfindex - 1) * 165 + 20, right: 50 }}
             onClick={handleRemoteVideo}
         >
-            <video className="rounded centered relative full" id={`remotevideo${session.rfindex}`} autoPlay playsInline></video>
-            {!videoSelect ? <span style={{ position: "absolute", left: "20px", bottom: "15px" }}>{session.rfdisplay}</span> : null}
-            {/* <NoVideo /> */}
+            <video
+                className="rounded centered relative full"
+                style={{ display: session.videoTracks && session.videoTracks.length === 0 ? "none" : "flex" }}
+                id={`remotevideo${session.rfindex}`}
+                autoPlay
+                playsInline
+            ></video>
+            {!videoSelect ? (
+                <span
+                    style={{
+                        position: "absolute",
+                        left: "20px",
+                        top: "15px",
+                        // top: session.videoTracks && session.videoTracks.length === 0 ? "10px" : "none",
+                    }}
+                >
+                    {session.rfdisplay}
+                </span>
+            ) : null}
+            <NoVideo />
         </div>
     )
 }

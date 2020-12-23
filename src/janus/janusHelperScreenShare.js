@@ -4,8 +4,9 @@ export default class JanusHelperScreenShare extends JanusHelper {
     init(dispatch, roomType, pluginName) {
         super.init(dispatch, roomType, pluginName)
     }
-    start(roomName) {
+    start(roomName, username) {
         this.myroom = roomName
+        this.myusername = username
         this.capture = null
         this.role = null
         this.source = null
@@ -49,7 +50,6 @@ export default class JanusHelperScreenShare extends JanusHelper {
                             video: this.capture,
                             audioSend: true,
                             videoRecv: false,
-                            // data: true,
                         }, // Screen sharing Publishers are sendonly
                         success: (jsep) => {
                             window.Janus.debug("Got publisher SDP!", jsep)
@@ -93,20 +93,6 @@ export default class JanusHelperScreenShare extends JanusHelper {
         }
         if (jsep) {
             window.Janus.debug("Handling SDP as well...", jsep)
-            // console.log("screenShare: onMessage: jsep: ================= ", jsep)
-            // this.janusPlugin.createAnswer({
-            //     jsep: jsep,
-            //     media: { audio: false, video: false, data: true }, // We only use datachannels
-            //     success: (jsep) => {
-            //         window.Janus.debug("Got SDP!", jsep)
-            //         var body = { request: "ack" }
-            //         this.janusPlugin.send({ message: body, jsep: jsep })
-            //     },
-            //     error: (error) => {
-            //         window.Janus.error("WebRTC error:", error)
-            //         window.bootbox.alert("WebRTC error... " + error.message)
-            //     },
-            // })
             this.janusPlugin.handleRemoteJsep({ jsep: jsep })
         }
     }
@@ -140,9 +126,6 @@ export default class JanusHelperScreenShare extends JanusHelper {
     }
     onData(data) {
         window.Janus.debug("We got data from the JanusHelper!", data)
-        console.log("screenHelper: ============ ", data)
-
-        this.dispatch({ type: "JANUS_MESSAGE", message: data })
     }
     preShareScreen(username) {
         if (!window.Janus.isExtensionEnabled()) {
@@ -211,7 +194,7 @@ export default class JanusHelperScreenShare extends JanusHelper {
                     // Our own screen sharing session has been created, join it
                     this.room = result["room"]
                     window.Janus.log("Screen sharing session created: " + this.room)
-                    this.myusername = window.Janus.randomString(12)
+                    // this.myusername = window.Janus.randomString(12)
                     var register = {
                         request: "join",
                         room: this.room,

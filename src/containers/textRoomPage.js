@@ -17,7 +17,8 @@ export default function TextRoomPage(props) {
     const status2 = useMemo(() => ["INITIALIZED", "ATACHED"], [])
 
     useEffect(() => {
-        JanusHelperTextRoom.getInstance().init(dispatch, "textRoom", "janus.plugin.textroom")
+        window.textRoomHelper = new JanusHelperTextRoom()
+        window.textRoomHelper.init(dispatch, "textRoom", "janus.plugin.textroom")
     }, [dispatch])
     useEffect(() => {
         status1.includes(janusState.status) ? setStatusChange(false) : setStatusChange((sts) => !sts)
@@ -25,18 +26,18 @@ export default function TextRoomPage(props) {
 
     const handleStart = () => {
         setStatusChange(!statusChange)
-        // JanusHelperTextRoom.getInstance().start(1234) // string IDS = false in janus conf
-        // JanusHelperTextRoom.getInstance().start("1234") // string IDS = true in janus conf
-        JanusHelperTextRoom.getInstance().start(query.room)
+        // window.textRoomHelper.start(1234) // string IDS = false in janus conf
+        // window.textRoomHelper.start("1234") // string IDS = true in janus conf
+        window.textRoomHelper.start(query.room + "textRoom")
     }
     const handleStop = () => {
-        JanusHelperTextRoom.getInstance().stop()
+        window.textRoomHelper.stop()
     }
     const handleCheckEnter = (event) => {
         var theCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode
         if (theCode === 13) {
-            if (event.target.id === "username") JanusHelperTextRoom.getInstance().registerUsername(event.target.value)
-            else if (event.target.id === "datasend") JanusHelperTextRoom.getInstance().sendData()
+            if (event.target.id === "username") window.textRoomHelper.registerUsername(event.target.value)
+            else if (event.target.id === "datasend") window.textRoomHelper.sendData()
             return false
         } else {
             return true
@@ -44,7 +45,7 @@ export default function TextRoomPage(props) {
     }
     const handleRegister = () => {
         setStatusChange(!statusChange)
-        JanusHelperTextRoom.getInstance().registerUsername(userName)
+        window.textRoomHelper.registerUsername(userName)
     }
 
     return (
@@ -147,13 +148,13 @@ export default function TextRoomPage(props) {
                                 </div>
                             </div>
                         )}
-                        <div className="container hide" id="room">
+                        <div className="container " id="room">
                             <div className="row">
                                 <div className="col-md-4">
                                     <div className="panel panel-default">
                                         <div className="panel-heading">
                                             <h3 className="panel-title">
-                                                Participants <span className="label label-info hide" id="participant"></span>
+                                                Participants <span className="label label-info " id="participant"></span>
                                             </h3>
                                         </div>
                                         <div className="panel-body">
@@ -179,7 +180,7 @@ export default function TextRoomPage(props) {
                                                     autoComplete="off"
                                                     id="datasend"
                                                     onKeyPress={(e) => handleCheckEnter(e)}
-                                                    disabled
+                                                    // disabled
                                                 />
                                             </div>
                                         </div>

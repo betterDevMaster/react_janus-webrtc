@@ -4,8 +4,9 @@ export default class JanusHelperVideoRoom extends JanusHelper {
     init(dispatch, roomType, pluginName) {
         super.init(dispatch, roomType, pluginName)
     }
-    start(roomName) {
+    start(roomName, username) {
         this.myroom = roomName // Demo room
+        this.myusername = username
         super.start()
     }
     stop() {
@@ -27,7 +28,6 @@ export default class JanusHelperVideoRoom extends JanusHelper {
             window.bootbox.alert("Input is not alphanumeric")
             return
         }
-        this.myusername = username
         this.janusPlugin.send({ message: register })
         // super.registerUsername(username, register)
     }
@@ -48,7 +48,6 @@ export default class JanusHelperVideoRoom extends JanusHelper {
     }
     onMessage(msg, jsep) {
         var result = msg["videoroom"]
-        // console.log("RoomHelper: onMessage: ------------- ", msg, jsep, result)
         switch (result) {
             case "event":
                 if (msg["publishers"]) {
@@ -102,6 +101,9 @@ export default class JanusHelperVideoRoom extends JanusHelper {
         this.feeds[0].stream = stream
         this.dispatch({ type: "JANUS_REMOTESTREAM", remote: this.feeds })
     }
+    onData(data) {
+        window.Janus.debug("We got data from the JanusHelper!", data)
+    }
     toggleAudioMute() {
         var muted = this.janusPlugin.isAudioMuted()
         window.Janus.log((muted ? "Unmuting" : "Muting") + "in audio stream...")
@@ -123,7 +125,6 @@ export default class JanusHelperVideoRoom extends JanusHelper {
                 videoRecv: false,
                 audioSend: useAudio,
                 videoSend: true,
-                // data: true,
             }, // Publishers are sendonly
             // If you want to test simulcasting (Chrome and Firefox only), then
             // pass a ?simulcast=true when opening this demo page: it will turn

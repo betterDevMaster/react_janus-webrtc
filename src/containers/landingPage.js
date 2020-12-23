@@ -109,22 +109,23 @@ export default function LandingPage(props) {
         else {
             dispatch({ type: "VIDEO_INIT", video: showVideo, audio: enableMic, name: meetingValue })
 
-            // if (!window.screenShareHelper) {
-            //     window.screenShareHelper = new JanusHelperScreenShare()
-            //     window.screenShareHelper.init(dispatch, "screenShare", "janus.plugin.videoroom")
-            //     window.screenShareHelper.start(roomName + "_screenShare")
-            // }
-            // if (!window.textRoomHelper) {
-            //     window.textRoomHelper = new JanusHelperTextRoom()
-            //     window.textRoomHelper.init(dispatch, "textRoom", "janus.plugin.textroom")
-            //     window.textRoomHelper.start(roomName + "_textRoom")
-            // }
-            // if (!window.roomHelper) {
-            //     window.roomHelper = new JanusHelperVideoRoom()
-            //     window.roomHelper.init(dispatch, "videoRoom", "janus.plugin.videoroom")
-            //     window.roomHelper.start(roomName)
-            // }
-            history.push(`/videoMeeting?room=${roomName}`)
+            if (!window.screenShareHelper) {
+                window.screenShareHelper = new JanusHelperScreenShare()
+                window.screenShareHelper.init(dispatch, "screenShare", "janus.plugin.videoroom")
+                window.screenShareHelper.start(roomName + "_screenShare", meetingValue)
+            }
+            if (!window.textRoomHelper) {
+                window.textRoomHelper = new JanusHelperTextRoom()
+                window.textRoomHelper.init(dispatch, "textRoom", "janus.plugin.textroom")
+                window.textRoomHelper.start(roomName + "_textRoom", meetingValue)
+            }
+            if (!window.roomHelper) {
+                window.roomHelper = new JanusHelperVideoRoom()
+                window.roomHelper.init(dispatch, "videoRoom", "janus.plugin.videoroom")
+                window.roomHelper.start(roomName + "_videoRoom", meetingValue)
+            }
+            // history.push(`/videoMeeting?room=${roomName}`)
+            history.push(`/videoMeeting?room=${roomName}&name=${meetingValue}`)
         }
     }
     const handleVideoClick = () => {

@@ -5,8 +5,10 @@ export default class JanusHeloperTextRoom extends JanusHelper {
     init(dispatch, roomType, pluginName) {
         super.init(dispatch, roomType, pluginName)
     }
-    start(roomName) {
+    start(roomName, username) {
         this.myroom = roomName // Demo room
+        this.myusername = username
+
         super.start()
     }
     stop() {
@@ -35,8 +37,9 @@ export default class JanusHeloperTextRoom extends JanusHelper {
             username: this.myid,
             display: username,
         }
-        this.myusername = username
+
         this.transactions[transaction] = (response) => {
+            console.log("transactions: ----------------------- ", this.transactions, response)
             if (response["textroom"] === "error") {
                 // Something went wrong
                 if (response["error_code"] === 417) {
@@ -62,7 +65,7 @@ export default class JanusHeloperTextRoom extends JanusHelper {
                 for (var i in response.participants) {
                     var p = response.participants[i]
                     this.participants[p.username] = p.display ? p.display : p.username
-                    // console.log("Participants: ----------------------- ", this.participants, p, this.myid, $("#rp" + p.username).length)
+                    console.log("Participants: ----------------------- ", this.participants, p, this.myid)
                     if (p.username !== this.myid && $("#rp" + p.username).length === 0) {
                         // Add to the participants list
                         $("#list").append(
@@ -83,22 +86,19 @@ export default class JanusHeloperTextRoom extends JanusHelper {
                 }
             }
         }
-        console.log("textroom: helper: =============== ", this.janusPlugin)
+        // console.log("textroom: helper: registerUsername: =============== ", register, this.janusPlugin)
         this.janusPlugin.data({
             text: JSON.stringify(register),
             error: (reason) => {
                 window.bootbox.alert(reason)
-                $("#username").removeAttr("disabled").val("")
-                $("#register").removeAttr("disabled").click(this.registerUsername)
+                // $("#username").removeAttr("disabled").val("")
+                // $("#register").removeAttr("disabled").click(this.registerUsername)
             },
         })
 
         // super.registerUsername(username, register)
     }
     onMessage(msg, jsep) {
-        console.log("textRoom: Message: -------------- ", msg, jsep)
-        var plugin = this.janusPlugin
-
         window.Janus.debug(" ::: Got a message :::", msg)
         if (msg["error"]) {
             window.bootbox.alert(msg["error"])
@@ -110,7 +110,7 @@ export default class JanusHeloperTextRoom extends JanusHelper {
                 success: (jsep) => {
                     window.Janus.debug("Got SDP!", jsep)
                     var body = { request: "ack" }
-                    plugin.send({ message: body, jsep: jsep })
+                    this.janusPlugin.send({ message: body, jsep: jsep })
                 },
                 error: (error) => {
                     window.Janus.error("WebRTC error:", error)
@@ -130,11 +130,11 @@ export default class JanusHeloperTextRoom extends JanusHelper {
             return
         }
         var what = json["textroom"]
-        console.log("onData: ---------------- ", this.participants, json["display"], what)
         var _this = this
         var msg = json["text"]
         var dateString = this.getDateString(json["date"])
         var username = json["username"]
+        console.log("onData: ---------------- ", data, this.participants, msg, dateString, username)
         // var when = new Date()
         if (what === "message") {
             // Incoming message: public or private?
@@ -207,7 +207,10 @@ export default class JanusHeloperTextRoom extends JanusHelper {
             })
         }
     }
-    onWebrtcStateChange(on) {}
+    onWebrtcStateChange(on) {
+        // console.log("onWebRTCState: ============ ", on)
+        if (on) this.registerUsername(this.myusername)
+    }
     getDateString(jsonDate) {
         var when = new Date()
         if (jsonDate) {
@@ -250,8 +253,9 @@ export default class JanusHeloperTextRoom extends JanusHelper {
         return
     }
 
-    sendData() {
-        var data = $("#datasend").val()
+    sendData(userdata) {
+        var data = userdata !== "" ? userdata : $("#datasend").val()
+        // var data = "sdfsdfsdf"
         if (data === "") {
             window.bootbox.alert("Insert a message to send on the DataChannel")
             return
@@ -265,10 +269,10 @@ export default class JanusHeloperTextRoom extends JanusHelper {
         this.janusPlugin.data({
             text: JSON.stringify(message),
             error: function (reason) {
-                this.bootbox.alert(reason)
+                window.bootbox.alert(reason)
             },
             success: function () {
-                $("#datasend").val("")
+                console.log("textHelper: sendData: success: ================", this.myroom)
             },
         })
     }

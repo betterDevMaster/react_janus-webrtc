@@ -229,12 +229,17 @@ div.no-video-container {
     position: relative;
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .no-video-icon {
     width: 100%;
     height: 246px;
     text-align: center;
+}
+.no-video-small-icon {
+    width: 55%;
 }
 .no-video-text {
     text-align: center;

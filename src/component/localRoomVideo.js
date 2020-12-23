@@ -30,7 +30,8 @@ export default function LocalRoomVideo(props) {
         >
             {props.janusState === "DISCONNECTED" || (!props.video && props.pluginType === "videoRoom") ? (
                 <div className="no-video-container">
-                    <i className={props.select ? "fa fa-video-camera fa-4" : "fa fa-video-camera fa-5 no-video-icon"}></i>
+                    <img className={props.select ? "no-video-small-icon" : " no-video-icon"} src="img/no_video.svg" alt="Video Icon" />
+                    {/* <i className={props.select ? "fa fa-video-camera fa-4" : "fa fa-video-camera fa-5 no-video-icon"}></i> */}
                     <span className="no-video-text" style={{ fontSize: props.select ? 18 : 25 }}>
                         No video available
                     </span>
