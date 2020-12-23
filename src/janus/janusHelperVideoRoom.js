@@ -1,12 +1,6 @@
 import JanusHelper from "./janusHelper"
 
 export default class JanusHelperVideoRoom extends JanusHelper {
-    // static getInstance() {
-    //     if (!JanusHelperVideoRoom._inst) {
-    //         JanusHelperVideoRoom._inst = new JanusHelperVideoRoom()
-    //     }
-    //     return JanusHelperVideoRoom._inst
-    // }
     init(dispatch, roomType, pluginName) {
         super.init(dispatch, roomType, pluginName)
     }
@@ -24,7 +18,18 @@ export default class JanusHelperVideoRoom extends JanusHelper {
             ptype: "publisher",
             display: username,
         }
-        super.registerUsername(username, register)
+
+        if (username === "") {
+            window.bootbox.alert("Insert your display name (e.g., pippo)")
+            return
+        }
+        if (/[^a-zA-Z0-9]/.test(username)) {
+            window.bootbox.alert("Input is not alphanumeric")
+            return
+        }
+        this.myusername = username
+        this.janusPlugin.send({ message: register })
+        // super.registerUsername(username, register)
     }
     onAttach(pluginHandle) {
         const createRoom = {

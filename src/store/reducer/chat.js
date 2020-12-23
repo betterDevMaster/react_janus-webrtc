@@ -1,6 +1,6 @@
-const video = (
+const chat = (
     state = {
-        name: "tester",
+        name: "",
         audio: false,
         video: false,
         select: false,
@@ -22,4 +22,4 @@ const video = (
     }
 }
 
-export default video
+export default chat

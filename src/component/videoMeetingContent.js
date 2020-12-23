@@ -1,33 +1,20 @@
-import React, { useState, useMemo, useEffect } from "react"
-import { useSelector, useDispatch } from "react-redux"
-import JanusHelperVideoRoom from "../janus/janusHelperVideoRoom"
+import React, { useMemo, useEffect } from "react"
+import { useSelector } from "react-redux"
 import LocalRoomVideo from "../component/localRoomVideo"
 import RemoteRoomVideo from "../component/remoteRoomVideo"
 
 export default function VideoMeetingContent(props) {
-    const dispatch = useDispatch()
     const janusState = useSelector((state) => state.janus)
     const videoState = useSelector((state) => state.video)
     const status1 = useMemo(() => ["RUNNING", "CONNECTED", "DISCONNECTED"], [])
 
     useEffect(() => {
-        // JanusHelperVideoRoom.getInstance().init(dispatch, "videoRoom", "janus.plugin.videoroom")
-        // JanusHelperVideoRoom.getInstance().start(query.room)
-        if (!window.roomHelper) {
-            window.roomHelper = new JanusHelperVideoRoom()
-            window.roomHelper.init(dispatch, "videoRoom", "janus.plugin.videoroom")
-            window.roomHelper.start(props.room)
-        }
-    }, [dispatch])
-
-    useEffect(() => {
-        // if (janusState.status === "ATTACHED") JanusHelperVideoRoom.getInstance().registerUsername(videoState.name)
         if (janusState.status === "ATTACHED" && janusState.pluginType === "videoRoom") {
-            window.roomHelper.registerUsername("test")
+            window.roomHelper.registerUsername(videoState.name)
         }
-    }, [janusState])
+    }, [janusState, videoState.name])
 
-    console.log("state: ------------- ", janusState, videoState)
+    // console.log("state: ------------- ", janusState, videoState)
     return (
         status1.includes(janusState.status) && (
             <div id="videos" style={{ width: "100%", height: "100%", position: "relative" }}>

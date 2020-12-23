@@ -223,18 +223,18 @@ export default class JanusHelper {
         window.$.unblockUI()
     }
 
-    registerUsername(username, register) {
-        if (username === "") {
-            window.bootbox.alert("Insert your display name (e.g., pippo)")
-            return
-        }
-        if (/[^a-zA-Z0-9]/.test(username)) {
-            window.bootbox.alert("Input is not alphanumeric")
-            return
-        }
-        this.myusername = username
-        this.janusPlugin.send({ message: register })
-    }
+    // registerUsername(username, register) {
+    //     if (username === "") {
+    //         window.bootbox.alert("Insert your display name (e.g., pippo)")
+    //         return
+    //     }
+    //     if (/[^a-zA-Z0-9]/.test(username)) {
+    //         window.bootbox.alert("Input is not alphanumeric")
+    //         return
+    //     }
+    //     this.myusername = username
+    //     this.janusPlugin.send({ message: register })
+    // }
     doCall(username) {
         // Call someone
         if (username === "") {

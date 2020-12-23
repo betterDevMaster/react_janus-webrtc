@@ -1,8 +1,13 @@
 import React, { useRef, useState, useEffect } from "react"
 import { useHistory } from "react-router-dom"
-import * as qs from "query-string"
-import "../assets/landing.css"
 import { useDispatch } from "react-redux"
+import * as qs from "query-string"
+
+import JanusHelperVideoRoom from "../janus/janusHelperVideoRoom"
+import JanusHelperScreenShare from "../janus/janusHelperScreenShare"
+import JanusHelperTextRoom from "../janus/janusHelperTextRoom"
+
+import "../assets/landing.css"
 
 export default function LandingPage(props) {
     const [meeting, setMeeting] = useState(false)
@@ -103,11 +108,24 @@ export default function LandingPage(props) {
         if (meetingValue === "") window.bootbox.alert("Please enter the meeting name.")
         else {
             dispatch({ type: "VIDEO_INIT", video: showVideo, audio: enableMic, name: meetingValue })
+
+            // if (!window.screenShareHelper) {
+            //     window.screenShareHelper = new JanusHelperScreenShare()
+            //     window.screenShareHelper.init(dispatch, "screenShare", "janus.plugin.videoroom")
+            //     window.screenShareHelper.start(roomName + "_screenShare")
+            // }
+            // if (!window.textRoomHelper) {
+            //     window.textRoomHelper = new JanusHelperTextRoom()
+            //     window.textRoomHelper.init(dispatch, "textRoom", "janus.plugin.textroom")
+            //     window.textRoomHelper.start(roomName + "_textRoom")
+            // }
+            // if (!window.roomHelper) {
+            //     window.roomHelper = new JanusHelperVideoRoom()
+            //     window.roomHelper.init(dispatch, "videoRoom", "janus.plugin.videoroom")
+            //     window.roomHelper.start(roomName)
+            // }
             history.push(`/videoMeeting?room=${roomName}`)
-            // return <Redirect to={`/videoMeeting?room=${roomName}`} />
-            // return <Redirect push to="/" />
         }
-        // : history.push(`/videoMeeting?room=${roomName}&name=${meetingValue}&video=${showVideo}&mic=${enableMic}`)
     }
     const handleVideoClick = () => {
         var video = document.querySelector("#videoEle")
@@ -269,17 +287,12 @@ export default function LandingPage(props) {
                                     </button>
                                     <button className="video" title="Microphone, On/Off" onClick={handleAudioClick}>
                                         <div className="videoWrap">
-                                            <img src="img/mic-off.png" alt="Video Icon" />
+                                            <img src={!enableMic ? "img/mic-off.png" : "img/mic-on.png"} alt="Video Icon" />
                                             <div className="switchContent">
                                                 <div className="switchSection">
-                                                    {/* <div className="switchBackOff"></div> */}
                                                     <div className={!enableMic ? "switchBackOff" : "switchBackOn"}></div>
                                                 </div>
                                                 <div className={!enableMic ? "switchBarOff" : "switchBarOn"}></div>
-
-                                                {/* <div className="switchSection">
-                                                    <div className={!enableMic ? "switchBackOff" : "switchBackOn"}></div>
-                                                </div> */}
                                             </div>
                                         </div>
                                     </button>

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react"
+import React, { useState, useContext, useEffect } from "react"
 import { FullScreen, useFullScreenHandle } from "react-full-screen"
 import * as qs from "query-string"
 
@@ -6,14 +6,37 @@ import TopBar from "../component/videoMeetingTopbar"
 import FooterBar from "../component/videoMeetingFooterbar"
 import MeetingVideos from "../component/videoMeetingContent"
 
+import JanusHelperVideoRoom from "../janus/janusHelperVideoRoom"
+import JanusHelperScreenShare from "../janus/janusHelperScreenShare"
+import JanusHelperTextRoom from "../janus/janusHelperTextRoom"
+
 import "../assets/videoMeeting2.css"
-import { useSelector } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 
 export default function VideoMeeingPage(props) {
+    const dispatch = useDispatch()
     const handle = useFullScreenHandle()
     const [showFooterBar, setShowFooterBar] = useState(false)
     const videoState = useSelector((state) => state.video)
     const query = qs.parse(window.location.search)
+
+    useEffect(() => {
+        if (!window.screenShareHelper) {
+            window.screenShareHelper = new JanusHelperScreenShare()
+            window.screenShareHelper.init(dispatch, "screenShare", "janus.plugin.videoroom")
+            window.screenShareHelper.start(videoState.name + "_screenShare")
+        }
+        if (!window.textRoomHelper) {
+            window.textRoomHelper = new JanusHelperTextRoom()
+            window.textRoomHelper.init(dispatch, "textRoom", "janus.plugin.textroom")
+            window.textRoomHelper.start(videoState.name + "_textRoom")
+        }
+        if (!window.roomHelper) {
+            window.roomHelper = new JanusHelperVideoRoom()
+            window.roomHelper.init(dispatch, "videoRoom", "janus.plugin.videoroom")
+            window.roomHelper.start(videoState.name)
+        }
+    }, [])
 
     return (
         <FullScreen handle={handle}>
@@ -135,7 +158,6 @@ export default function VideoMeeingPage(props) {
                                                     style={{ left: "10px", bottom: "20px" }}
                                                 >
                                                     {videoState.name}
-                                                    {/* test */}
                                                 </div>
                                             </div>
                                         </div>

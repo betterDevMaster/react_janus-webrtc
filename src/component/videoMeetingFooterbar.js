@@ -1,8 +1,6 @@
 import React, { useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 
-import JanusHelperScreenShare from "../janus/janusHelperScreenShare"
-
 import "../assets/videoMeeting2.css"
 
 export default function VideoMeetingFooterbar(props) {
@@ -10,9 +8,9 @@ export default function VideoMeetingFooterbar(props) {
     const dispatch = useDispatch()
 
     useEffect(() => {
-        window.screenShareHelper = new JanusHelperScreenShare()
-        window.screenShareHelper.init(dispatch, "screenShare", "janus.plugin.videoroom")
-        window.screenShareHelper.start(props.room)
+        if (window.textRoomHelper) {
+            window.textRoomHelper.registerUsername(videoState.name)
+        }
     }, [])
     const handleToggleAudio = () => {
         dispatch({ type: "VIDEO_ASTATE", audio: !videoState.audio })
@@ -24,6 +22,7 @@ export default function VideoMeetingFooterbar(props) {
         // window.screenShareHelper.preShareScreen(videoState.name)
         window.screenShareHelper.preShareScreen("tester")
     }
+    const handleChat = () => {}
     return (
         <footer
             role="presentation"
@@ -74,7 +73,13 @@ export default function VideoMeetingFooterbar(props) {
                     <div style={{ display: "inline-block" }}>
                         <aside className="sharing-entry-button-container__mask"></aside>
                     </div>
-                    <button tabIndex="0" className="footer-button__button ax-outline" type="button" aria-label="open the chat pane">
+                    <button
+                        tabIndex="0"
+                        className="footer-button__button ax-outline"
+                        type="button"
+                        aria-label="open the chat pane"
+                        onClick={handleChat}
+                    >
                         <div className="footer-button__img-layer">
                             <div className="footer-button__chat-icon"></div>
                         </div>

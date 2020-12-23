@@ -29,15 +29,6 @@ export default class JanusHelperScreenShare extends JanusHelper {
         pluginHandle.send({ message: createRoom })
         super.onAttach(pluginHandle, this.pluginName)
     }
-    registerUsername(username) {
-        var register = {
-            request: "join",
-            room: this.myroom,
-            ptype: "publisher",
-            display: username,
-        }
-        super.registerUsername(username, register)
-    }
     onMessage(msg, jsep, result) {
         window.Janus.debug(" ::: Got a message (publisher) :::", msg)
         var event = msg["videoroom"]
@@ -58,7 +49,7 @@ export default class JanusHelperScreenShare extends JanusHelper {
                             video: this.capture,
                             audioSend: true,
                             videoRecv: false,
-                            data: true,
+                            // data: true,
                         }, // Screen sharing Publishers are sendonly
                         success: (jsep) => {
                             window.Janus.debug("Got publisher SDP!", jsep)
@@ -102,21 +93,21 @@ export default class JanusHelperScreenShare extends JanusHelper {
         }
         if (jsep) {
             window.Janus.debug("Handling SDP as well...", jsep)
+            // console.log("screenShare: onMessage: jsep: ================= ", jsep)
+            // this.janusPlugin.createAnswer({
+            //     jsep: jsep,
+            //     media: { audio: false, video: false, data: true }, // We only use datachannels
+            //     success: (jsep) => {
+            //         window.Janus.debug("Got SDP!", jsep)
+            //         var body = { request: "ack" }
+            //         this.janusPlugin.send({ message: body, jsep: jsep })
+            //     },
+            //     error: (error) => {
+            //         window.Janus.error("WebRTC error:", error)
+            //         window.bootbox.alert("WebRTC error... " + error.message)
+            //     },
+            // })
             this.janusPlugin.handleRemoteJsep({ jsep: jsep })
-
-            this.janusPlugin.createAnswer({
-                jsep: jsep,
-                media: { audio: false, video: false, data: true }, // We only use datachannels
-                success: (jsep) => {
-                    window.Janus.debug("Got SDP!", jsep)
-                    var body = { request: "ack" }
-                    this.janusPlugin.send({ message: body, jsep: jsep })
-                },
-                error: (error) => {
-                    window.Janus.error("WebRTC error:", error)
-                    window.bootbox.alert("WebRTC error... " + error.message)
-                },
-            })
         }
     }
     onWebrtcStateChange(on) {
@@ -229,26 +220,26 @@ export default class JanusHelperScreenShare extends JanusHelper {
                     }
                     this.janusPlugin.send({ message: register })
 
-                    var message = {
-                        textroom: "message",
-                        transaction: window.Janus.randomString(12),
-                        room: this.myroom,
-                        text: this.room,
-                    }
-                    // Note: messages are always acknowledged by default. This means that you'll
-                    // always receive a confirmation back that the message has been received by the
-                    // server and forwarded to the recipients. If you do not want this to happen,
-                    // just add an ack:false property to the message above, and server won't send
-                    // you a response (meaning you just have to hope it succeeded).
-                    this.janusPlugin.data({
-                        text: JSON.stringify(message),
-                        error: (reason) => {
-                            window.bootbox.alert(reason)
-                        },
-                        success: function () {
-                            console.log("screenshare: datasend: ===============", message)
-                        },
-                    })
+                    // var message = {
+                    //     textroom: "message",
+                    //     transaction: window.Janus.randomString(12),
+                    //     room: this.myroom,
+                    //     text: this.room,
+                    // }
+                    // // Note: messages are always acknowledged by default. This means that you'll
+                    // // always receive a confirmation back that the message has been received by the
+                    // // server and forwarded to the recipients. If you do not want this to happen,
+                    // // just add an ack:false property to the message above, and server won't send
+                    // // you a response (meaning you just have to hope it succeeded).
+                    // this.janusPlugin.data({
+                    //     text: JSON.stringify(message),
+                    //     error: (reason) => {
+                    //         window.bootbox.alert(reason)
+                    //     },
+                    //     success: function () {
+                    //         console.log("screenshare: datasend: ===============", message)
+                    //     },
+                    // })
                     // this.joinScreen(this.room)
                 }
             },
