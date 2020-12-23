@@ -87,6 +87,7 @@ export default class JanusHelper {
             onremotestream: (stream) => this.onRemoteStream(stream),
             ondataopen: (data) => {
                 window.Janus.log("The DataChannel is available!")
+                console.log("Helper: onDataOpen: ============= ", data)
             },
             ondata: (data) => this.onData(data),
             oncleanup: () => this.onCleanUp(),

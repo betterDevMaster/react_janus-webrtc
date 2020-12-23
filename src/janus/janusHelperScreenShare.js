@@ -9,7 +9,7 @@ export default class JanusHelperScreenShare extends JanusHelper {
         this.capture = null
         this.role = null
         this.source = null
-
+        this.room = null
         super.start()
     }
     stop() {
@@ -42,7 +42,7 @@ export default class JanusHelperScreenShare extends JanusHelper {
         window.Janus.debug(" ::: Got a message (publisher) :::", msg)
         var event = msg["videoroom"]
         window.Janus.debug("Event: " + event)
-        // console.log("ScreenShareHelper: onMessage: ------------- ", msg, jsep, result)
+        console.log("ScreenShareHelper: onMessage: =========== ", msg, jsep, result)
 
         if (event) {
             if (event === "joined") {
@@ -58,6 +58,7 @@ export default class JanusHelperScreenShare extends JanusHelper {
                             video: this.capture,
                             audioSend: true,
                             videoRecv: false,
+                            data: true,
                         }, // Screen sharing Publishers are sendonly
                         success: (jsep) => {
                             window.Janus.debug("Got publisher SDP!", jsep)
@@ -102,10 +103,38 @@ export default class JanusHelperScreenShare extends JanusHelper {
         if (jsep) {
             window.Janus.debug("Handling SDP as well...", jsep)
             this.janusPlugin.handleRemoteJsep({ jsep: jsep })
+
+            this.janusPlugin.createAnswer({
+                jsep: jsep,
+                media: { audio: false, video: false, data: true }, // We only use datachannels
+                success: (jsep) => {
+                    window.Janus.debug("Got SDP!", jsep)
+                    var body = { request: "ack" }
+                    this.janusPlugin.send({ message: body, jsep: jsep })
+                },
+                error: (error) => {
+                    window.Janus.error("WebRTC error:", error)
+                    window.bootbox.alert("WebRTC error... " + error.message)
+                },
+            })
         }
     }
     onWebrtcStateChange(on) {
         // this.dispatch({ type: "JANUS_STATE", value: "CONNECTED" })
+        window.Janus.log("Janus says our WebRTC PeerConnection is " + (on ? "up" : "down") + " now")
+        if (on) {
+            window.bootbox.alert(
+                "Your screen sharing session just started: pass the <b>" +
+                    this.room +
+                    "</b> session identifier to those who want to attend."
+            )
+        } else {
+            window.bootbox.alert("Your screen sharing session just stopped.", function () {
+                this.session.destroy()
+                window.location.reload()
+            })
+        }
+
         this.dispatch({ type: "JANUS_STATE", value: on ? "CONNECTED" : "DISCONNECTED", pluginType: this.pluginType })
     }
     onLocalStream(stream) {
@@ -117,6 +146,12 @@ export default class JanusHelperScreenShare extends JanusHelper {
         window.Janus.debug(" ::: Got a remote stream :::", stream)
         console.log("screenShare: remoteStream: ================= ", stream, this.mystream)
         // this.dispatch({ type: "JANUS_SHAREDREMOTESTREAM", sharedRemote: stream })
+    }
+    onData(data) {
+        window.Janus.debug("We got data from the JanusHelper!", data)
+        console.log("screenHelper: ============ ", data)
+
+        this.dispatch({ type: "JANUS_MESSAGE", message: data })
     }
     preShareScreen(username) {
         if (!window.Janus.isExtensionEnabled()) {
@@ -183,17 +218,38 @@ export default class JanusHelperScreenShare extends JanusHelper {
                 window.Janus.debug("Event: " + event)
                 if (event) {
                     // Our own screen sharing session has been created, join it
-                    var room = result["room"]
-                    console.log("shareScreen: ================== ", room)
-                    window.Janus.log("Screen sharing session created: " + room)
+                    this.room = result["room"]
+                    window.Janus.log("Screen sharing session created: " + this.room)
                     this.myusername = window.Janus.randomString(12)
                     var register = {
                         request: "join",
-                        room: room,
+                        room: this.room,
                         ptype: "publisher",
                         display: this.myusername,
                     }
                     this.janusPlugin.send({ message: register })
+
+                    var message = {
+                        textroom: "message",
+                        transaction: window.Janus.randomString(12),
+                        room: this.myroom,
+                        text: this.room,
+                    }
+                    // Note: messages are always acknowledged by default. This means that you'll
+                    // always receive a confirmation back that the message has been received by the
+                    // server and forwarded to the recipients. If you do not want this to happen,
+                    // just add an ack:false property to the message above, and server won't send
+                    // you a response (meaning you just have to hope it succeeded).
+                    this.janusPlugin.data({
+                        text: JSON.stringify(message),
+                        error: (reason) => {
+                            window.bootbox.alert(reason)
+                        },
+                        success: function () {
+                            console.log("screenshare: datasend: ===============", message)
+                        },
+                    })
+                    // this.joinScreen(this.room)
                 }
             },
         })
@@ -202,7 +258,7 @@ export default class JanusHelperScreenShare extends JanusHelper {
     checkEnterJoin(field, event) {
         var theCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode
         if (theCode === 13) {
-            this.joinScreen()
+            this.joinScreen(this.room)
             return false
         } else {
             return true
@@ -256,6 +312,8 @@ export default class JanusHelperScreenShare extends JanusHelper {
         // A new feed has been published, create a new plugin handle and attach to it as a subscriber
         var remoteFeed = null
         this.source = id
+        console.log("newRemoteFeed: id: display: ============== ", id, display)
+
         this.session.attach({
             plugin: this.pluginName,
             opaqueId: this.opaqueId,
@@ -270,6 +328,7 @@ export default class JanusHelperScreenShare extends JanusHelper {
                     ptype: "listener",
                     feed: id,
                 }
+                console.log("newRemoteFeed: listen: ============== ", listen)
                 remoteFeed.send({ message: listen })
             },
             error: (error) => {
@@ -278,6 +337,7 @@ export default class JanusHelperScreenShare extends JanusHelper {
             },
             onmessage: (msg, jsep) => {
                 window.Janus.debug(" ::: Got a message (listener) :::", msg)
+                console.log("newRemoteFeed: onmessage: ============== ", msg)
 
                 var event = msg["videoroom"]
                 window.Janus.debug("Event: " + event)
@@ -312,11 +372,7 @@ export default class JanusHelperScreenShare extends JanusHelper {
             iceState: (state) => {
                 window.Janus.log("ICE state of this WebRTC PeerConnection (feed #" + remoteFeed.rfindex + ") changed to " + state)
             },
-            webrtcState: (on) => {
-                window.Janus.log(
-                    "Janus says this WebRTC PeerConnection (feed #" + remoteFeed.rfindex + ") is " + (on ? "up" : "down") + " now"
-                )
-            },
+            webrtcState: (on) => {},
             onlocalstream: (stream) => {
                 // The subscriber stream is recvonly, we don't expect anything here
             },
