@@ -339,10 +339,7 @@ export default class JanusHelperScreenShare extends JanusHelper {
             },
             onremotestream: (stream) => {
                 window.Janus.debug("Remote feed #" + remoteFeed.rfindex + ", stream:", stream)
-                // this.dispatch({ type: "JANUS_SHAREDREMOTESTREAM", remote: stream })
                 this.dispatch({ type: "JANUS_SHAREDLOCALSTREAM", sharedLocal: stream })
-
-                // if (!this.feeds[remoteFeed.rfindex]) window.location.href = "/"
             },
             oncleanup: () => {
                 this.removeRemoteStream(remoteFeed.rfindex)

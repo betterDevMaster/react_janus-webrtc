@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React from "react"
 import { useDispatch, useSelector } from "react-redux"
 import * as qs from "query-string"
 
@@ -6,17 +6,9 @@ import "../assets/videoMeeting2.css"
 
 export default function VideoMeetingFooterbar(props) {
     const videoState = useSelector((state) => state.video)
-    const janusState = useSelector((state) => state.janus)
     const chatState = useSelector((state) => state.chat)
     const dispatch = useDispatch()
     const query = qs.parse(window.location.search)
-
-    // useEffect(() => {
-    //     if (janusState.status === "CONNECTED") {
-    //         console.log("janusStatus: ================== ", janusState.status)
-    //         window.textRoomHelper.registerUsername(query.name)
-    //     }
-    // }, [janusState, query.name])
 
     const handleToggleAudio = () => {
         dispatch({ type: "VIDEO_ASTATE", audio: !videoState.audio })
@@ -30,9 +22,8 @@ export default function VideoMeetingFooterbar(props) {
     }
     const handleShowChat = () => {
         dispatch({ type: "CHAT_SHOWPANEL", showPanel: !chatState.showPanel })
-        // window.textRoomHelper.sendData("ffffffffffff")
     }
-    // console.log("videoMeetingFooterbar: ---------- ", janusState)
+
     return (
         <footer
             role="presentation"

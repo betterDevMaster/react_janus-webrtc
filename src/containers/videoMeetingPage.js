@@ -1,8 +1,8 @@
-import React, { useState, useContext, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { FullScreen, useFullScreenHandle } from "react-full-screen"
 import * as qs from "query-string"
 
-import TopBar from "../component/videoMeetingTopbar"
+// import TopBar from "../component/videoMeetingTopbar"
 import FooterBar from "../component/videoMeetingFooterbar"
 import MeetingVideos from "../component/videoMeetingContent"
 
@@ -20,6 +20,8 @@ export default function VideoMeeingPage(props) {
     const videoState = useSelector((state) => state.video)
     const chatState = useSelector((state) => state.chat)
     const query = qs.parse(window.location.search)
+    const [showReceivers, setShowReceivers] = useState(false)
+    const [chatContent, setChatContent] = useState("")
 
     useEffect(() => {
         if (!window.screenShareHelper) {
@@ -38,6 +40,11 @@ export default function VideoMeeingPage(props) {
             window.roomHelper.start(query.room + "_videoRoom", query.name)
         }
     }, [])
+
+    const handleSendMessage = (message) => {
+        window.textRoomHelper.sendData(JSON.stringify({ type: "all", room: "textRoom", message: message, sender: query.name }))
+    }
+    console.log("chatContent: ------------- ", chatState)
 
     return (
         <FullScreen handle={handle}>
@@ -170,305 +177,162 @@ export default function VideoMeeingPage(props) {
                             {chatState.showPanel ? (
                                 <div id="wc-container-right" style={{ width: "400px" }}>
                                     <div className="chat-container">
-                                        <div role="presentation" className="chat-header__header">
-                                            <div className="dropdown btn-group">
-                                                <button
-                                                    aria-label="Manage Chat Panel"
-                                                    id="chatSectionMenu"
-                                                    role="button"
-                                                    aria-haspopup="true"
-                                                    aria-expanded="false"
-                                                    type="button"
-                                                    className="chat-header__chat-pop-btn ax-outline-blue-important dropdown-toggle btn btn-default"
-                                                ></button>
-                                                <ul
-                                                    role="menu"
-                                                    className="chat-header__dropdown-menu dropdown-menu"
-                                                    aria-labelledby="chatSectionMenu"
-                                                >
-                                                    <li role="presentation" className="chat-header__menu">
-                                                        <a role="menuitem" tabIndex="-1" href="#">
-                                                            <i className="chat-header__close-icon"></i>Close
-                                                        </a>
-                                                    </li>
-                                                    <li role="presentation" className="chat-header__menu">
-                                                        <a role="menuitem" tabIndex="-1" href="#">
-                                                            <i className="chat-header__pop-out-icon"></i>Pop Out
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                            <div className="chat-header__title">Zoom Group Chat</div>
-                                        </div>
-                                        <div className="chat-container__chat-list">
-                                            <div className="chat-content__chat-scrollbar">
-                                                <div>
-                                                    <div
-                                                        aria-label="Chat Message List"
-                                                        aria-readonly="true"
-                                                        className="ReactVirtualized__Grid ReactVirtualized__List chat-virtualized-list ax-outline-blue"
-                                                        role="application"
-                                                        tabIndex="0"
-                                                        style={{
-                                                            boxSizing: "border-box",
-                                                            direction: "ltr",
-                                                            height: "827px",
-                                                            position: "relative",
-                                                            width: "400px",
-                                                            willChange: "inherit",
-                                                            overflow: "auto",
-                                                        }}
+                                        <div style={{ height: "89%" }}>
+                                            <div role="presentation" className="chat-header__header">
+                                                <div className="dropdown btn-group">
+                                                    <button
+                                                        aria-label="Manage Chat Panel"
+                                                        id="chatSectionMenu"
+                                                        role="button"
+                                                        aria-haspopup="true"
+                                                        aria-expanded="false"
+                                                        type="button"
+                                                        className="chat-header__chat-pop-btn ax-outline-blue-important dropdown-toggle btn btn-default"
+                                                    ></button>
+                                                    <ul
+                                                        role="menu"
+                                                        className="chat-header__dropdown-menu dropdown-menu"
+                                                        aria-labelledby="chatSectionMenu"
                                                     >
+                                                        <li role="presentation" className="chat-header__menu">
+                                                            <a role="menuitem" tabIndex="-1" href="#">
+                                                                <i className="chat-header__close-icon"></i>Close
+                                                            </a>
+                                                        </li>
+                                                        <li role="presentation" className="chat-header__menu">
+                                                            <a role="menuitem" tabIndex="-1" href="#">
+                                                                <i className="chat-header__pop-out-icon"></i>Pop Out
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                                <div className="chat-header__title">Zoom Group Chat</div>
+                                            </div>
+                                            <div className="chat-container__chat-list" style={{ height: "95%" }}>
+                                                <div className="chat-content__chat-scrollbar" style={{ height: "100%" }}>
+                                                    <div style={{ height: "100%" }}>
                                                         <div
-                                                            className="ReactVirtualized__Grid__innerScrollContainer"
-                                                            role="rowgroup"
-                                                            // style="width: auto; height: 1522px; max-width: 400px; max-height: 1522px; overflow: hidden; position: relative;"
+                                                            aria-label="Chat Message List"
+                                                            aria-readonly="true"
+                                                            className="ReactVirtualized__Grid ReactVirtualized__List chat-virtualized-list ax-outline-blue"
+                                                            role="application"
+                                                            style={{ height: "100%" }}
+                                                            tabIndex="0"
                                                         >
-                                                            <div
-                                                                role="presentation"
-                                                                style={{
-                                                                    height: "94px",
-                                                                    left: "0px",
-                                                                    position: "absolute",
-                                                                    top: "0px",
-                                                                    width: "380px",
-                                                                    paddingLeft: "2px",
-                                                                    paddingRight: "2px",
-                                                                    border: "1px solid white",
-                                                                }}
-                                                            >
-                                                                <div role="presentation" className="chat-item__chat-info">
-                                                                    <div className="chat-item__chat-info-header">
-                                                                        <div className="chat-item__left-container">
-                                                                            <span
-                                                                                role="presentation"
-                                                                                className="chat-item__sender chat-item__chat-info-header--can-select"
-                                                                                title="DDTYS"
-                                                                                data-userid="16780288"
-                                                                                data-name="DDTYS"
-                                                                            >
-                                                                                DDTYS
-                                                                            </span>
-                                                                            <span className="chat-item__to"> To </span>
-                                                                            <span
-                                                                                role="presentation"
-                                                                                className="chat-item__chat-info-header--can-select chat-item__chat-info-header--everyone"
-                                                                                title="Everyone"
-                                                                                data-userid="0"
-                                                                                data-name="Everyone"
-                                                                            >
-                                                                                Everyone
-                                                                            </span>
-                                                                            <span
-                                                                                role="presentation"
-                                                                                className="hidden chat-item__chat-info-header--can-select chat-item__chat-info-header--everyone"
-                                                                                title="All panelists"
-                                                                                data-userid="1"
-                                                                                data-name="All panelists"
-                                                                            >
-                                                                                All panelists
-                                                                            </span>
+                                                            <div style={{ height: "100%" }} role="rowgroup">
+                                                                {chatState.contents.map((content, i) => {
+                                                                    return (
+                                                                        <div role="presentation" key={i}>
+                                                                            <div role="presentation" className="chat-item__chat-info">
+                                                                                <div className="chat-item__chat-info-header">
+                                                                                    <div className="chat-item__left-container">
+                                                                                        <span
+                                                                                            role="presentation"
+                                                                                            className="chat-item__sender chat-item__chat-info-header--can-select"
+                                                                                            title={content.sender}
+                                                                                        >
+                                                                                            {content.sender}
+                                                                                        </span>
+                                                                                        <span className="chat-item__to"> To </span>
+                                                                                        <span
+                                                                                            role="presentation"
+                                                                                            className="chat-item__chat-info-header--can-select chat-item__chat-info-header--everyone"
+                                                                                            title="Everyone"
+                                                                                        >
+                                                                                            Everyone
+                                                                                        </span>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <pre className="chat-item__chat-info-msg">
+                                                                                    {content.message}
+                                                                                </pre>
+                                                                            </div>
                                                                         </div>
-                                                                    </div>
-                                                                    <pre className="chat-item__chat-info-msg">sdfsdf SDS</pre>
-                                                                </div>
-                                                            </div>
-                                                            <div
-                                                                role="presentation"
-                                                                style={{
-                                                                    height: "94px",
-                                                                    left: "0px",
-                                                                    position: "absolute",
-                                                                    top: "94px",
-                                                                    width: "380px",
-                                                                    paddingLeft: "2px",
-                                                                    paddingRight: "2px",
-                                                                    border: "1px solid white",
-                                                                }}
-                                                            >
-                                                                <div role="presentation" className="chat-item__chat-info">
-                                                                    <div className="chat-item__chat-info-header">
-                                                                        <div className="chat-item__left-container">
-                                                                            <span
-                                                                                role="presentation"
-                                                                                className="chat-item__sender"
-                                                                                title="Me"
-                                                                                data-userid="16778240"
-                                                                                data-name="Me"
-                                                                            >
-                                                                                Me
-                                                                            </span>
-                                                                            <span className="chat-item__to"> To </span>
-                                                                            <span
-                                                                                role="presentation"
-                                                                                className="chat-item__chat-info-header--can-select chat-item__chat-info-header--everyone"
-                                                                                title="Everyone"
-                                                                                data-userid="0"
-                                                                                data-name="Everyone"
-                                                                            >
-                                                                                Everyone
-                                                                            </span>
-                                                                            <span
-                                                                                role="presentation"
-                                                                                className="hidden chat-item__chat-info-header--can-select chat-item__chat-info-header--everyone"
-                                                                                title="All panelists"
-                                                                                data-userid="1"
-                                                                                data-name="All panelists"
-                                                                            >
-                                                                                All panelists
-                                                                            </span>
+                                                                    )
+                                                                })}
+
+                                                                {/* <div role="presentation">
+                                                                    <div role="presentation" className="chat-item__chat-info">
+                                                                        <div className="chat-item__chat-info-header">
+                                                                            <div className="chat-item__left-container">
+                                                                                <span
+                                                                                    role="presentation"
+                                                                                    className="chat-item__sender"
+                                                                                    title="Me"
+                                                                                    data-userid="16778240"
+                                                                                    data-name="Me"
+                                                                                >
+                                                                                    Me
+                                                                                </span>
+                                                                                <span className="chat-item__to"> To </span>
+                                                                                <span
+                                                                                    role="presentation"
+                                                                                    className="chat-item__chat-info-header--can-select"
+                                                                                    title="DDTYS"
+                                                                                    data-userid="16780288"
+                                                                                    data-name="DDTYS"
+                                                                                >
+                                                                                    DDTYS
+                                                                                </span>
+                                                                                <span
+                                                                                    role="presentation"
+                                                                                    className="hidden chat-item__chat-info-header--can-select chat-item__chat-info-header--everyone"
+                                                                                    title="All panelists"
+                                                                                    data-userid="1"
+                                                                                    data-name="All panelists"
+                                                                                >
+                                                                                    All panelists
+                                                                                </span>
+                                                                                <span className="chat-privately" style={{ padding: "0px" }}>
+                                                                                    (Privately)
+                                                                                </span>
+                                                                            </div>
                                                                         </div>
+                                                                        <pre className="chat-item__chat-info-msg">
+                                                                            dfgdfg xcvxcv sdfgsdfg ert ert ert ert er ter t df g dfg df g
+                                                                        </pre>
                                                                     </div>
-                                                                    <pre className="chat-item__chat-info-msg">dfgdfg eer</pre>
                                                                 </div>
-                                                            </div>
-                                                            <div
-                                                                role="presentation"
-                                                                style={{
-                                                                    height: "328px",
-                                                                    left: "0px",
-                                                                    position: "absolute",
-                                                                    top: "188px",
-                                                                    width: "380px",
-                                                                    paddingLeft: "2px",
-                                                                    paddingRight: "2px",
-                                                                    border: "1px solid white",
-                                                                }}
-                                                            >
-                                                                <div role="presentation" className="chat-item__chat-info">
-                                                                    <div className="chat-item__chat-info-header">
-                                                                        <div className="chat-item__left-container">
-                                                                            <span
-                                                                                role="presentation"
-                                                                                className="chat-item__sender"
-                                                                                title="Me"
-                                                                                data-userid="16778240"
-                                                                                data-name="Me"
-                                                                            >
-                                                                                Me
-                                                                            </span>
-                                                                            <span className="chat-item__to"> To </span>
-                                                                            <span
-                                                                                role="presentation"
-                                                                                className="chat-item__chat-info-header--can-select"
-                                                                                title="DDTYS"
-                                                                                data-userid="16780288"
-                                                                                data-name="DDTYS"
-                                                                            >
-                                                                                DDTYS
-                                                                            </span>
-                                                                            <span
-                                                                                role="presentation"
-                                                                                className="hidden chat-item__chat-info-header--can-select chat-item__chat-info-header--everyone"
-                                                                                title="All panelists"
-                                                                                data-userid="1"
-                                                                                data-name="All panelists"
-                                                                            >
-                                                                                All panelists
-                                                                            </span>
-                                                                            <span className="chat-privately" style={{ padding: "0px" }}>
-                                                                                (Privately)
-                                                                            </span>
+
+                                                                <div role="presentation">
+                                                                    <div role="presentation" className="chat-item__chat-info">
+                                                                        <div className="chat-item__chat-info-header">
+                                                                            <div className="chat-item__left-container">
+                                                                                <span
+                                                                                    role="presentation"
+                                                                                    className="chat-item__sender chat-item__chat-info-header--can-select"
+                                                                                    title="DDTYS"
+                                                                                    data-userid="16780288"
+                                                                                    data-name="DDTYS"
+                                                                                >
+                                                                                    DDTYS
+                                                                                </span>
+                                                                                <span className="chat-item__to"> To </span>
+                                                                                <span
+                                                                                    role="presentation"
+                                                                                    className="chat-item__chat-info-header--can-select chat-item__chat-info-header--everyone"
+                                                                                    title="Everyone"
+                                                                                    data-userid="0"
+                                                                                    data-name="Everyone"
+                                                                                >
+                                                                                    Everyone
+                                                                                </span>
+                                                                                <span
+                                                                                    role="presentation"
+                                                                                    className="hidden chat-item__chat-info-header--can-select chat-item__chat-info-header--everyone"
+                                                                                    title="All panelists"
+                                                                                    data-userid="1"
+                                                                                    data-name="All panelists"
+                                                                                >
+                                                                                    All panelists
+                                                                                </span>
+                                                                            </div>
                                                                         </div>
+                                                                        <pre className="chat-item__chat-info-msg">
+                                                                            cvbcvb vbn vbn vbn vbn vbn fgn fg fgn fgn
+                                                                        </pre>
                                                                     </div>
-                                                                    <pre className="chat-item__chat-info-msg">
-                                                                        dfgdfg xcvxcv sdfgsdfg ert ert ert ert er ter t df g dfg df g
-                                                                    </pre>
-                                                                </div>
-                                                            </div>
-                                                            <div
-                                                                role="presentation"
-                                                                style={{
-                                                                    height: "418px",
-                                                                    left: "0px",
-                                                                    position: "absolute",
-                                                                    top: "516px",
-                                                                    width: "380px",
-                                                                    paddingLeft: "2px",
-                                                                    paddingRight: "2px",
-                                                                    border: "1px solid white",
-                                                                }}
-                                                            >
-                                                                <div role="presentation" className="chat-item__chat-info">
-                                                                    <div className="chat-item__chat-info-header">
-                                                                        <div className="chat-item__left-container">
-                                                                            <span
-                                                                                role="presentation"
-                                                                                className="chat-item__sender"
-                                                                                title="Me"
-                                                                                data-userid="16778240"
-                                                                                data-name="Me"
-                                                                            >
-                                                                                Me
-                                                                            </span>
-                                                                            <span className="chat-item__to"> To </span>
-                                                                            <span
-                                                                                role="presentation"
-                                                                                className="chat-item__chat-info-header--can-select chat-item__chat-info-header--everyone"
-                                                                                title="Everyone"
-                                                                                data-userid="0"
-                                                                                data-name="Everyone"
-                                                                            >
-                                                                                Everyone
-                                                                            </span>
-                                                                            <span
-                                                                                role="presentation"
-                                                                                className="hidden chat-item__chat-info-header--can-select chat-item__chat-info-header--everyone"
-                                                                                title="All panelists"
-                                                                                data-userid="1"
-                                                                                data-name="All panelists"
-                                                                            >
-                                                                                All panelists
-                                                                            </span>
-                                                                        </div>
-                                                                    </div>
-                                                                    <pre className="chat-item__chat-info-msg">
-                                                                        xcvbxcv bcvb cv bc vb dfgb rftg hrt r th rt h rth rth rth r th rth
-                                                                        rt hrth
-                                                                    </pre>
-                                                                </div>
-                                                            </div>
-                                                            <div
-                                                                role="presentation"
-                                                                // style="height: 238px; left: 0px; position: absolute; top: 934px; width: 380px; paddingLeft: 2px; paddingRight: 2px; border: 1px solid white;"
-                                                            >
-                                                                <div role="presentation" className="chat-item__chat-info">
-                                                                    <div className="chat-item__chat-info-header">
-                                                                        <div className="chat-item__left-container">
-                                                                            <span
-                                                                                role="presentation"
-                                                                                className="chat-item__sender chat-item__chat-info-header--can-select"
-                                                                                title="DDTYS"
-                                                                                data-userid="16780288"
-                                                                                data-name="DDTYS"
-                                                                            >
-                                                                                DDTYS
-                                                                            </span>
-                                                                            <span className="chat-item__to"> To </span>
-                                                                            <span
-                                                                                role="presentation"
-                                                                                className="chat-item__chat-info-header--can-select chat-item__chat-info-header--everyone"
-                                                                                title="Everyone"
-                                                                                data-userid="0"
-                                                                                data-name="Everyone"
-                                                                            >
-                                                                                Everyone
-                                                                            </span>
-                                                                            <span
-                                                                                role="presentation"
-                                                                                className="hidden chat-item__chat-info-header--can-select chat-item__chat-info-header--everyone"
-                                                                                title="All panelists"
-                                                                                data-userid="1"
-                                                                                data-name="All panelists"
-                                                                            >
-                                                                                All panelists
-                                                                            </span>
-                                                                        </div>
-                                                                    </div>
-                                                                    <pre className="chat-item__chat-info-msg">
-                                                                        cvbcvb vbn vbn vbn vbn vbn fgn fg fgn fgn
-                                                                    </pre>
-                                                                </div>
+                                                                </div> */}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -479,15 +343,22 @@ export default function VideoMeeingPage(props) {
                                             <div className="chat-container__chat-control">
                                                 <div className="chat-receiver-list">
                                                     <span className="chat-receiver-list__to-text">To: </span>
-                                                    <div className="chat-receiver-list__menu dropup btn-group">
+                                                    <div
+                                                        className={
+                                                            !showReceivers
+                                                                ? "chat-receiver-list__menu dropup btn-group"
+                                                                : "chat-receiver-list__menu open dropup btn-group"
+                                                        }
+                                                    >
                                                         <button
                                                             aria-label="Send chat to Everyone please select a receiver"
                                                             id="chatReceiverMenu"
                                                             role="button"
                                                             aria-haspopup="true"
-                                                            aria-expanded="false"
+                                                            aria-expanded={!showReceivers ? "false" : "true"}
                                                             type="button"
                                                             className="chat-receiver-list__receiver dropdown-toggle btn btn-default"
+                                                            onClick={() => setShowReceivers(!showReceivers)}
                                                         >
                                                             Everyone
                                                         </button>
@@ -511,113 +382,55 @@ export default function VideoMeeingPage(props) {
                                                                                 </span>
                                                                             </a>
                                                                         </li>
-                                                                        <li role="presentation" className="chat-receiver-list__menu-item">
-                                                                            <a aria-selected="false" role="menuitem" tabIndex="-1" href="#">
-                                                                                DDTYS
-                                                                            </a>
-                                                                        </li>
+                                                                        {Object.keys(chatState.users).map((val, k) => {
+                                                                            return (
+                                                                                <li
+                                                                                    key={k}
+                                                                                    role="presentation"
+                                                                                    className="chat-receiver-list__menu-item"
+                                                                                >
+                                                                                    <a
+                                                                                        aria-selected="false"
+                                                                                        role="menuitem"
+                                                                                        tabIndex="-1"
+                                                                                        id={k}
+                                                                                        href="#"
+                                                                                    >
+                                                                                        {chatState.users[val]}
+                                                                                    </a>
+                                                                                </li>
+                                                                            )
+                                                                        })}
                                                                     </div>
-                                                                </div>
-                                                                <div
-                                                                    className="scrollbar-track scrollbar-track-x"
-                                                                    style={{ display: "none" }}
-                                                                >
-                                                                    <div
-                                                                        className="scrollbar-thumb scrollbar-thumb-x"
-                                                                        style={{
-                                                                            width: "200px",
-                                                                            transform: "translate3d(0px, 0px, 0px)",
-                                                                        }}
-                                                                    ></div>
-                                                                </div>
-                                                                <div
-                                                                    className="scrollbar-track scrollbar-track-y"
-                                                                    style={{ display: "none" }}
-                                                                >
-                                                                    <div
-                                                                        className="scrollbar-thumb scrollbar-thumb-y"
-                                                                        style={{
-                                                                            height: "48px",
-                                                                            transform: "translate3d(0px, 0px, 0px)",
-                                                                        }}
-                                                                    ></div>
                                                                 </div>
                                                             </section>
                                                         </ul>
                                                     </div>
-                                                </div>
-                                                <div className="dropup btn-group btn-group-default">
-                                                    <button
-                                                        aria-label="More chat options"
-                                                        role="button"
-                                                        aria-haspopup="true"
-                                                        aria-expanded="false"
-                                                        type="button"
-                                                        className="chat-more-options__chat-control-more ax-outline-blue-important dropdown-toggle btn btn-default"
-                                                    >
-                                                        ···
-                                                    </button>
-                                                    <ul role="menu" className="dropdown-menu dropdown-menu-right">
-                                                        <div>
-                                                            <li role="heading" className="dropdown-header">
-                                                                Allow attendees to chat with
-                                                            </li>
-                                                            <li role="presentation" className="">
-                                                                <a
-                                                                    aria-label="Allow attendees to chat with  No one unselect"
-                                                                    role="menuitem"
-                                                                    tabIndex="-1"
-                                                                    href="#"
-                                                                >
-                                                                    No one
-                                                                </a>
-                                                            </li>
-                                                            <li role="presentation" className="">
-                                                                <a
-                                                                    aria-label="Allow attendees to chat with  Host only unselect"
-                                                                    role="menuitem"
-                                                                    tabIndex="-1"
-                                                                    href="#"
-                                                                >
-                                                                    Host only
-                                                                </a>
-                                                            </li>
-                                                            <li role="presentation" className="">
-                                                                <a
-                                                                    aria-label="Allow attendees to chat with  Everyone publicly unselect"
-                                                                    role="menuitem"
-                                                                    tabIndex="-1"
-                                                                    href="#"
-                                                                >
-                                                                    Everyone publicly
-                                                                </a>
-                                                            </li>
-                                                            <li role="presentation" className="selected">
-                                                                <a
-                                                                    aria-label="Allow attendees to chat with  Everyone publicly and privately selected"
-                                                                    role="menuitem"
-                                                                    tabIndex="-1"
-                                                                    href="#"
-                                                                >
-                                                                    Everyone publicly and privately
-                                                                </a>
-                                                            </li>
-                                                        </div>
-                                                    </ul>
+                                                    <span className="chat-receiver-list__privately-chat">(Privately)</span>
                                                 </div>
                                             </div>
-                                            <div data-no-focus-lock="true">
-                                                <textarea
-                                                    className="chat-box__chat-textarea"
-                                                    tabIndex="0"
-                                                    type="text"
-                                                    maxLength="1024"
-                                                    title="chat message"
-                                                    rows="3"
-                                                    placeholder="Type message here ..."
-                                                    spellCheck="false"
-                                                ></textarea>
-                                            </div>
+                                            <textarea
+                                                className="chat-box__chat-textarea"
+                                                tabIndex="0"
+                                                type="text"
+                                                maxLength="1024"
+                                                title="chat message"
+                                                rows="3"
+                                                placeholder="Type message here ..."
+                                                spellCheck="true"
+                                                onKeyUp={(e) => {
+                                                    if (e.keyCode === 13) {
+                                                        if (e.shiftKey) {
+                                                            // setChatContent(...chatContent, chatContent + "\n")
+                                                            return
+                                                        }
+                                                        handleSendMessage(chatContent.trim())
+                                                        setChatContent("")
+                                                    }
+                                                }}
+                                                onChange={(e) => setChatContent(e.target.value)}
+                                                value={chatContent}
+                                            ></textarea>
                                         </div>
                                     </div>
                                 </div>

@@ -60,28 +60,28 @@ export default class JanusHeloperTextRoom extends JanusHelper {
                 return
             }
             // Any participants already in?
-            var _this = this
+            // var _this = this
             if (response.participants && response.participants.length > 0) {
                 for (var i in response.participants) {
                     var p = response.participants[i]
                     this.participants[p.username] = p.display ? p.display : p.username
                     console.log("Participants: ----------------------- ", this.participants, p, this.myid)
-                    if (p.username !== this.myid && $("#rp" + p.username).length === 0) {
-                        // Add to the participants list
-                        $("#list").append(
-                            '<li id="rp' + p.username + '" class="list-group-item">' + this.participants[p.username] + "</li>"
-                        )
-                        $("#rp" + p.username)
-                            .css("cursor", "pointer")
-                            .click(function () {
-                                // console.log('$(this).attr("id"): ----------- ', $(this).attr("id"))
-                                var username = $(this).attr("id").split("rp")[1]
-                                _this.sendPrivateMsg(username)
-                            })
-                    }
-                    $("#chatroom").append(
-                        '<p style="color: green;">[' + this.getDateString() + "] <i>" + this.participants[p.username] + " joined</i></p>"
-                    )
+                    // if (p.username !== this.myid && $("#rp" + p.username).length === 0) {
+                    //     // Add to the participants list
+                    //     $("#list").append(
+                    //         '<li id="rp' + p.username + '" class="list-group-item">' + this.participants[p.username] + "</li>"
+                    //     )
+                    //     $("#rp" + p.username)
+                    //         .css("cursor", "pointer")
+                    //         .click(function () {
+                    //             // console.log('$(this).attr("id"): ----------- ', $(this).attr("id"))
+                    //             var username = $(this).attr("id").split("rp")[1]
+                    //             _this.sendPrivateMsg(username)
+                    //         })
+                    // }
+                    // $("#chatroom").append(
+                    //     '<p style="color: green;">[' + this.getDateString() + "] <i>" + this.participants[p.username] + " joined</i></p>"
+                    // )
                     // $("#chatroom").get(0).scrollTop = $("#chatroom").get(0).scrollHeight
                 }
             }
@@ -130,16 +130,18 @@ export default class JanusHeloperTextRoom extends JanusHelper {
             return
         }
         var what = json["textroom"]
-        var _this = this
+        // var _this = this
         var msg = json["text"]
         var dateString = this.getDateString(json["date"])
         var username = json["username"]
-        // console.log("onData: ---------------- ", data, this.participants, msg, msg.room)
+        console.log("onData: ---------------- ", data, this.participants, msg)
         if (msg) {
             var parseData = JSON.parse(msg)
-            console.log("onData: ---------------- ", msg, parseData, parseData.room)
             if (parseData.room === "screenShare" && parseData.type === "all") {
                 window.screenShareHelper.joinScreen(parseData.roomId)
+            }
+            if (parseData.room === "textRoom" && parseData.type === "all") {
+                this.dispatch({ type: "CHAT_MESSAGE", kind: parseData.type, message: parseData.message, sender: parseData.sender })
             }
         }
         // var when = new Date()
@@ -167,38 +169,15 @@ export default class JanusHeloperTextRoom extends JanusHelper {
             // Somebody joined
             var display = json["display"]
             this.participants[username] = display ? display : username
-
-            if (username !== this.myid && $("#rp" + username).length === 0) {
-                // Add to the participants list
-                $("#list").append('<li id="rp' + username + '" class="list-group-item">' + this.participants[username] + "</li>")
-                $("#rp" + username)
-                    .css("cursor", "pointer")
-                    .click(function () {
-                        var username = $(this).attr("id").split("rp")[1]
-                        _this.sendPrivateMsg(username)
-                    })
-            }
-            $("#chatroom").append(
-                '<p style="color: green;">[' + this.getDateString() + "] <i>" + this.participants[username] + " joined</i></p>"
-            )
+            console.log("join: participants: ============== ", this.participants)
+            this.dispatch({ type: "CHAT_USERS", users: this.participants })
         } else if (what === "leave") {
             // Somebody left
-            $("#rp" + username).remove()
-            $("#chatroom").append(
-                '<p style="color: green;">[' + this.getDateString() + "] <i>" + this.participants[username] + " left</i></p>"
-            )
+            console.log("text: helper: leave: ================ ", this.participants)
             delete this.participants[username]
         } else if (what === "kicked") {
             // Somebody was kicked
-            $("#rp" + username).remove()
-            $("#chatroom").append(
-                '<p style="color: green;">[' +
-                    this.getDateString() +
-                    "] <i>" +
-                    this.participants[username] +
-                    " was kicked from the room</i></p>"
-            )
-            // $("#chatroom").get(0).scrollTop = $("#chatroom").get(0).scrollHeight
+            console.log("text: helper: kicked: ================ ", this.participants)
             delete this.participants[username]
             if (username === this.myid) {
                 window.bootbox.alert("You have been kicked from the room", () => {

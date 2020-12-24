@@ -28,8 +28,8 @@ export default function LocalRoomVideo(props) {
             id="videolocal"
             style={{ top: props.select ? 20 : 0, right: props.select ? "5%" : 0 }}
         >
-            {/* {props.janusState === "DISCONNECTED" || (!props.video && props.pluginType === "videoRoom") ? ( */}
-            {props.janusState === "DISCONNECTED" ? (
+            {props.janusState === "DISCONNECTED" || (!props.video && props.pluginType === "videoRoom") ? (
+                // {props.janusState === "DISCONNECTED" ? (
                 <div className="no-video-container">
                     <img className={props.select ? "no-video-small-icon" : " no-video-icon"} src="img/no_video.svg" alt="Video Icon" />
                     {/* <i className={props.select ? "fa fa-video-camera fa-4" : "fa fa-video-camera fa-5 no-video-icon"}></i> */}

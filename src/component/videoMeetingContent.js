@@ -15,7 +15,7 @@ export default function VideoMeetingContent(props) {
         }
     }, [janusState, videoState.name])
 
-    console.log("state: ------------- ", janusState, videoState)
+    // console.log("state: ------------- ", janusState, videoState)
     return (
         status1.includes(janusState.status) && (
             <div id="videos" style={{ width: "100%", height: "100%", position: "relative" }}>
