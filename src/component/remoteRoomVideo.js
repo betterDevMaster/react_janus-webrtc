@@ -44,7 +44,7 @@ export default function RemoteRoomVideo({ session, status, muteInfo, videoLength
         <div
             className={!videoSelect ? "videoremote" : "videolocal"}
             id={`videoremote${session.rfindex}`}
-            style={{ top: session.rfindex < index ? session.rfindex * 165 + 20 : (session.rfindex - 1) * 165 + 20, right: 50 }}
+            style={{ top: session.rfindex < index ? session.rfindex * 165 + 20 : (session.rfindex - 1) * 165 + 20, right: "5%" }}
             onClick={handleRemoteVideo}
         >
             <video

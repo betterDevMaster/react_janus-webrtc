@@ -34,7 +34,7 @@ export default class JanusHelper {
     }
     initJanus(debug = "all") {
         window.Janus.init({
-            debug,
+            // debug,
             callback: () => {
                 this.dispatch({ type: "JANUS_STATE", value: "INITIALIZED", pluginType: this.pluginType })
             },

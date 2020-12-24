@@ -6,6 +6,7 @@ import RemoteRoomVideo from "../component/remoteRoomVideo"
 export default function VideoMeetingContent(props) {
     const janusState = useSelector((state) => state.janus)
     const videoState = useSelector((state) => state.video)
+    const chatState = useSelector((state) => state.chat)
     const status1 = useMemo(() => ["RUNNING", "CONNECTED", "DISCONNECTED"], [])
 
     useEffect(() => {
@@ -14,7 +15,7 @@ export default function VideoMeetingContent(props) {
         }
     }, [janusState, videoState.name])
 
-    // console.log("state: ------------- ", janusState, videoState)
+    console.log("state: ------------- ", janusState, videoState)
     return (
         status1.includes(janusState.status) && (
             <div id="videos" style={{ width: "100%", height: "100%", position: "relative" }}>
@@ -25,6 +26,7 @@ export default function VideoMeetingContent(props) {
                         select={videoState.select}
                         janusState={janusState.status}
                         videoState={videoState.video}
+                        showChatPanel={chatState.showPanel}
                         stream={janusState.stream}
                         video={videoState.video}
                     />
@@ -38,6 +40,7 @@ export default function VideoMeetingContent(props) {
                                     key={i}
                                     index={videoState.index}
                                     session={session}
+                                    showChatPanel={chatState.showPanel}
                                     status={janusState.status}
                                     videoLength={janusState.stream.remote.length}
                                 />

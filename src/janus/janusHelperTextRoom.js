@@ -134,7 +134,14 @@ export default class JanusHeloperTextRoom extends JanusHelper {
         var msg = json["text"]
         var dateString = this.getDateString(json["date"])
         var username = json["username"]
-        console.log("onData: ---------------- ", data, this.participants, msg, dateString, username)
+        // console.log("onData: ---------------- ", data, this.participants, msg, msg.room)
+        if (msg) {
+            var parseData = JSON.parse(msg)
+            console.log("onData: ---------------- ", msg, parseData, parseData.room)
+            if (parseData.room === "screenShare" && parseData.type === "all") {
+                window.screenShareHelper.joinScreen(parseData.roomId)
+            }
+        }
         // var when = new Date()
         if (what === "message") {
             // Incoming message: public or private?
@@ -254,12 +261,13 @@ export default class JanusHeloperTextRoom extends JanusHelper {
     }
 
     sendData(userdata) {
-        var data = userdata !== "" ? userdata : $("#datasend").val()
+        var data = userdata ? userdata : $("#datasend").val()
         // var data = "sdfsdfsdf"
         if (data === "") {
             window.bootbox.alert("Insert a message to send on the DataChannel")
             return
         }
+        console.log("sendData: ============ ", data)
         var message = {
             textroom: "message",
             transaction: window.Janus.randomString(12),

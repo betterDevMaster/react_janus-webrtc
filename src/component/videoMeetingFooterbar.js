@@ -7,6 +7,7 @@ import "../assets/videoMeeting2.css"
 export default function VideoMeetingFooterbar(props) {
     const videoState = useSelector((state) => state.video)
     const janusState = useSelector((state) => state.janus)
+    const chatState = useSelector((state) => state.chat)
     const dispatch = useDispatch()
     const query = qs.parse(window.location.search)
 
@@ -27,10 +28,9 @@ export default function VideoMeetingFooterbar(props) {
         // window.screenShareHelper.preShareScreen(videoState.name)
         window.screenShareHelper.preShareScreen(query.name)
     }
-    const handleChat = () => {
-        window.textRoomHelper.registerUsername(query.name)
-
-        window.textRoomHelper.sendData("ffffffffffff")
+    const handleShowChat = () => {
+        dispatch({ type: "CHAT_SHOWPANEL", showPanel: !chatState.showPanel })
+        // window.textRoomHelper.sendData("ffffffffffff")
     }
     // console.log("videoMeetingFooterbar: ---------- ", janusState)
     return (
@@ -88,7 +88,7 @@ export default function VideoMeetingFooterbar(props) {
                         className="footer-button__button ax-outline"
                         type="button"
                         aria-label="open the chat pane"
-                        onClick={handleChat}
+                        onClick={handleShowChat}
                     >
                         <div className="footer-button__img-layer">
                             <div className="footer-button__chat-icon"></div>

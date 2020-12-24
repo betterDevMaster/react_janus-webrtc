@@ -14866,7 +14866,10 @@ input::-ms-clear {
     font-size: 20px;
 }
 .chat-container {
-    background: #fff;
+    /* width: 30%; */
+    height: 100%;
+    /* background: #989696;
+    color: #fff; */
 }
 .chat-container__chat-control {
     font-size: 12px;
