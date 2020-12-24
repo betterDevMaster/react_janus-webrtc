@@ -39,7 +39,6 @@ export default class JanusHeloperTextRoom extends JanusHelper {
         }
 
         this.transactions[transaction] = (response) => {
-            console.log("transactions: ----------------------- ", this.transactions, response)
             if (response["textroom"] === "error") {
                 // Something went wrong
                 if (response["error_code"] === 417) {
@@ -65,38 +64,16 @@ export default class JanusHeloperTextRoom extends JanusHelper {
                 for (var i in response.participants) {
                     var p = response.participants[i]
                     this.participants[p.username] = p.display ? p.display : p.username
-                    console.log("Participants: ----------------------- ", this.participants, p, this.myid)
-                    // if (p.username !== this.myid && $("#rp" + p.username).length === 0) {
-                    //     // Add to the participants list
-                    //     $("#list").append(
-                    //         '<li id="rp' + p.username + '" class="list-group-item">' + this.participants[p.username] + "</li>"
-                    //     )
-                    //     $("#rp" + p.username)
-                    //         .css("cursor", "pointer")
-                    //         .click(function () {
-                    //             // console.log('$(this).attr("id"): ----------- ', $(this).attr("id"))
-                    //             var username = $(this).attr("id").split("rp")[1]
-                    //             _this.sendPrivateMsg(username)
-                    //         })
-                    // }
-                    // $("#chatroom").append(
-                    //     '<p style="color: green;">[' + this.getDateString() + "] <i>" + this.participants[p.username] + " joined</i></p>"
-                    // )
-                    // $("#chatroom").get(0).scrollTop = $("#chatroom").get(0).scrollHeight
                 }
             }
         }
-        // console.log("textroom: helper: registerUsername: =============== ", register, this.janusPlugin)
+
         this.janusPlugin.data({
             text: JSON.stringify(register),
             error: (reason) => {
                 window.bootbox.alert(reason)
-                // $("#username").removeAttr("disabled").val("")
-                // $("#register").removeAttr("disabled").click(this.registerUsername)
             },
         })
-
-        // super.registerUsername(username, register)
     }
     onMessage(msg, jsep) {
         window.Janus.debug(" ::: Got a message :::", msg)
@@ -130,12 +107,11 @@ export default class JanusHeloperTextRoom extends JanusHelper {
             return
         }
         var what = json["textroom"]
-        // var _this = this
         var msg = json["text"]
-        var dateString = this.getDateString(json["date"])
         var username = json["username"]
-        console.log("onData: ---------------- ", data, this.participants, msg)
-        if (msg) {
+
+        // console.log("onData: ---------------- ", data, this.participants, msg, what)
+        if (msg && this.isJson(msg)) {
             var parseData = JSON.parse(msg)
             if (parseData.room === "screenShare" && parseData.type === "all") {
                 window.screenShareHelper.joinScreen(parseData.roomId)
@@ -150,34 +126,34 @@ export default class JanusHeloperTextRoom extends JanusHelper {
             msg = msg.replace(new RegExp("<", "g"), "&lt")
             msg = msg.replace(new RegExp(">", "g"), "&gt")
             var from = json["from"]
+            // var to = json["to"]
             var whisper = json["whisper"]
+            // console.log("onData: whisper: ---------------- ", msg, from, whisper, this.participants[from])
             if (whisper === true) {
                 // Private message
-                $("#chatroom").append(
-                    '<p style="color: purple;">[' + dateString + "] <b>[whisper from " + this.participants[from] + "]</b> " + msg
-                )
+                this.dispatch({ type: "CHAT_MESSAGE", kind: "private", message: msg, sender: this.participants[from] })
             } else {
                 // Public message
-                $("#chatroom").append("<p>[" + dateString + "] <b>" + this.participants[from] + ":</b> " + msg)
             }
         } else if (what === "announcement") {
             // Room announcement
             msg = msg.replace(new RegExp("<", "g"), "&lt")
             msg = msg.replace(new RegExp(">", "g"), "&gt")
-            $("#chatroom").append('<p style="color: purple;">[' + dateString + "] <i>" + msg + "</i>")
+            // console.log("announcement: ============== ", msg)
+            // $("#chatroom").append('<p style="color: purple;">[' + dateString + "] <i>" + msg + "</i>")
         } else if (what === "join") {
             // Somebody joined
             var display = json["display"]
             this.participants[username] = display ? display : username
-            console.log("join: participants: ============== ", this.participants)
+            // console.log("join: participants: ============== ", this.participants)
             this.dispatch({ type: "CHAT_USERS", users: this.participants })
         } else if (what === "leave") {
             // Somebody left
-            console.log("text: helper: leave: ================ ", this.participants)
+            // console.log("text: helper: leave: ================ ", this.participants)
             delete this.participants[username]
         } else if (what === "kicked") {
             // Somebody was kicked
-            console.log("text: helper: kicked: ================ ", this.participants)
+            // console.log("text: helper: kicked: ================ ", this.participants)
             delete this.participants[username]
             if (username === this.myid) {
                 window.bootbox.alert("You have been kicked from the room", () => {
@@ -194,7 +170,6 @@ export default class JanusHeloperTextRoom extends JanusHelper {
         }
     }
     onWebrtcStateChange(on) {
-        // console.log("onWebRTCState: ============ ", on)
         if (on) this.registerUsername(this.myusername)
     }
     getDateString(jsonDate) {
@@ -210,33 +185,26 @@ export default class JanusHeloperTextRoom extends JanusHelper {
             ("0" + when.getUTCSeconds()).slice(-2)
         return dateString
     }
-    sendPrivateMsg(username) {
+    sendPrivateMsg(sendername, username, message) {
         var display = this.participants[username]
         if (!display) return
-        window.bootbox.prompt("Private message to " + display, (result) => {
-            if (result && result !== "") {
-                var message = {
-                    textroom: "message",
-                    transaction: window.Janus.randomString(12),
-                    room: this.myroom,
-                    to: username,
-                    text: result,
-                }
-                this.janusPlugin.data({
-                    text: JSON.stringify(message),
-                    error: (reason) => {
-                        window.bootbox.alert(reason)
-                    },
-                    success: () => {
-                        $("#chatroom").append(
-                            '<p style="color: purple;">[' + this.getDateString() + "] <b>[whisper to " + display + "]</b> " + result
-                        )
-                        // $("#chatroom").get(0).scrollTop = $("#chatroom").get(0).scrollHeight
-                    },
-                })
-            }
+        var content = {
+            textroom: "message",
+            transaction: window.Janus.randomString(12),
+            room: this.myroom,
+            from: sendername,
+            to: username,
+            text: message,
+        }
+        this.janusPlugin.data({
+            text: JSON.stringify(content),
+            error: (reason) => {
+                window.bootbox.alert(reason)
+            },
+            success: () => {
+                this.dispatch({ type: "CHAT_MESSAGE", kind: "private", message: message, sender: sendername, receiver: display })
+            },
         })
-        return
     }
 
     sendData(userdata) {
@@ -246,7 +214,6 @@ export default class JanusHeloperTextRoom extends JanusHelper {
             window.bootbox.alert("Insert a message to send on the DataChannel")
             return
         }
-        console.log("sendData: ============ ", data)
         var message = {
             textroom: "message",
             transaction: window.Janus.randomString(12),
@@ -258,9 +225,16 @@ export default class JanusHeloperTextRoom extends JanusHelper {
             error: function (reason) {
                 window.bootbox.alert(reason)
             },
-            success: function () {
-                console.log("textHelper: sendData: success: ================", this.myroom)
-            },
+            success: function () {},
         })
+    }
+
+    isJson(str) {
+        try {
+            JSON.parse(str)
+        } catch (e) {
+            return false
+        }
+        return true
     }
 }

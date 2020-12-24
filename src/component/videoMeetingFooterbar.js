@@ -23,7 +23,9 @@ export default function VideoMeetingFooterbar(props) {
     const handleShowChat = () => {
         dispatch({ type: "CHAT_SHOWPANEL", showPanel: !chatState.showPanel })
     }
-
+    const handleLeave = () => {
+        window.location.href = "/landing"
+    }
     return (
         <footer
             role="presentation"
@@ -94,6 +96,7 @@ export default function VideoMeetingFooterbar(props) {
                             type="button"
                             className="zmu-btn footer__leave-btn ax-outline ellipsis zmu-btn--danger zmu-btn__outline--blue"
                             aria-label=""
+                            onClick={handleLeave}
                         >
                             Leave
                         </button>

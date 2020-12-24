@@ -154,7 +154,7 @@ export default function LandingPage(props) {
     const isAnOutsideClick = (e) => {
         let shouldClose
         if (invite) shouldClose = !_invite || !_invite.current.contains(e.target)
-        if (shouldClose) closePicker("ContextMenu")
+        if (shouldClose) closePicker()
     }
     const onPickerkeypress = (e) => {
         if (e.keyCode === 27 || e.which === 27 || e.key === "Escape" || e.code === "Escape") {
