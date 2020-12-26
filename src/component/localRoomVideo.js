@@ -45,7 +45,7 @@ export default function LocalRoomVideo(props) {
                 </div>
             ) : props.janusState === "CONNECTED" ? (
                 <div className="full">
-                    <video className="rounded centered relative full" id="myvideo" autoPlay playsInline />
+                    <video className="rounded centered relative full" id="myvideo" autoPlay playsInline muted="muted" />
                     {props.select ? <span style={{ position: "absolute", left: "20px", bottom: "15px" }}>Me</span> : null}
 
                     <video

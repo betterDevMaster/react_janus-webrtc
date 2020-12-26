@@ -12,9 +12,11 @@ export default function VideoMeetingFooterbar(props) {
 
     const handleToggleAudio = () => {
         dispatch({ type: "VIDEO_ASTATE", audio: !videoState.audio })
+        window.roomHelper.toggleAudioMute()
     }
     const handleToggleVideo = () => {
         dispatch({ type: "VIDEO_VSTATE", video: !videoState.video })
+        window.roomHelper.toggleVideoMute()
     }
     const handleScreenShare = () => {
         // window.screenShareHelper.preShareScreen(videoState.name)

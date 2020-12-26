@@ -25,7 +25,6 @@ export default function MeetingInfo(props) {
         props.reverseShowMeetingInfo(props.showMeetingInfo)
     }
     const handleCopy = () => {
-        // navigator.clipboard.writeText(`http://localhost:3000/landing?room=${roomName}`)
         setCopy(!copy)
         navigator.clipboard.writeText(
             `${window.location.protocol}://${window.location.hostname}/landing?room=${props.query.room}&name=${props.query.name}`
@@ -38,28 +37,6 @@ export default function MeetingInfo(props) {
                 <div data-focus-lock-disabled="false">
                     <div className="zmu-paper meeting-info-icon__recreate-paper">
                         <div className="meeting-info-icon__meeting-topic-text">{props.query.name}'s Meeting</div>
-                        {/* <div className="meeting-info-icon__info-row ax-outline-blue"  aria-label="Conference ID 740 6167 2260">
-                            <div className="meeting-info-icon__row-title" >
-                                Conference ID
-                            </div>
-                            <div >740 6167 2260</div>
-                        </div>
-                        <div className="meeting-info-icon__info-row ax-outline-blue"  aria-label="Host john cuesta (You)">
-                            <div className="meeting-info-icon__row-title" >
-                                Host
-                            </div>
-                            <div className="meeting-info-icon__meeting-url" >
-                                john cuesta (You)
-                            </div>
-                        </div>
-                        <div className="meeting-info-icon__info-row ax-outline-blue"  aria-label="Passcode Q5rBAn">
-                            <div className="meeting-info-icon__row-title" >
-                                Passcode
-                            </div>
-                            <div className="meeting-info-icon__row-pwd" title="Q5rBAn" >
-                                Q5rBAn
-                            </div>
-                        </div> */}
                         <div className="meeting-info-icon__info-row ax-outline-blue">
                             <div className="meeting-info-icon__row-title">Invite Link</div>
                             <div className="meeting-info-icon__meeting-url ">
@@ -79,10 +56,6 @@ export default function MeetingInfo(props) {
                                 <span className="meeting-info-icon__copied-text">Copied to Clipboard</span>
                             </div>
                         </div>
-                        {/* <div className="meeting-info-icon__info-row ax-outline-blue">
-                            <div className="meeting-info-icon__row-title">Participant ID</div>
-                            <div>423487</div>
-                        </div> */}
                         <div className="meeting-info-icon__info-row ax-outline-blue meeting-info-icon__info-dc">
                             You are connected to the Sonny Global Network via a janus server.
                         </div>

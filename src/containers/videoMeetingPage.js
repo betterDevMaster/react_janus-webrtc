@@ -41,7 +41,7 @@ export default function VideoMeeingPage(props) {
         }
     }, [])
 
-    console.log("chatState: ------------ ", chatState)
+    // console.log("chatState: ------------ ", chatState)
     return (
         <FullScreen handle={handle}>
             <div className="meeting-app">

@@ -49,10 +49,11 @@ export default function RemoteRoomVideo({ session, status, muteInfo, videoLength
         >
             <video
                 className="rounded centered relative full"
-                style={{ display: session.videoTracks && session.videoTracks.length === 0 ? "none" : "flex" }}
+                style={{ display: session.videoTracks && session.videoTracks.length === 0 ? "none" : "flex", border: "1px solid #716e6e" }}
                 id={`remotevideo${session.rfindex}`}
                 autoPlay
                 playsInline
+                muted="muted"
             ></video>
             {!videoSelect ? (
                 <span

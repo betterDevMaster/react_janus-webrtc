@@ -66,10 +66,14 @@ export default class JanusHelperScreenShare extends JanusHelper {
                         error: (error) => {
                             if (error.name === "NotAllowedError" || error.name === "PermissionDeniedError") {
                                 console.log("this.janusPlugin: ----------- ", this.janusPlugin)
-                                var leave = {
-                                    request: "leave",
-                                }
-                                this.janusPlugin.send({ message: leave })
+                                // var leave = {
+                                //     request: "leave",
+                                // }
+                                // this.janusPlugin.send({ message: leave })
+                                var hangup = { request: "hangup" }
+                                this.janusPlugin.send({ message: hangup })
+                                this.janusPlugin.hangup()
+                                this.janusPlugin.handleRemoteJsep({ jsep: jsep })
                             } else {
                                 window.Janus.error("WebRTC error:", error)
                                 window.bootbox.alert("WebRTC error... " + error.message)

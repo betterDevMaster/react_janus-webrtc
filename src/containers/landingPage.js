@@ -46,7 +46,6 @@ export default function LandingPage(props) {
     const handleCopy = () => {
         if (meetingValue === "") window.bootbox.alert("Please enter the meeting name.")
         else {
-            // navigator.clipboard.writeText(`http://localhost:3000/landing?room=${roomName}`)
             navigator.clipboard.writeText(`${window.location.protocol}://${window.location.hostname}/landing?room=${roomName}`)
             setCopy(true)
         }
