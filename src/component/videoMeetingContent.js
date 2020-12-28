@@ -15,24 +15,23 @@ export default function VideoMeetingContent(props) {
         }
     }, [janusState, videoState.name])
 
-    // console.log("state: ------------- ", janusState, videoState)
+    // console.log("state: ------------- ", janusState, videoState, chatState, status1.includes(janusState.status))
     return (
         status1.includes(janusState.status) && (
             <div id="videos" style={{ width: "100%", height: "100%", position: "relative" }}>
-                {(janusState.stream.local || janusState.stream.sharedLocal) && (
+                {janusState.stream.local && (
                     <LocalRoomVideo
                         index={videoState.index}
-                        pluginType={janusState.pluginType}
                         select={videoState.select}
-                        janusState={janusState.status}
-                        videoState={videoState.video}
-                        showChatPanel={chatState.showPanel}
-                        stream={janusState.stream}
                         video={videoState.video}
+                        pluginType={janusState.pluginType}
+                        janusState={janusState.status}
+                        stream={janusState.stream}
+                        showChatPanel={chatState.showPanel}
                     />
                 )}
                 {/* <div className="remoteContainer"> */}
-                {(janusState.stream.remote || janusState.stream.sharedRemote) &&
+                {janusState.stream.remote &&
                     janusState.stream.remote.map((session, i) => {
                         if (session)
                             return (

@@ -104,16 +104,18 @@ export default class JanusHelperVideoRoom extends JanusHelper {
     onData(data) {
         window.Janus.debug("We got data from the JanusHelper!", data)
     }
-    toggleAudioMute() {
-        var muted = this.janusPlugin.isAudioMuted()
-        window.Janus.log((muted ? "Unmuting" : "Muting") + "in audio stream...")
-        if (muted) this.janusPlugin.unmuteAudio()
+    toggleAudioMute(enable) {
+        // var muted = this.janusPlugin.isAudioMuted()
+        // window.Janus.log((muted ? "Unmuting" : "Muting") + "in audio stream...")
+        console.log("toggleAudioMute : =========== ", enable)
+        if (enable) this.janusPlugin.unmuteAudio()
         else this.janusPlugin.muteAudio()
     }
-    toggleVideoMute() {
-        var muted = this.janusPlugin.isVideoMuted()
-        window.Janus.log((muted ? "Unmuting" : "Muting") + " in video stream...")
-        if (muted) this.janusPlugin.unmuteVideo()
+    toggleVideoMute(enable) {
+        // var muted = this.janusPlugin.isVideoMuted()
+        console.log("toggleVideoMute : =========== ", enable)
+        // window.Janus.log((muted ? "Unmuting" : "Muting") + " in video stream...")
+        if (enable) this.janusPlugin.unmuteVideo()
         else this.janusPlugin.muteVideo()
     }
     publishOwnFeed(useAudio) {

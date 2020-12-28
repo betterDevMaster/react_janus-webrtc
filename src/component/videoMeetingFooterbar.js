@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import * as qs from "query-string"
 
@@ -10,13 +10,18 @@ export default function VideoMeetingFooterbar(props) {
     const dispatch = useDispatch()
     const query = qs.parse(window.location.search)
 
+    useEffect(() => {
+        window.roomHelper.toggleAudioMute(videoState.audio)
+        window.roomHelper.toggleVideoMute(videoState.video)
+    }, [])
+
     const handleToggleAudio = () => {
         dispatch({ type: "VIDEO_ASTATE", audio: !videoState.audio })
-        window.roomHelper.toggleAudioMute()
+        window.roomHelper.toggleAudioMute(!videoState.audio)
     }
     const handleToggleVideo = () => {
         dispatch({ type: "VIDEO_VSTATE", video: !videoState.video })
-        window.roomHelper.toggleVideoMute()
+        window.roomHelper.toggleVideoMute(!videoState.video)
     }
     const handleScreenShare = () => {
         // window.screenShareHelper.preShareScreen(videoState.name)

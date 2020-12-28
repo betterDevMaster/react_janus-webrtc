@@ -322,4 +322,5 @@ pre {
     bottom: 100px;
     left: 100px;
     width: 50%;
+    z-index: 1;
 }

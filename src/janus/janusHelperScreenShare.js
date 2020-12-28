@@ -127,13 +127,15 @@ export default class JanusHelperScreenShare extends JanusHelper {
             })
         }
 
-        this.dispatch({ type: "JANUS_STATE", value: on ? "CONNECTED" : "DISCONNECTED", pluginType: this.pluginType })
+        // this.dispatch({ type: "JANUS_STATE", value: on ? "CONNECTED" : "DISCONNECTED", pluginType: this.pluginType })
     }
     onLocalStream(stream) {
         this.mystream = stream
-        console.log("screenShare: onLocalStream: ================= ", stream, this.mystream)
         this.dispatch({ type: "JANUS_STATE", value: "RUNNING", pluginType: this.pluginType })
         this.dispatch({ type: "JANUS_SHAREDLOCALSTREAM", sharedLocal: stream })
+        stream.getVideoTracks()[0].onended = () => {
+            this.dispatch({ type: "JANUS_SHAREDLOCALSTREAM", sharedLocal: null })
+        }
     }
     onRemoteStream(stream) {
         window.Janus.debug(" ::: Got a remote stream :::", stream)
