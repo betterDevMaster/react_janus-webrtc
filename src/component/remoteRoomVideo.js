@@ -27,7 +27,13 @@ export default function RemoteRoomVideo({ session, status, muteInfo, videoLength
     }, [index])
 
     const NoVideo = () => (
-        <div className="no-video-container" style={{ display: session.videoTracks && session.videoTracks.length !== 0 ? "none" : "flex" }}>
+        <div
+            className="no-video-container rounded"
+            style={{
+                display: session.videoTracks && session.videoTracks.length !== 0 ? "none" : "flex",
+                border: "1px solid rgb(113, 110, 110)",
+            }}
+        >
             <i className="fa fa-video-camera fa-4"></i>
             <span className="no-video-text">No remote video available</span>
         </div>
@@ -38,8 +44,7 @@ export default function RemoteRoomVideo({ session, status, muteInfo, videoLength
             dispatch({ type: "VIDEO_SELECT", name: session.rfdisplay, select: true, index: session.rfindex })
         }
     }
-    // console.log("videoTrack: ------------- ", session)
-    // console.log("videoTrack: ------------- ", session.videoTracks, session.videoTracks.length)
+
     return (
         <div
             className={!videoSelect ? "videoremote" : "videolocal"}

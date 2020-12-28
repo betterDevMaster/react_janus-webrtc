@@ -1,4 +1,5 @@
 import React, { useState } from "react"
+import JanusHelperTextRoom from "../janus/janusHelperTextRoom"
 
 export default function Chat(props) {
     const [showReceivers, setShowReceivers] = useState(false)
@@ -7,8 +8,10 @@ export default function Chat(props) {
 
     const handleSendMessage = (message) => {
         if (checkReceiverId === "all")
-            window.textRoomHelper.sendData(JSON.stringify({ type: "all", room: "textRoom", message: message, sender: props.query.name }))
-        else window.textRoomHelper.sendPrivateMsg(props.query.name, checkReceiverId, message)
+            JanusHelperTextRoom.getInstance().sendData(
+                JSON.stringify({ type: "all", room: "textRoom", message: message, sender: props.query.name })
+            )
+        else JanusHelperTextRoom.getInstance().sendPrivateMsg(props.query.name, checkReceiverId, message)
     }
     const handleClickReceiver = (id) => {
         setCheckReceiverId(id)

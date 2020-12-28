@@ -23,25 +23,18 @@ export default function VideoMeeingPage(props) {
     const chatState = useSelector((state) => state.chat)
     const query = qs.parse(window.location.search)
 
-    useEffect(() => {
-        if (!window.screenShareHelper) {
-            window.screenShareHelper = new JanusHelperScreenShare()
-            window.screenShareHelper.init(dispatch, "screenShare", "janus.plugin.videoroom")
-            window.screenShareHelper.start(query.room + "_screenShare", query.name)
-        }
-        if (!window.textRoomHelper) {
-            window.textRoomHelper = new JanusHelperTextRoom()
-            window.textRoomHelper.init(dispatch, "textRoom", "janus.plugin.textroom")
-            window.textRoomHelper.start(query.room + "_textRoom", query.name)
-        }
-        if (!window.roomHelper) {
-            window.roomHelper = new JanusHelperVideoRoom()
-            window.roomHelper.init(dispatch, "videoRoom", "janus.plugin.videoroom")
-            window.roomHelper.start(query.room + "_videoRoom", query.name)
-        }
-    }, [])
+    // useEffect(() => {
+    //     JanusHelperVideoRoom.getInstance().init(dispatch, query.room + "_videoRoom", query.name, "videoRoom", "janus.plugin.videoroom")
+    //     JanusHelperScreenShare.getInstance().init(
+    //         dispatch,
+    //         query.room + "_screenShare",
+    //         query.name,
+    //         "screenShare",
+    //         "janus.plugin.videoroom"
+    //     )
+    //     JanusHelperTextRoom.getInstance().init(dispatch, query.room + "_textRoom", query.name, "textRoom", "janus.plugin.textroom")
+    // }, [])
 
-    // console.log("chatState: ------------ ", chatState)
     return (
         <FullScreen handle={handle}>
             <div className="meeting-app">

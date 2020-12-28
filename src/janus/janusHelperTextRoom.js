@@ -1,9 +1,20 @@
 import JanusHelper from "./janusHelper"
-import $ from "jquery"
+import JanusHelperScreenShare from "./janusHelperScreenShare"
 
 export default class JanusHeloperTextRoom extends JanusHelper {
-    init(dispatch, roomType, pluginName) {
-        super.init(dispatch, roomType, pluginName)
+    static _inst = null
+    static getInstance() {
+        if (!JanusHeloperTextRoom._inst) {
+            JanusHeloperTextRoom._inst = new JanusHeloperTextRoom()
+        }
+        return JanusHeloperTextRoom._inst
+    }
+
+    init(dispatch, roomName, userName, roomType, pluginName) {
+        if (!this.session) {
+            super.init(dispatch, roomType, pluginName)
+            this.start(roomName, userName)
+        }
     }
     start(roomName, username) {
         this.myroom = roomName // Demo room
@@ -114,7 +125,7 @@ export default class JanusHeloperTextRoom extends JanusHelper {
         if (msg && this.isJson(msg)) {
             var parseData = JSON.parse(msg)
             if (parseData.room === "screenShare" && parseData.type === "all") {
-                window.screenShareHelper.joinScreen(parseData.roomId)
+                JanusHelperScreenShare.getInstance().joinScreen(parseData.roomId)
             }
             if (parseData.room === "textRoom" && parseData.type === "all") {
                 this.dispatch({ type: "CHAT_MESSAGE", kind: parseData.type, message: parseData.message, sender: parseData.sender })
@@ -208,8 +219,9 @@ export default class JanusHeloperTextRoom extends JanusHelper {
     }
 
     sendData(userdata) {
-        var data = userdata ? userdata : $("#datasend").val()
+        // var data = userdata ? userdata : $("#datasend").val()
         // var data = "sdfsdfsdf"
+        var data = userdata
         if (data === "") {
             window.bootbox.alert("Insert a message to send on the DataChannel")
             return
@@ -220,13 +232,14 @@ export default class JanusHeloperTextRoom extends JanusHelper {
             room: this.myroom,
             text: data,
         }
-        this.janusPlugin.data({
-            text: JSON.stringify(message),
-            error: function (reason) {
-                window.bootbox.alert(reason)
-            },
-            success: function () {},
-        })
+        this.janusPlugin &&
+            this.janusPlugin.data({
+                text: JSON.stringify(message),
+                error: function (reason) {
+                    window.bootbox.alert(reason)
+                },
+                success: function () {},
+            })
     }
 
     isJson(str) {

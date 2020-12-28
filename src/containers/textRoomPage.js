@@ -17,8 +17,7 @@ export default function TextRoomPage(props) {
     const status2 = useMemo(() => ["INITIALIZED", "ATACHED"], [])
 
     useEffect(() => {
-        window.textRoomHelper = new JanusHelperTextRoom()
-        window.textRoomHelper.init(dispatch, "textRoom", "janus.plugin.textroom")
+        JanusHelperTextRoom.getInstance().init(dispatch, query.room + "_textRoom", query.name, "textRoom", "janus.plugin.textroom")
     }, [dispatch])
     useEffect(() => {
         status1.includes(janusState.status) ? setStatusChange(false) : setStatusChange((sts) => !sts)
@@ -26,18 +25,18 @@ export default function TextRoomPage(props) {
 
     const handleStart = () => {
         setStatusChange(!statusChange)
-        // window.textRoomHelper.start(1234) // string IDS = false in janus conf
-        // window.textRoomHelper.start("1234") // string IDS = true in janus conf
-        window.textRoomHelper.start(query.room + "textRoom")
+        //JanusHelperTextRoom.getInstance().start(1234) // string IDS = false in janus conf
+        //JanusHelperTextRoom.getInstance().start("1234") // string IDS = true in janus conf
+        JanusHelperTextRoom.getInstance().start(query.room + "textRoom")
     }
     const handleStop = () => {
-        window.textRoomHelper.stop()
+        JanusHelperTextRoom.getInstance().stop()
     }
     const handleCheckEnter = (event) => {
         var theCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode
         if (theCode === 13) {
-            if (event.target.id === "username") window.textRoomHelper.registerUsername(event.target.value)
-            else if (event.target.id === "datasend") window.textRoomHelper.sendData()
+            if (event.target.id === "username") JanusHelperTextRoom.getInstance().registerUsername(event.target.value)
+            else if (event.target.id === "datasend") JanusHelperTextRoom.getInstance().sendData()
             return false
         } else {
             return true
@@ -45,7 +44,7 @@ export default function TextRoomPage(props) {
     }
     const handleRegister = () => {
         setStatusChange(!statusChange)
-        window.textRoomHelper.registerUsername(userName)
+        JanusHelperTextRoom.getInstance().registerUsername(userName)
     }
 
     return (

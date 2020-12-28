@@ -3,29 +3,34 @@ import { useDispatch, useSelector } from "react-redux"
 import * as qs from "query-string"
 
 import "../assets/videoMeeting2.css"
+import JanusHelperScreenShare from "../janus/janusHelperScreenShare"
+import JanusHelperVideoRoom from "../janus/janusHelperVideoRoom"
 
 export default function VideoMeetingFooterbar(props) {
     const videoState = useSelector((state) => state.video)
     const chatState = useSelector((state) => state.chat)
+    const janusState = useSelector((state) => state.janus)
     const dispatch = useDispatch()
     const query = qs.parse(window.location.search)
 
     useEffect(() => {
-        window.roomHelper.toggleAudioMute(videoState.audio)
-        window.roomHelper.toggleVideoMute(videoState.video)
-    }, [])
+        if (janusState.status === "CONNECTED") {
+            JanusHelperVideoRoom.getInstance().toggleAudioMute(videoState.audio)
+            JanusHelperVideoRoom.getInstance().toggleVideoMute(videoState.video)
+        }
+    }, [janusState.status])
 
     const handleToggleAudio = () => {
         dispatch({ type: "VIDEO_ASTATE", audio: !videoState.audio })
-        window.roomHelper.toggleAudioMute(!videoState.audio)
+        JanusHelperVideoRoom.getInstance().toggleAudioMute(!videoState.audio)
     }
     const handleToggleVideo = () => {
         dispatch({ type: "VIDEO_VSTATE", video: !videoState.video })
-        window.roomHelper.toggleVideoMute(!videoState.video)
+        JanusHelperVideoRoom.getInstance().toggleVideoMute(!videoState.video)
     }
     const handleScreenShare = () => {
         // window.screenShareHelper.preShareScreen(videoState.name)
-        window.screenShareHelper.preShareScreen(query.name)
+        JanusHelperScreenShare.getInstance().preShareScreen(query.name)
     }
     const handleShowChat = () => {
         dispatch({ type: "CHAT_SHOWPANEL", showPanel: !chatState.showPanel })

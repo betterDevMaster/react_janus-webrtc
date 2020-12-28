@@ -1,8 +1,19 @@
 import JanusHelper from "./janusHelper"
 
 export default class JanusHelperVideoRoom extends JanusHelper {
-    init(dispatch, roomType, pluginName) {
-        super.init(dispatch, roomType, pluginName)
+    static _inst = null
+    static getInstance() {
+        if (!JanusHelperVideoRoom._inst) {
+            JanusHelperVideoRoom._inst = new JanusHelperVideoRoom()
+        }
+        return JanusHelperVideoRoom._inst
+    }
+
+    init(dispatch, roomName, userName, roomType, pluginName) {
+        if (!this.session) {
+            super.init(dispatch, roomType, pluginName)
+            this.start(roomName, userName)
+        }
     }
     start(roomName, username) {
         this.myroom = roomName // Demo room
@@ -105,18 +116,16 @@ export default class JanusHelperVideoRoom extends JanusHelper {
         window.Janus.debug("We got data from the JanusHelper!", data)
     }
     toggleAudioMute(enable) {
-        // var muted = this.janusPlugin.isAudioMuted()
-        // window.Janus.log((muted ? "Unmuting" : "Muting") + "in audio stream...")
-        console.log("toggleAudioMute : =========== ", enable)
-        if (enable) this.janusPlugin.unmuteAudio()
-        else this.janusPlugin.muteAudio()
+        if (this.janusPlugin) {
+            if (enable) this.janusPlugin.unmuteAudio()
+            else this.janusPlugin.muteAudio()
+        }
     }
     toggleVideoMute(enable) {
-        // var muted = this.janusPlugin.isVideoMuted()
-        console.log("toggleVideoMute : =========== ", enable)
-        // window.Janus.log((muted ? "Unmuting" : "Muting") + " in video stream...")
-        if (enable) this.janusPlugin.unmuteVideo()
-        else this.janusPlugin.muteVideo()
+        if (this.janusPlugin) {
+            if (enable) this.janusPlugin.unmuteVideo()
+            else this.janusPlugin.muteVideo()
+        }
     }
     publishOwnFeed(useAudio) {
         // Publish our stream

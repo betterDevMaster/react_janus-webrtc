@@ -11,7 +11,9 @@ export default class JanusHelper {
     static baseUrl = "https://janusserver.simportal.net/janus" // Current Janus Server
     // static baseUrl = "wss://janus.conf.meetecho.com/ws" // Dafault Janus server
     static MAX_VIDEOS = 6
-
+    constructor() {
+        this.session = null
+    }
     init(dispatch, roomType, pluginName) {
         this.dispatch = dispatch
         this.pluginName = pluginName
@@ -32,9 +34,9 @@ export default class JanusHelper {
         // if (window.location.protocol === "http:") baseUrl = "http://janusserver.simportal.net/janus"
         // else baseUrl = "https://janusserver.simportal.net/janus"
     }
-    initJanus(debug = "all") {
+    initJanus(debug = "trace") {
         window.Janus.init({
-            // debug,
+            debug,
             callback: () => {
                 this.dispatch({ type: "JANUS_STATE", value: "INITIALIZED", pluginType: this.pluginType })
             },
@@ -51,7 +53,7 @@ export default class JanusHelper {
         this.session && this.session.destroy()
         this.session = null
         this.janusPlugin = null
-        this.dispatch({ type: "JANUS_DESTROYED" })
+        // this.dispatch({ type: "JANUS_DESTROYED" })
     }
     createSession() {
         this.session = new window.Janus({
@@ -139,7 +141,7 @@ export default class JanusHelper {
                     // The room has been destroyed
                     window.Janus.warn("The room has been destroyed!")
                     window.bootbox.alert("The room has been destroyed", function () {
-                        window.location.reload()
+                        // window.location.reload()
                     })
                     break
                 default:
@@ -201,18 +203,18 @@ export default class JanusHelper {
     }
     onDestroyed() {
         // this.dispatch({ type: "JANUS_DESTROYED" })
-        this.session && this.session.destroy()
-        this.session = null
-        this.janusPlugin = null
-        window.location.reload()
+        // this.session && this.session.destroy()
+        // this.session = null
+        // this.janusPlugin = null
+        // window.location.reload()
     }
     onError(title, detail) {
         window.Janus.error(title, detail)
-        const alt = "Probably a network error. Please contact with the SupportTeam."
+        const alt = "Probably a network error. Please contact with the SupportTeam. \n Title: " + title + "\n Detail: " + detail
         // window.bootbox.alert(title + detail, () => {
         window.bootbox.alert(alt, () => {
             this.dispatch({ type: "JANUS_DESTROYED" })
-            window.location.reload()
+            // window.location.reload()
             // this.dispatch({ type: "JANUS_STATE", value: "DESTROYED" })
         })
     }

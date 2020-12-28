@@ -2,6 +2,7 @@ import React, { useMemo, useEffect } from "react"
 import { useSelector } from "react-redux"
 import LocalRoomVideo from "../component/localRoomVideo"
 import RemoteRoomVideo from "../component/remoteRoomVideo"
+import JanusHelperVideoRoom from "../janus/janusHelperVideoRoom"
 
 export default function VideoMeetingContent(props) {
     const janusState = useSelector((state) => state.janus)
@@ -11,11 +12,12 @@ export default function VideoMeetingContent(props) {
 
     useEffect(() => {
         if (janusState.status === "ATTACHED" && janusState.pluginType === "videoRoom") {
-            window.roomHelper.registerUsername(videoState.name)
+            JanusHelperVideoRoom.getInstance().registerUsername(videoState.name)
         }
     }, [janusState, videoState.name])
 
-    // console.log("state: ------------- ", janusState, videoState, chatState, status1.includes(janusState.status))
+    console.log("state: ------------- ", janusState, videoState, chatState)
+
     return (
         status1.includes(janusState.status) && (
             <div id="videos" style={{ width: "100%", height: "100%", position: "relative" }}>
@@ -30,7 +32,6 @@ export default function VideoMeetingContent(props) {
                         showChatPanel={chatState.showPanel}
                     />
                 )}
-                {/* <div className="remoteContainer"> */}
                 {janusState.stream.remote &&
                     janusState.stream.remote.map((session, i) => {
                         if (session)
@@ -45,7 +46,6 @@ export default function VideoMeetingContent(props) {
                                 />
                             )
                     })}
-                {/* </div> */}
             </div>
         )
     )

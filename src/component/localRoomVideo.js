@@ -6,13 +6,11 @@ export default function LocalRoomVideo(props) {
             const localVideoDom = document.getElementById("myvideo")
             if (props.stream.local && localVideoDom)
                 if (localVideoDom.srcObject === null) {
-                    console.log("localVideoDom: ================ ", localVideoDom, props.stream.local)
                     window.Janus.attachMediaStream(localVideoDom, props.stream.local)
                 }
             const screenVideoDom = document.getElementById("screenvideo")
             if (props.stream.sharedLocal && screenVideoDom)
                 if (screenVideoDom.srcObject === null) {
-                    console.log("screenVideoDom: ================ ")
                     window.Janus.attachMediaStream(screenVideoDom, props.stream.sharedLocal)
                 }
         }
@@ -30,6 +28,7 @@ export default function LocalRoomVideo(props) {
             </span>
         </div>
     )
+
     // console.log(props.janusState, props.video, typeof props.video, props.pluginType)
     return (
         <div
@@ -40,7 +39,7 @@ export default function LocalRoomVideo(props) {
             {props.stream.sharedLocal ? (
                 <video className="rounded centered absolution screenshare" id="screenvideo" autoPlay playsInline muted="muted" />
             ) : null}
-            {props.select ? <span style={{ position: "absolute", left: "20px", bottom: "15px", zIndex: 1 }}>Me</span> : null}
+            {props.select ? <span style={{ position: "absolute", left: "20px", top: "15px", zIndex: 1 }}>Me</span> : null}
 
             {props.janusState === "DISCONNECTED" || (!props.video && props.pluginType === "videoRoom") ? (
                 <NoVideo />

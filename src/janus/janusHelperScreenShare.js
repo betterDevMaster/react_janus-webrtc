@@ -1,8 +1,21 @@
 import JanusHelper from "./janusHelper"
+import JanusHelperTextRoom from "./janusHelperTextRoom"
 
 export default class JanusHelperScreenShare extends JanusHelper {
-    init(dispatch, roomType, pluginName) {
-        super.init(dispatch, roomType, pluginName)
+    static _inst = null
+    static getInstance() {
+        if (!JanusHelperScreenShare._inst) {
+            JanusHelperScreenShare._inst = new JanusHelperScreenShare()
+        }
+        return JanusHelperScreenShare._inst
+    }
+
+    init(dispatch, roomName, userName, roomType, pluginName) {
+        console.log("screen init: --------------- ", this.session)
+        if (!this.session) {
+            super.init(dispatch, roomType, pluginName)
+            this.start(roomName, userName)
+        }
     }
     start(roomName, username) {
         this.myroom = roomName
@@ -16,6 +29,10 @@ export default class JanusHelperScreenShare extends JanusHelper {
     }
     stop() {
         super.stop()
+    }
+    reload() {
+        this.stop()
+        this.init(this.dispatch, this.myroom, this.myusername)
     }
     onAttach(pluginHandle) {
         const createRoom = {
@@ -36,7 +53,7 @@ export default class JanusHelperScreenShare extends JanusHelper {
         window.Janus.debug(" ::: Got a message (publisher) :::", msg)
         var event = msg["videoroom"]
         window.Janus.debug("Event: " + event)
-        console.log("ScreenShareHelper: onMessage: =========== ", this.janusPlugin)
+        // console.log("ScreenShareHelper: onMessage: =========== ", this.janusPlugin)
 
         if (event) {
             if (event === "joined") {
@@ -61,19 +78,13 @@ export default class JanusHelperScreenShare extends JanusHelper {
                                 video: true,
                             }
                             this.janusPlugin.send({ message: publish, jsep: jsep })
-                            window.textRoomHelper.sendData(JSON.stringify({ roomId: this.room, type: "all", room: "screenShare" }))
+                            JanusHelperTextRoom.getInstance().sendData(
+                                JSON.stringify({ roomId: this.room, type: "all", room: "screenShare" })
+                            )
                         },
                         error: (error) => {
                             if (error.name === "NotAllowedError" || error.name === "PermissionDeniedError") {
-                                console.log("this.janusPlugin: ----------- ", this.janusPlugin)
-                                // var leave = {
-                                //     request: "leave",
-                                // }
-                                // this.janusPlugin.send({ message: leave })
-                                var hangup = { request: "hangup" }
-                                this.janusPlugin.send({ message: hangup })
-                                this.janusPlugin.hangup()
-                                this.janusPlugin.handleRemoteJsep({ jsep: jsep })
+                                this.reload()
                             } else {
                                 window.Janus.error("WebRTC error:", error)
                                 window.bootbox.alert("WebRTC error... " + error.message)
@@ -98,7 +109,7 @@ export default class JanusHelperScreenShare extends JanusHelper {
                     window.Janus.log("Publisher left: " + leaving)
                     if (this.role === "listener" && msg["leaving"] === this.source) {
                         window.bootbox.alert("The screen sharing session is over, the publisher left", function () {
-                            window.location.reload()
+                            // window.location.reload()
                         })
                     }
                 } else if (msg["error"]) {
@@ -113,28 +124,29 @@ export default class JanusHelperScreenShare extends JanusHelper {
     }
     onWebrtcStateChange(on) {
         // this.dispatch({ type: "JANUS_STATE", value: "CONNECTED" })
-        window.Janus.log("Janus says our WebRTC PeerConnection is " + (on ? "up" : "down") + " now")
-        if (on) {
-            window.bootbox.alert(
-                "Your screen sharing session just started: pass the <b>" +
-                    this.room +
-                    "</b> session identifier to those who want to attend."
-            )
-        } else {
-            window.bootbox.alert("Your screen sharing session just stopped.", function () {
-                this.session.destroy()
-                window.location.reload()
-            })
-        }
+        // window.Janus.log("Janus says our WebRTC PeerConnection is " + (on ? "up" : "down") + " now")
+        // if (on) {
+        //     window.bootbox.alert(
+        //         "Your screen sharing session just started: pass the <b>" +
+        //             this.room +
+        //             "</b> session identifier to those who want to attend."
+        //     )
+        // } else {
+        //     window.bootbox.alert("Your screen sharing session just stopped.", function () {
+        //         this.session.destroy()
+        //         window.location.reload()
+        //     })
+        // }
 
-        // this.dispatch({ type: "JANUS_STATE", value: on ? "CONNECTED" : "DISCONNECTED", pluginType: this.pluginType })
+        this.dispatch({ type: "JANUS_STATE", value: on ? "CONNECTED" : "DISCONNECTED", pluginType: this.pluginType })
     }
     onLocalStream(stream) {
         this.mystream = stream
         this.dispatch({ type: "JANUS_STATE", value: "RUNNING", pluginType: this.pluginType })
         this.dispatch({ type: "JANUS_SHAREDLOCALSTREAM", sharedLocal: stream })
         stream.getVideoTracks()[0].onended = () => {
-            this.dispatch({ type: "JANUS_SHAREDLOCALSTREAM", sharedLocal: null })
+            // this.dispatch({ type: "JANUS_SHAREDLOCALSTREAM", sharedLocal: null })
+            this.reload()
         }
     }
     onRemoteStream(stream) {
@@ -199,28 +211,35 @@ export default class JanusHelperScreenShare extends JanusHelper {
             bitrate: 500000,
             publishers: 1,
         }
-        this.janusPlugin.send({
-            message: create,
-            success: (result) => {
-                var event = result["videoroom"]
-                window.Janus.debug("Event: " + event)
-                if (event) {
-                    // Our own screen sharing session has been created, join it
-                    this.room = result["room"]
-                    window.Janus.log("Screen sharing session created: " + this.room)
-                    // this.myusername = window.Janus.randomString(12)
-                    var register = {
-                        request: "join",
-                        room: this.room,
-                        ptype: "publisher",
-                        display: this.myusername,
-                    }
-                    console.log("shareScreen: ================ ", register)
-                    this.sharePublish = true
-                    this.janusPlugin.send({ message: register })
-                }
+
+        setTimeout(
+            () => {
+                this.janusPlugin &&
+                    this.janusPlugin.send({
+                        message: create,
+                        success: (result) => {
+                            var event = result["videoroom"]
+                            window.Janus.debug("Event: " + event)
+                            if (event) {
+                                // Our own screen sharing session has been created, join it
+                                this.room = result["room"]
+                                window.Janus.log("Screen sharing session created: " + this.room)
+                                // this.myusername = window.Janus.randomString(12)
+                                var register = {
+                                    request: "join",
+                                    room: this.room,
+                                    ptype: "publisher",
+                                    display: this.myusername,
+                                }
+                                console.log("shareScreen: ================ ", register)
+                                this.sharePublish = true
+                                this.janusPlugin.send({ message: register })
+                            }
+                        },
+                    })
             },
-        })
+            this.janusPlugin ? 0 : 2000
+        )
     }
     unpublishOwnFeed() {
         // Unpublish our stream
